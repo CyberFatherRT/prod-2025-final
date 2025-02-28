@@ -15,12 +15,6 @@ include:
 stages:
   - deploy
 
-build:
-  stage: build
-  extends:
-    - .build
-    - .rules-merge-or-master
-
 .docker_run:
   extends:
     - .ssh
