@@ -13,6 +13,7 @@ include:
     SSH_PRIVATE_KEY_BASE64: "$ENV_PRIVATE_KEY_BASE64"
 
 stages:
+  - build
   - deploy
 
 deploy:
@@ -23,3 +24,37 @@ deploy:
   stage: deploy
   script:
     - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker compose down && docker compose up -d --build"
+
+buildApp:
+  stage: build
+  image: eclipse-temurin:17-jdk
+  variables:
+    ANDROID_COMPILE_SDK: 35
+    ANDROID_BUILD_TOOLS: "35.0.0"
+    ANDROID_SDK_TOOLS: "11076708"
+  before_script:
+    - cd mobile
+
+    - apt-get --quiet update --yes
+    - apt-get --quiet install --yes wget unzip
+
+    - export ANDROID_HOME="${PWD}/android-sdk-root"
+    - install -d $ANDROID_HOME
+    - wget --no-verbose --output-document=$ANDROID_HOME/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
+    - unzip -q -d "$ANDROID_HOME/cmdline-tools" "$ANDROID_HOME/cmdline-tools.zip"
+    - mv -T "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/tools"
+    - export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/cmdline-tools/tools/bin
+
+    - sdkmanager --version
+
+    - yes | sdkmanager --licenses > /dev/null || true
+    - sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}"
+    - sdkmanager "platform-tools"
+    - sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}"
+
+    - chmod +x ./gradlew
+  script:
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+      - mobile/app/build/outputs/
