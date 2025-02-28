@@ -27,7 +27,7 @@ async fn main() -> anyhow::Result<()> {
     let port = env("PORT");
 
     let router = Router::new()
-        .route("/healthz", get(async || StatusCode::OK))
+        .route("/healthz", get(|| async { StatusCode::OK }))
         .layer(from_fn(log_request));
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
