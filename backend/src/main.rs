@@ -37,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     let router = Router::new()
-        .route("/healthz", get(|| async { StatusCode::OK }))
+        .route("/healthz", get(StatusCode::OK))
         .layer(from_fn(log_request));
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
