@@ -1,3 +1,34 @@
-FROM alpine
+FROM rust:1.84.1-alpine3.21 AS base
+RUN apk add --no-cache musl-dev pkgconfig
+RUN cargo install cargo-chef
 
-CMD ["echo", "1"]
+
+FROM base AS chef
+WORKDIR /app
+RUN cargo init --name backend
+COPY Cargo.toml Cargo.lock ./
+RUN cargo chef prepare --recipe-path recipe.json
+
+
+FROM base AS planner
+WORKDIR /app
+RUN cargo init --name backend
+COPY --from=chef /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json --target x86_64-unknown-linux-musl
+
+
+FROM base AS builder
+WORKDIR /app
+
+COPY src src
+COPY Cargo.toml Cargo.toml
+
+COPY --from=planner /app/target target
+COPY --from=planner /app/Cargo.lock Cargo.lock
+
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+FROM busybox:musl AS final
+WORKDIR /app
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/backend /app/solution
+ENTRYPOINT [ "/app/backend" ]
