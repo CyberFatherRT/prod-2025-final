@@ -10,9 +10,15 @@ pub mod errors;
 mod util;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
+use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tracing::Level;
 use util::{env, log_request};
+
+#[derive(Clone)]
+pub struct AppState {
+    pub pool: PgPool,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -25,6 +31,10 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let port = env("PORT");
+    let db_url = env("DATABASE_URL");
+
+    let pool = PgPool::connect(&db_url).await?;
+    sqlx::migrate!("./migrations").run(&pool).await?;
 
     let router = Router::new()
         .route("/healthz", get(|| async { StatusCode::OK }))

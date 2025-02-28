@@ -20,6 +20,8 @@ RUN cargo chef cook --release --recipe-path recipe.json --target x86_64-unknown-
 FROM base AS builder
 WORKDIR /app
 
+COPY .sqlx .sqlx
+COPY migrations migrations
 COPY src src
 COPY Cargo.toml Cargo.toml
 
