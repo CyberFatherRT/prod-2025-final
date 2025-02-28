@@ -15,7 +15,7 @@ include:
 stages:
   - deploy
 
-.docker_run:
+deploy:
   extends:
     - .ssh
     - .global-variables
