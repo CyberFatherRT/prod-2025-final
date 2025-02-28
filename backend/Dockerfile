@@ -30,5 +30,5 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 
 FROM busybox:musl AS final
 WORKDIR /app
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/backend /app/solution
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/backend /app/backend
 ENTRYPOINT [ "/app/backend" ]
