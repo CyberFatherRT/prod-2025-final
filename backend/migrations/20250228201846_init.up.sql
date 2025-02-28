@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS companies
     avatar VARCHAR
 );
 
-CREATE TYPE USER_TYPE AS ENUM ('admin', 'student', 'guest', 'verified_guest');
+CREATE TYPE ROLE AS ENUM ('admin', 'student', 'guest', 'verified_guest');
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users
     password   VARCHAR(120)        NOT NULL,
     avatar     VARCHAR,
     company_id UUID                NOT NULL,
-    user_type  USER_TYPE           NOT NULL DEFAULT 'guest',
+    role       ROLE                NOT NULL DEFAULT 'guest',
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
 
