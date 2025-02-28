@@ -1,36 +1,18 @@
-use std::time::Instant;
+#![deny(clippy::unwrap_used)]
+#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+#![allow(async_fn_in_trait)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::missing_panics_doc)]
+#![allow(clippy::must_use_candidate)]
 
-use axum::{
-    extract::Request, http::StatusCode, middleware::from_fn, response::Response, routing::get,
-    Router,
-};
+pub mod db;
+pub mod errors;
+mod util;
+
+use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use tokio::net::TcpListener;
-use tracing::{info, Level};
-
-pub async fn log_request(
-    req: Request,
-    next: axum::middleware::Next,
-) -> Result<Response, StatusCode> {
-    let start = Instant::now();
-    let path = req.uri().path().to_string();
-    let method = req.method().clone();
-
-    let response = next.run(req).await;
-
-    let status = response.status();
-    let latency = start.elapsed();
-
-    info!(
-        target: "solution",
-        method = %method,
-        path = %path,
-        status = status.as_u16(),
-        latency = ?latency,
-        "request"
-    );
-
-    Ok(response)
-}
+use tracing::Level;
+use util::{env, log_request};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -42,13 +24,13 @@ async fn main() -> anyhow::Result<()> {
         .with_max_level(Level::DEBUG)
         .init();
 
-    let addr = "0.0.0.0:8000";
+    let port = env("PORT");
 
     let router = Router::new()
         .route("/healthz", get(async || StatusCode::OK))
         .layer(from_fn(log_request));
 
-    let listener = TcpListener::bind(&addr).await?;
+    let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
     axum::serve(listener, router).await?;
 
     Ok(())
