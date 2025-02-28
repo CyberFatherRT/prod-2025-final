@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: always
+  nginx:
+    image: nginx:1.27.4-alpine3.21
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./certs:/etc/nginx/ssl
+    depends_on:
+      - backend
+    restart: always
+    
