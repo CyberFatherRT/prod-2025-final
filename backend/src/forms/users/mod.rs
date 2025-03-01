@@ -15,7 +15,7 @@ static PASSWORD_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static DOMAIN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"[a-zA-Z]{3,30}").expect("Invalid regex for domain"));
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, ToSchema)]
 pub struct LoginForm {
     pub email: String,
     pub password: String,

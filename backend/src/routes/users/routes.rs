@@ -39,12 +39,12 @@ pub async fn login(
         "#,
         form.email
     )
-    .fetch_one(&mut *conn)
-    .await
-    .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-        _ => ProdError::DatabaseError(err),
-    })?;
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(|err| match err {
+            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+            _ => ProdError::DatabaseError(err),
+        })?;
 
     if !Argon::verify(form.password.as_bytes(), &credentials.password)? {
         return Err(ProdError::Forbidden("wrong password".to_string()));
@@ -112,7 +112,7 @@ pub async fn patch_profile(
         WHERE id = $1
         RETURNING id, name, surname,
                   email, password, avatar,
-                  company_id, role as "role: RoleModel"
+                  company_id, company_domain, role as "role: RoleModel"
         "#,
         user_id,
         form.name,
@@ -120,12 +120,12 @@ pub async fn patch_profile(
         hashed_password,
         form.avatar
     )
-    .fetch_one(&mut *conn)
-    .await
-    .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-        _ => ProdError::DatabaseError(err),
-    })?;
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(|err| match err {
+            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+            _ => ProdError::DatabaseError(err),
+        })?;
 
     Ok(Json(user))
 }
