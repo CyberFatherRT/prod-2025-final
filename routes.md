@@ -1,13 +1,11 @@
 # Users (/users)
 
----
-
-POST /login
+### POST /login
 
 Request:
 ```json
 {
-    "email": "string"
+    "email": "string",
     "password": "string"
 }
 ```
@@ -17,7 +15,9 @@ Response:
 {
     "token": "jwt"
 }
-jwt - {
+
+/// jwt
+{
     "exp": "unix_timestamp",
     "id": "uuid",
     "role": "enum('admin', 'students', 'guest', 'verified_guest')"
@@ -26,7 +26,7 @@ jwt - {
 
 ---
 
-POST /register
+### POST /register
 
 Request:
 ```json
@@ -52,7 +52,7 @@ jwt - {
 
 ---
 
-GET /profile (auth)
+### GET /profile (auth)
 Response:
 ```json
 {
@@ -65,21 +65,25 @@ Response:
 }
 ```
 
-PATCH /profile
-DELETE /
+### PATCH /profile
 
-POST /upload_document
+### DELETE /
+
+### POST /upload_document
 
 # Booking (/booking)
 
-GET /list_booking_by_space/{space_id} // For admin, add sensitive info (like user_id who booked)
-GET /list_booking_by_item/{item_id} // For admin, add sensitive info (like user_id who booked)
+### GET /list_booking_by_space/{space_id} 
+For admin, add sensitive info (like user_id who booked)
 
-GET /get_booking_by_id/{booking_id}
+### GET /list_booking_by_item/{item_id}
+For admin, add sensitive info (like user_id who booked)
+
+### GET /get_booking_by_id/{booking_id}
 
 # Admin (/admin)
 
-POST /verify_guest (auth)
+### POST /verify_guest (auth)
 Request:
 ```json
 {
@@ -87,10 +91,11 @@ Request:
 }
 ```
 
-Response:
+Response: \
 Status Code - 200, 404, 400
 
-PATCH /user/{user_id}
-DELETE /user/{user_id}
+### PATCH /user/{user_id}
 
-POST /verify_qr
+### DELETE /user/{user_id}
+
+### POST /verify_qr
