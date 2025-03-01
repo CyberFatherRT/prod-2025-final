@@ -2,9 +2,9 @@
 
 CREATE TABLE IF NOT EXISTS pending_verifications
 (
-    user_id       UUID PRIMARY KEY,
-    company_id    UUID,
-    document_name VARCHAR,
+    user_id       UUID    PRIMARY KEY,
+    company_id    UUID    NOT NULL,
+    document_name VARCHAR NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (company_id) REFERENCES companies (id)
 );
