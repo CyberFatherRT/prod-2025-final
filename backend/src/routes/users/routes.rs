@@ -3,6 +3,7 @@ use crate::forms::users::{LoginForm, PatchProfileFormData, RegisterForm, Token, 
 use crate::jwt::generate::create_token;
 use crate::jwt::hashing::Argon;
 
+use crate::util::ValidatedJson;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -13,7 +14,6 @@ use crate::{
 };
 use axum::extract::Multipart;
 use axum::{extract::State, http::HeaderMap, Json};
-use validator::Validate;
 
 /// Login user
 #[utoipa::path(
@@ -81,9 +81,8 @@ pub async fn login(
 )]
 pub async fn register(
     State(state): State<AppState>,
-    Json(form): Json<RegisterForm>,
+    ValidatedJson(form): ValidatedJson<RegisterForm>,
 ) -> Result<Json<Token>, ProdError> {
-    form.validate()?;
     let user = register_user(state, form).await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;
 

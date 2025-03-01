@@ -4,10 +4,10 @@ use crate::errors::ProdError;
 use crate::forms::companies::CompanyRegisterData;
 use crate::forms::users::{RegisterForm, Token};
 use crate::jwt::generate::create_token;
+use crate::util::ValidatedJson;
 use crate::AppState;
 use axum::extract::State;
 use axum::Json;
-use validator::Validate;
 
 /// Add new company
 #[utoipa::path(
@@ -23,9 +23,8 @@ use validator::Validate;
 )]
 pub async fn company_register(
     State(state): State<AppState>,
-    Json(form): Json<CompanyRegisterData>,
+    ValidatedJson(form): ValidatedJson<CompanyRegisterData>,
 ) -> Result<Json<Token>, ProdError> {
-    form.validate()?;
     let mut conn = state.pool.conn().await?;
 
     let _ = sqlx::query!(
