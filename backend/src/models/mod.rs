@@ -18,12 +18,14 @@ pub struct CompaniesModel {
 }
 
 #[derive(Serialize, Deserialize, Type)]
-#[sqlx(type_name = "ROLE", rename_all = "UPPERCASE")]
+#[sqlx(type_name = "ROLE", rename_all = "lowercase")]
 #[serde(rename_all = "UPPERCASE")]
 pub enum RoleModel {
     Admin,
     Student,
     Guest,
+
+    #[sqlx(rename = "verified_guest")]
     VerifiedGuest,
 }
 
