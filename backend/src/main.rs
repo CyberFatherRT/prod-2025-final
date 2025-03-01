@@ -8,10 +8,10 @@
 pub mod db;
 pub mod errors;
 pub mod forms;
+mod jwt;
 pub mod models;
 pub mod routes;
 mod util;
-mod jwt;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use routes::users;
@@ -45,7 +45,7 @@ async fn main() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/healthz", get(StatusCode::OK))
-        .nest("users", users::get_routes(app_state))
+        .nest("/users", users::get_routes(app_state))
         .layer(from_fn(log_request));
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
