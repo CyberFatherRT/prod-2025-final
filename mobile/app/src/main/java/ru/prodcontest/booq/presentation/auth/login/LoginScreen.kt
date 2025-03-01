@@ -1,11 +1,14 @@
 package ru.prodcontest.booq.presentation.auth.login
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.R
 import ru.prodcontest.booq.presentation.auth.components.AuthButton
+import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.components.AuthTextField
 import ru.prodcontest.booq.presentation.auth.login.components.LoginElement
 import ru.prodcontest.booq.presentation.theme.BooqTheme
@@ -28,7 +32,6 @@ object LoginScreenDestination
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-//    val viewState by viewModel.viewState.collectAsState()
 
     val viewState = viewModel.viewState.value
     var email by remember { mutableStateOf("") }
@@ -60,17 +63,23 @@ fun LoginScreen(
         )
 
         LoginElement(
-            email = email,
-            onEmailChange = { email = it },
-            mailError = if (emailValid) "Гойда почта" else "", // ИЗМЕНИТЬ
-            password = password,
-            passwordError = if (passwordValid) "Гойда пароль" else "", // ИЗМЕНИТЬ
-            onPasswordChange = { password = it },
+            emailData = AuthTextData(
+                value = email,
+                onValueChange = { email = it },
+                placeholder = "Почта",
+                error = if (emailValid) "Гойда почта" else ""
+            ),
+            passwordData = AuthTextData(
+                value = password,
+                onValueChange = { password = it },
+                placeholder = "Пароль",
+                error = if (passwordValid) "Гойда пароль" else ""
+            ),
             isLoading = viewState.isLoading,
-            isLocked = false, // ИЗМЕНИТЬ
-            onLoginClick = { }, // ЭВЕНТ НА НАЖАТИЕ СВОЙ
-            onCreateAccountClick = { }, // ЭВЕНТ НА НАЖАТИЕ СВОЙ
-            error = "Нижний лейбл", // ЭТО НИЖНИЙ ЛЕЙБЛ С ОШИБКОЙ
+            isLocked = false,
+            onLoginClick = { },
+            onCreateAccountClick = { },
+            error = "Нижний лейбл",
             modifier = Modifier
                 .padding(horizontal = 22.dp)
                 .constrainAs(boxLogin) {
@@ -84,7 +93,7 @@ fun LoginScreen(
 
 @Preview(showBackground = true, backgroundColor = 0xFF2A2E37)
 @Composable
-fun DemoScreen() {
+fun DemoLoginScreen() {
     BooqTheme {
 
         var email by remember { mutableStateOf("") }
@@ -95,7 +104,7 @@ fun DemoScreen() {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            val (boxText, boxLogin) = createRefs()
+            val (boxText, boxLogin, boxEl) = createRefs()
 
             Text(
                 text = "Войдите в аккаунт!",
@@ -112,11 +121,31 @@ fun DemoScreen() {
                 )
             )
 
+            Box(
+                modifier = Modifier
+                    .offset(x = -50.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(32.dp)
+                    )
+                    .height(200.dp)
+                    .width(80.dp)
+                    .constrainAs(boxEl) {
+                        top.linkTo(boxLogin.top, margin = 65.dp)
+                    }
+            )
+
             LoginElement(
-                email = email,
-                onEmailChange = { email = it },
-                password = password,
-                onPasswordChange = { password = it },
+                emailData = AuthTextData(
+                    value = email,
+                    placeholder = "Почта",
+                    onValueChange = { email = it }
+                ),
+                passwordData = AuthTextData(
+                    value = password,
+                    placeholder = "Пароль",
+                    onValueChange = { password = it }
+                ),
                 isLoading = isClick,
                 isLocked = false,
                 error = "Привет как дела",

@@ -44,20 +44,16 @@ import ru.prodcontest.booq.presentation.theme.BooqTheme
 
 @Composable
 fun AuthTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
+    data: AuthTextData,
     isPassword: Boolean = false,
     iconResId: Int,
     isLocked: Boolean = false,
-    error: String = "",
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    // Если поле заблокировано, фокус всегда false
     val color = when {
-        error.isNotEmpty() -> Color.Red
+        data.error.isNotEmpty() -> Color.Red
         isFocused && !isLocked -> MaterialTheme.colorScheme.primary
         else -> Color(0xFFE8EAED)
     }
@@ -80,8 +76,8 @@ fun AuthTextField(
             )
 
             BasicTextField(
-                value = value,
-                onValueChange = { if (!isLocked) onValueChange(it) },
+                value = data.value,
+                onValueChange = { if (!isLocked) data.onValueChange(it) },
                 enabled = !isLocked,
                 singleLine = true,
                 textStyle = TextStyle(
@@ -101,9 +97,9 @@ fun AuthTextField(
                     }
                     .fillMaxWidth(),
                 decorationBox = { innerTextField ->
-                    if (value.isEmpty()) {
+                    if (data.value.isEmpty()) {
                         Text(
-                            text = placeholder,
+                            text = data.placeholder,
                             color = Color(0xFFE8EAED).copy(alpha = 0.5f),
                             fontSize = 16.sp
                         )
@@ -130,14 +126,14 @@ fun AuthTextField(
             Image(
                 painter = painterResource(id = R.drawable.fmd_bad_24),
                 contentDescription = null,
-                colorFilter = if (error.isNotEmpty()) ColorFilter.tint(Color.Red) else ColorFilter.tint(Color.Transparent),
+                colorFilter = if (data.error.isNotEmpty()) ColorFilter.tint(Color.Red) else ColorFilter.tint(Color.Transparent),
                 modifier = Modifier.size(12.dp)
             )
 
             Spacer(Modifier.width(2.dp))
 
             Text(
-                text = error,
+                text = data.error,
                 color = Color.Red,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
@@ -147,52 +143,28 @@ fun AuthTextField(
     }
 }
 
+data class AuthTextData(
+    val value: String,
+    val placeholder: String = "...",
+    val onValueChange: (String) -> Unit,
+    val error: String = ""
+)
+
+// Preview
+
 @Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
 @Composable
 fun AuthTextFieldEmailPreview() {
     BooqTheme {
         var text by remember { mutableStateOf("") }
         AuthTextField(
-            value = text,
-            onValueChange = { text = it },
-            placeholder = "Почта",
+            data = AuthTextData(
+                value = text,
+                onValueChange = { text = it },
+                placeholder = "Почта"
+            ),
             isLocked = true,
             iconResId = R.drawable.mail_24,
-            modifier = Modifier
-                .padding(horizontal = 17.dp, vertical = 12.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
-@Composable
-fun AuthTextFieldEmailFailedPreview() {
-    BooqTheme {
-        var text by remember { mutableStateOf("") }
-        AuthTextField(
-            value = text,
-            onValueChange = { text = it },
-            placeholder = "Почта",
-            isLocked = false,
-            error = "Почта слишком хороша",
-            iconResId = R.drawable.mail_24,
-            modifier = Modifier
-                .padding(horizontal = 17.dp, vertical = 12.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
-@Composable
-fun AuthTextFieldPasswordPreview() {
-    BooqTheme {
-        var text by remember { mutableStateOf("") }
-        AuthTextField(
-            value = text,
-            onValueChange = { text = it },
-            placeholder = "Пароль",
-            isPassword = true,
-            iconResId = R.drawable.key_24,
             modifier = Modifier
                 .padding(horizontal = 17.dp, vertical = 12.dp)
         )

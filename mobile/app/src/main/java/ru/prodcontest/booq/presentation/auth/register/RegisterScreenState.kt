@@ -4,3 +4,4 @@ data class RegisterScreenState(
     val isLoading: Boolean,
     val error: String?
 )
+

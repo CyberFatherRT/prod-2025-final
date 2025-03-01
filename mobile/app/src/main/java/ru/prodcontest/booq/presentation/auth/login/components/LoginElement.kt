@@ -26,17 +26,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import ru.prodcontest.booq.R
 import ru.prodcontest.booq.presentation.auth.components.AuthButton
+import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.components.AuthTextField
 import ru.prodcontest.booq.presentation.theme.BooqTheme
 
 @Composable
 fun LoginElement(
-    email: String,
-    onEmailChange: (String) -> Unit,
-    mailError: String = "",
-    password: String,
-    passwordError: String = "",
-    onPasswordChange: (String) -> Unit,
+    emailData: AuthTextData,
+    passwordData: AuthTextData,
     isLoading: Boolean,
     isLocked: Boolean,
     onLoginClick: () -> Unit,
@@ -100,10 +97,7 @@ fun LoginElement(
                     }
             ) {
                 AuthTextField(
-                    value = email,
-                    error = mailError,
-                    onValueChange = onEmailChange,
-                    placeholder = "Почта",
+                    data = emailData,
                     isLocked = isLoading,
                     iconResId = R.drawable.mail_24,
                 )
@@ -119,10 +113,7 @@ fun LoginElement(
                     }
             ) {
                 AuthTextField(
-                    value = password,
-                    error = passwordError,
-                    onValueChange = onPasswordChange,
-                    placeholder = "Пароль",
+                    data = passwordData,
                     isPassword = true,
                     isLocked = isLoading,
                     iconResId = R.drawable.key_24,
@@ -191,13 +182,18 @@ fun LoginElementPreview() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isClick by remember { mutableStateOf(false) }
+
     BooqTheme {
         LoginElement(
-            email = email,
-            onEmailChange = { email = it },
-            mailError = "",
-            password = password,
-            onPasswordChange = { password = it },
+            emailData = AuthTextData(
+                value = email,
+                onValueChange = { email = it },
+                error = "Гойда почта"
+            ),
+            passwordData = AuthTextData(
+                value = email,
+                onValueChange = { password = it },
+            ),
             isLoading = isClick,
             isLocked = false,
             error = "Привет как дела",

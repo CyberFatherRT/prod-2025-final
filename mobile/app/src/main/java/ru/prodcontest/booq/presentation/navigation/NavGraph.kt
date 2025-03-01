@@ -19,7 +19,7 @@ fun NavGraph(navController: NavHostController) {
             LoginScreen()
         }
         composable<RegisterScreenDestination> {
-            RegisterScreen(navController)
+            RegisterScreen()
         }
     }
 }
