@@ -27,7 +27,7 @@ pub async fn verify_guest(
         r#"
         UPDATE users
         SET role = 'verified_guest'
-        WHERE id = $1
+        WHERE id = $1 AND role = 'guest'
         "#,
         user_id
     )
