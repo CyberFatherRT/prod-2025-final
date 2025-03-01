@@ -12,6 +12,7 @@ use crate::{
     AppState,
 };
 
+#[utoipa::path(post, tag = "User", path = "/user/upload_document")]
 pub async fn upload_document(
     headers: HeaderMap,
     State(state): State<AppState>,
