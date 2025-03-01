@@ -29,7 +29,7 @@ pub struct UserLoginData {
     pub role: RoleModel,
 }
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, ToSchema)]
 pub struct RegisterForm {
     #[validate(length(
         min = 1,
@@ -54,7 +54,7 @@ pub struct RegisterForm {
     pub company_domain: String,
 }
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, ToSchema)]
 pub struct ProfileResponseForm {
     pub name: String,
     pub surname: String,
@@ -65,7 +65,7 @@ pub struct ProfileResponseForm {
     pub company_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, ToSchema)]
 pub struct PatchProfileForm {
     #[validate(length(
         min = 1,

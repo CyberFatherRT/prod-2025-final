@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, Type};
+use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -19,7 +20,7 @@ pub struct CompaniesModel {
     avatar: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Type, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Type, Clone, PartialEq, Eq, ToSchema)]
 #[sqlx(type_name = "ROLE", rename_all = "lowercase")]
 #[serde(rename_all = "UPPERCASE")]
 pub enum RoleModel {
@@ -31,7 +32,7 @@ pub enum RoleModel {
     VerifiedGuest,
 }
 
-#[derive(Serialize, Deserialize, FromRow, Validate)]
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]
 pub struct UserModel {
     #[serde(skip)]
     pub id: Uuid,
@@ -75,6 +76,12 @@ pub struct CoworkingSpacesModel {
     company_id: Uuid,
 }
 
+#[derive(Serialize, Deserialize, FromRow)]
+pub struct TokenData {
+    pub id: Uuid,
+    pub role: RoleModel,
+}
+
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct ItemsModel {
     id: Uuid,
@@ -106,4 +113,9 @@ pub struct PendingVerificationsModel {
     user_id: Uuid,
     company_id: Uuid,
     document_name: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, FromRow)]
+pub struct CompanyUuid {
+    pub id: Uuid,
 }
