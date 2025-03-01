@@ -27,7 +27,8 @@ CREATE TYPE ROLE AS ENUM ('admin', 'student', 'guest', 'verified_guest');
 CREATE TABLE IF NOT EXISTS users
 (
     id         UUID                         DEFAULT uuidv7() PRIMARY KEY,
-    username   VARCHAR(120)        NOT NULL,
+    name       VARCHAR(120)        NOT NULL,
+    surname    VARCHAR(120)        NOT NULL,
     email      VARCHAR(120) UNIQUE NOT NULL,
     password   VARCHAR(120)        NOT NULL,
     avatar     VARCHAR,

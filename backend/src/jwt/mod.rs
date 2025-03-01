@@ -1,2 +1,2 @@
-mod models;
-mod generate;
+pub mod generate;
+pub mod models;

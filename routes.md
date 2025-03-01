@@ -31,7 +31,8 @@ Response:
 Request:
 ```json
 {
-    "username": "string",
+    "name": "string",
+    "surname": "string",
     "email": "string",
     "password": "string",
     "company_id": "uuid"

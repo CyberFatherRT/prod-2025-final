@@ -36,9 +36,16 @@ pub struct UsersModel {
     #[validate(length(
         min = 1,
         max = 120,
-        message = "Username length must be between 1 and 120"
+        message = "User name length must be between 1 and 120"
     ))]
-    username: String,
+    name: String,
+
+    #[validate(length(
+        min = 1,
+        max = 120,
+        message = "User surname length must be between 1 and 120"
+    ))]
+    surname: String,
 
     #[validate(
         email,

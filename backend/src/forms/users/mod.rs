@@ -20,7 +20,8 @@ pub struct RegisterForm {
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct ProfileResponseForm {
-    pub username: String,
+    pub name: String,
+    pub surname: String,
     pub email: String,
     pub avatar: Option<String>,
     pub role: RoleModel,
