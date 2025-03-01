@@ -17,6 +17,7 @@ class LoginViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     private val setTokenUseCase: SetTokenUseCase
 ) : BaseViewModel<LoginScreenState, LoginScreenAction>() {
+
     override fun setInitialState() = LoginScreenState(
         isLoading = false,
         error = null
@@ -36,6 +37,7 @@ class LoginViewModel @Inject constructor(
         }.collect()
     }
 }
+
 
 sealed class LoginScreenAction {
     data object NavigateToHomeScreen : LoginScreenAction()

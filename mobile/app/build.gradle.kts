@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     id("com.google.devtools.ksp")
+    kotlin("plugin.serialization") version "2.1.10"
 }
 
 android {
@@ -61,6 +62,7 @@ dependencies {
 
     // Dagger Hilt
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation)
     ksp(libs.hilt.compiler)
 
     // Ktor
@@ -80,4 +82,6 @@ dependencies {
     implementation(libs.coil.ktor)
 
     implementation(libs.datastore)
+
+    implementation(libs.constraintLayout)
 }
