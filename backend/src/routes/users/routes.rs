@@ -28,7 +28,7 @@ use axum::{extract::State, http::HeaderMap, Json};
 )]
 pub async fn login(
     State(state): State<AppState>,
-    Json(form): Json<LoginForm>,
+    ValidatedJson(form): ValidatedJson<LoginForm>,
 ) -> Result<Json<Token>, ProdError> {
     let mut conn = state.pool.conn().await?;
     let UserLoginData {
