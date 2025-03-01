@@ -1,6 +1,5 @@
-package ru.prodcontest.booq.ui.theme
+package ru.prodcontest.booq.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

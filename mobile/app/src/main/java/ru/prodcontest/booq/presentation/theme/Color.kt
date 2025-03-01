@@ -1,4 +1,4 @@
-package ru.prodcontest.booq.ui.theme
+package ru.prodcontest.booq.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

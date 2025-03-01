@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
     alias(libs.plugins.hilt)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -30,19 +30,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 dependencies {
@@ -63,9 +59,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Dagger Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
+    // Ktor
     implementation(libs.ktor.core)
     implementation(libs.ktor.android)
     implementation(libs.ktor.serialization)
@@ -74,8 +72,10 @@ dependencies {
     implementation(libs.ktor.contentnegotiation)
     implementation(libs.kotlinx.serialization.json)
 
+    // Navigaton
     implementation(libs.navigation)
 
+    // Koil
     implementation(libs.coil.compose)
     implementation(libs.coil.ktor)
 }
