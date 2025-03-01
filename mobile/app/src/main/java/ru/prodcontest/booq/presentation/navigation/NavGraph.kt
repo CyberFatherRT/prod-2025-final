@@ -1,24 +1,25 @@
 package ru.prodcontest.booq.presentation.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import ru.prodcontest.booq.presentation.auth.login.LoginScreen
+import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
+import ru.prodcontest.booq.presentation.auth.register.RegisterScreen
+import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = LoginScreenDestination
     ) {
-        composable(route = Screen.Auth.route) {
-            Log.d("NavGraph", "ГОООООООООООЙДА")
+        composable<LoginScreenDestination> {
+            LoginScreen()
         }
-
-        composable(route = Screen.Home.route) {
-            Log.d("NavGraph", "ГОООООООООООЙДА HOME")
+        composable<RegisterScreenDestination> {
+            RegisterScreen(navController)
         }
-
     }
 }
