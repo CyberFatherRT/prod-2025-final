@@ -13,7 +13,8 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = YellowMain,    // #FFBB00
     secondary = DarkGrey1,   // #414650
-    tertiary = DarkGrey2     // #3B3F48
+    tertiary = DarkGrey2,     // #3B3F48
+    background = DarkGrey2,
 )
 
 @Composable

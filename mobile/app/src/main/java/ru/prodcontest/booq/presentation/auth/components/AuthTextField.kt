@@ -48,9 +48,9 @@ fun AuthTextField(
     iconResId: Int,
     modifier: Modifier = Modifier
 ) {
-    val isFocused by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
 
-    val color = if (isFocused) MaterialTheme.colorScheme.primary else Color(0xFFE8EAED)
+    var color = if (isFocused) MaterialTheme.colorScheme.primary else Color(0xFFE8EAED)
 
     Column(
         modifier = modifier
@@ -80,17 +80,23 @@ fun AuthTextField(
                         color = Color.White,
                         fontWeight = FontWeight.Normal
                     ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
                     modifier = Modifier
+                        .onFocusChanged { focusState ->
+                            isFocused = focusState.isFocused
+                        }
                         .fillMaxWidth(),
                     decorationBox = { innerTextField ->
 
                         if (value.isEmpty()) {
                             Text(
                                 text = placeholder,
-                                color = color,
+                                color = Color(0xFFE8EAED).copy(alpha = 0.5f),
                                 fontSize = 16.sp
                             )
                         }
+                        innerTextField()
                     }
                 )
         }
@@ -109,7 +115,7 @@ fun AuthTextField(
 
 @Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
 @Composable
-fun AuthTextFieldEmailEmptyPreview() {
+fun AuthTextFieldEmailPreview() {
     BooqTheme {
         var text by remember { mutableStateOf("") }
         AuthTextField(
@@ -117,6 +123,21 @@ fun AuthTextFieldEmailEmptyPreview() {
             onValueChange = { text = it },
             placeholder = "Email",
             iconResId = R.drawable.mail_24
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
+@Composable
+fun AuthTextFieldPasswordPreview() {
+    BooqTheme {
+        var text by remember { mutableStateOf("") }
+        AuthTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = "Password",
+            isPassword = true,
+            iconResId = R.drawable.key_24
         )
     }
 }
