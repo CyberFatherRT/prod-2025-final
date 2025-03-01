@@ -2,7 +2,7 @@ use axum::{extract::Path, extract::State, http::HeaderMap, Json};
 use axum_macros::debug_handler;
 use uuid::Uuid;
 
-use crate::{db::Db, errors::ProdError, forms::admin::VerifyGuestForm, AppState};
+use crate::{db::Db, errors::ProdError, AppState};
 
 #[debug_handler]
 pub async fn verify_guest(
