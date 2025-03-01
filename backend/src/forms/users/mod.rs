@@ -83,7 +83,15 @@ pub struct PatchProfileForm {
 
     #[validate(regex(path = *PASSWORD_REGEX, message = "Invalid password"))]
     pub password: Option<String>,
-    pub avatar: Option<String>,
+}
+
+#[derive(ToSchema)]
+pub struct PatchProfileFormData {
+    #[schema(value_type = PatchProfileForm)]
+    pub json: Option<String>,
+
+    #[schema(value_type = String, format = "binary")]
+    pub avatar: Option<Vec<u8>>,
 }
 
 #[derive(Serialize, Deserialize, Validate, ToSchema)]

@@ -1,4 +1,7 @@
-use crate::routes::{admin::routes::*, users::routes::*};
+use crate::routes::{
+    admin::routes::{__path_delete_user, __path_verify_guest},
+    users::routes::{__path_login, __path_patch_profile, __path_profile, __path_register},
+};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]

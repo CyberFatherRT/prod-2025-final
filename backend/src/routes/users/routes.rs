@@ -1,7 +1,10 @@
-use crate::forms::users::{LoginForm, RegisterForm, Token, UserLoginData};
+use crate::forms::users::{LoginForm, PatchProfileFormData, RegisterForm, Token, UserLoginData};
 use crate::jwt::generate::create_token;
 use crate::jwt::hashing::Argon;
-use crate::models::{CompanyUuid, TokenData};
+use crate::models::CompanyUuid;
+use crate::models::TokenData;
+use crate::s3::utils::upload_file;
+
 use crate::{
     db::Db,
     errors::ProdError,
@@ -10,8 +13,11 @@ use crate::{
     models::{RoleModel, UserModel},
     AppState,
 };
+use axum::body::Bytes;
+use axum::extract::Multipart;
 use axum::{extract::State, http::HeaderMap, Json};
 use sqlx::Acquire;
+use tracing::warn;
 
 /// Login user
 #[utoipa::path(
@@ -174,7 +180,7 @@ pub async fn profile(
     Ok(Json(user_profile))
 }
 
-/// Patch user profile
+/// Update user profile with mutlipart body
 #[utoipa::path(
     patch,
     tag = "Users",
@@ -184,17 +190,71 @@ pub async fn profile(
         (status = 200, body = UserModel),
         (status = 400, description = "wrong data format"),
         (status = 403, description = "no auth / invalid auth"),
-    )
+    ),
+    request_body(content = PatchProfileFormData, content_type = "multipart/form-data"),
+    responses(
+        (status = 200, description = "Profile updated", body = UserModel),
+        (status = 400, description = "Wrong body", body = String)
+    ),
 )]
 pub async fn patch_profile(
     headers: HeaderMap,
     State(state): State<AppState>,
-    Json(form): Json<PatchProfileForm>,
+    mut multipart: Multipart,
 ) -> Result<Json<UserModel>, ProdError> {
     let mut conn = state.pool.conn().await?;
     let user_id = claims_from_headers(&headers)?.id;
+    let mut form: Option<PatchProfileForm> = None;
+    let mut image: Option<Bytes> = None;
+    let mut image_content_type: Option<String> = None;
 
-    let hashed_password = match form.password {
+    while let Ok(Some(field)) = multipart.next_field().await {
+        if let Some(field_name) = field.name() {
+            match field_name {
+                "json" => {
+                    if let Ok(text) = field.text().await {
+                        match serde_json::from_str::<PatchProfileForm>(&text) {
+                            Ok(data) => form = Some(data),
+                            Err(err) => {
+                                warn!("Failed to parse JSON: {}", err);
+                            }
+                        }
+                    }
+                }
+                "avatar" => {
+                    if let Some(content_type) = field.content_type() {
+                        let valid = ["image/png", "image/jpeg", "image/bmp", "image/svg"]
+                            .contains(&content_type);
+
+                        if !valid {
+                            return Err(ProdError::ShitHappened("Wrong image format".to_string()));
+                        }
+
+                        image_content_type = Some(content_type.to_string());
+                        image = Some(
+                            field
+                                .bytes()
+                                .await
+                                .map_err(|err| ProdError::ShitHappened(err.to_string()))?,
+                        );
+                    }
+                }
+                _ => {
+                    warn!("Unknown field: {}", field_name);
+                }
+            }
+        }
+    }
+
+    let mut avatar_url: Option<String> = None;
+
+    if let Some(image) = image {
+        let name = format!("users/{user_id}/avatar");
+        upload_file(&state, &name, image_content_type.expect("Really???"), image).await?;
+        avatar_url = Some(name);
+    }
+
+    let hashed_password = match form.as_ref().and_then(|data| data.password.as_ref()) {
         Some(password) => Some(Argon::hash_password(password.as_bytes())?),
         None => None,
     };
@@ -214,12 +274,12 @@ pub async fn patch_profile(
                   company_id, company_domain, role as "role: RoleModel"
         "#,
         user_id,
-        form.name,
-        form.surname,
+        form.as_ref().and_then(|data| data.name.as_ref()),
+        form.as_ref().and_then(|data| data.surname.as_ref()),
         hashed_password,
-        form.avatar
+        avatar_url,
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(conn.as_mut())
     .await
     .map_err(|err| match err {
         sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),

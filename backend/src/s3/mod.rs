@@ -1,3 +1,5 @@
+pub mod utils;
+
 use minio::s3::{
     args::{BucketExistsArgs, MakeBucketArgs},
     creds::StaticProvider,

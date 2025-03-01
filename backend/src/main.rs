@@ -20,6 +20,7 @@ use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use middlewares::log_request;
 use openapi::ApiDoc;
 use routes::{admin, users};
+use s3::setup_s3;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tracing::Level;
@@ -30,6 +31,8 @@ use utoipa_swagger_ui::SwaggerUi;
 #[derive(Clone)]
 pub struct AppState {
     pub pool: PgPool,
+    pub s3: minio::s3::Client,
+    pub bucket_name: String,
 }
 
 #[tokio::main]
@@ -48,7 +51,13 @@ async fn main() -> anyhow::Result<()> {
     let pool = PgPool::connect(&db_url).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
 
-    let app_state = AppState { pool };
+    let (s3, bucket_name) = setup_s3().await?;
+
+    let app_state = AppState {
+        pool,
+        s3,
+        bucket_name,
+    };
 
     let router = Router::new()
         .route("/healthz", get(StatusCode::OK))

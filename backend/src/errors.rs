@@ -23,6 +23,9 @@ pub enum ProdError {
     #[error("{0}")]
     DatabaseError(#[from] sqlx::Error),
 
+    #[error("{0}")]
+    S3Error(#[from] minio::s3::error::Error),
+
     /// Not found error
     #[error("{0}")]
     NotFound(String),
@@ -46,9 +49,10 @@ impl IntoResponse for ProdError {
             Self::AlreadyExists(_) | Self::InvalidRequest(_) | Self::ShitHappened(_) => {
                 (StatusCode::BAD_REQUEST, self.to_string())
             }
-            Self::DatabaseError(_) | Self::Unknown(_) | Self::HashingError(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
-            }
+            Self::DatabaseError(_)
+            | Self::Unknown(_)
+            | Self::HashingError(_)
+            | Self::S3Error(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             Self::Forbidden(_) | Self::InvalidToken(_) => (StatusCode::FORBIDDEN, self.to_string()),
             Self::Conflict(_) => (StatusCode::CONFLICT, self.to_string()),
             Self::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
