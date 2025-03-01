@@ -9,7 +9,7 @@ interface AppConfigRepository {
 
     fun getFlowConfig(): Flow<AppConfig>
 
-    suspend fun updateConfig(newConfig: AppConfig)
+    suspend fun updateConfig(reducer: AppConfig.() -> AppConfig)
 
     fun getConfig(): AppConfig = runBlocking { getFlowConfig().first() }
 

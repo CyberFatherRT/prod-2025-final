@@ -17,6 +17,7 @@ import ru.prodcontest.booq.data.repository.AppConfigRepositoryImpl
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.repository.AppConfigRepository
 import ru.prodcontest.booq.domain.usecase.GetTokenUseCase
+import ru.prodcontest.booq.domain.usecase.SetTokenUseCase
 import javax.inject.Singleton
 
 @Module
@@ -35,6 +36,12 @@ class AppModule {
     @Singleton
     fun provideGetTokenUseCase(appConfigRepository: AppConfigRepository): GetTokenUseCase =
         GetTokenUseCase(appConfigRepository)
+
+    @Provides
+    @Singleton
+    fun provideSetTokenUseCase(appConfigRepository: AppConfigRepository): SetTokenUseCase =
+        SetTokenUseCase(appConfigRepository)
+
 
     @Provides
     @Singleton

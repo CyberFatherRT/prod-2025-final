@@ -37,7 +37,8 @@ class AppConfigRepositoryImpl(
         }
     }
 
-    override suspend fun updateConfig(newConfig: AppConfig) {
+    override suspend fun updateConfig(reducer: AppConfig.() -> AppConfig) {
+        val newConfig = getConfig().reducer()
         context.dataStore.edit {
             it.setOrRemove(TOKEN_KEY, newConfig.token)
         }
