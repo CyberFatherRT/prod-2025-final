@@ -93,7 +93,7 @@ pub async fn register(
     .fetch_one(tx.as_mut())
     .await
     .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::ShitHappened(err.to_string()),
+        sqlx::Error::RowNotFound => ProdError::NoCompany,
         _ => ProdError::DatabaseError(err),
     })?;
 

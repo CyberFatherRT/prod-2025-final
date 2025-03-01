@@ -6,6 +6,9 @@ pub enum ProdError {
     #[error("JWT error")]
     InvalidToken(#[from] jsonwebtoken::errors::Error),
 
+    #[error("No such company")]
+    NoCompany,
+
     #[error("hashing error")]
     HashingError(#[from] argon2::Error),
 
@@ -55,7 +58,7 @@ impl IntoResponse for ProdError {
             | Self::S3Error(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             Self::Forbidden(_) | Self::InvalidToken(_) => (StatusCode::FORBIDDEN, self.to_string()),
             Self::Conflict(_) => (StatusCode::CONFLICT, self.to_string()),
-            Self::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
+            Self::NotFound(_) | Self::NoCompany => (StatusCode::NOT_FOUND, self.to_string()),
         };
 
         info!("returning error: {}", message);

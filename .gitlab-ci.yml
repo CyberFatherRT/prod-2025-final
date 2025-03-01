@@ -24,7 +24,7 @@ deploy:
     - .rules-merge-or-master
   stage: deploy
   script:
-    - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker compose down && docker compose up -d --build"
+    - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker compose up -d --build"
 
 buildApp:
   stage: build
