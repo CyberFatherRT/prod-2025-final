@@ -14,7 +14,7 @@ use validator::Validate;
     post,
     tag = "Companies",
     path = "/company/register",
-    request_body = RegisterForm,
+    request_body = CompanyRegisterData,
     responses(
         (status = 200, body = Token),
         (status = 400, description = "wrong data format"),
