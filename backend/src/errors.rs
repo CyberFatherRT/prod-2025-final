@@ -6,6 +6,9 @@ pub enum ProdError {
     #[error("JWT error")]
     InvalidToken(#[from] jsonwebtoken::errors::Error),
 
+    #[error("hashing error")]
+    HashingError(#[from] argon2::Error),
+
     /// If the request was invalid or malformed.
     #[error("the request was invalid {0}")]
     InvalidRequest(#[from] validator::ValidationErrors),
@@ -43,7 +46,7 @@ impl IntoResponse for ProdError {
             Self::AlreadyExists(_) | Self::InvalidRequest(_) | Self::ShitHappened(_) => {
                 (StatusCode::BAD_REQUEST, self.to_string())
             }
-            Self::DatabaseError(_) | Self::Unknown(_) => {
+            Self::DatabaseError(_) | Self::Unknown(_) | Self::HashingError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
             Self::Forbidden(_) | Self::InvalidToken(_) => (StatusCode::FORBIDDEN, self.to_string()),

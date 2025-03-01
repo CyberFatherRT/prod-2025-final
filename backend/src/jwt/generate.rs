@@ -22,7 +22,7 @@ pub fn create_token(user_id: &Uuid, role: &RoleModel) -> Result<String, ProdErro
         &claims,
         &EncodingKey::from_secret(&SECRET),
     )
-    .map_err(ProdError::InvalidToken)
+        .map_err(ProdError::InvalidToken)
 }
 
 pub fn validate_token(token: &str) -> Result<Claims, ProdError> {
@@ -31,13 +31,13 @@ pub fn validate_token(token: &str) -> Result<Claims, ProdError> {
         &DecodingKey::from_secret(&SECRET),
         &Validation::new(Algorithm::HS256),
     )
-    .map(|data| data.claims)
-    .map_err(ProdError::InvalidToken)
+        .map(|data| data.claims)
+        .map_err(ProdError::InvalidToken)
 }
 
 pub fn claims_from_headers(headers: &impl Map) -> Result<Claims, ProdError> {
     if !headers.contains_key("authorization") {
-        return Err(ProdError::ShitHappened(
+        return Err(ProdError::Forbidden(
             "No authorization token was found".to_string(),
         ));
     }
