@@ -57,6 +57,7 @@ pub async fn login(
     Ok(Json(Token { jwt: token }))
 }
 
+/// Register user
 #[utoipa::path(
     post,
     tag = "Users",
@@ -130,6 +131,7 @@ pub async fn register(
     Ok(Json(Token { jwt: token }))
 }
 
+/// Get user profile
 #[utoipa::path(
     get,
     tag = "Users",
@@ -172,6 +174,7 @@ pub async fn profile(
     Ok(Json(user_profile))
 }
 
+/// Patch user profile
 #[utoipa::path(
     patch,
     tag = "Users",
