@@ -48,7 +48,7 @@ pub async fn login(
     .fetch_one(conn.as_mut())
     .await
     .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+        sqlx::Error::RowNotFound => ProdError::NotFound("No such user".to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
 
@@ -129,7 +129,7 @@ pub async fn register(
         sqlx::Error::Database(e) if e.is_unique_violation() => ProdError::Conflict(e.to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
-
+    tx.commit().await?;
     let token = create_token(&user.id, &user.role)?;
 
     Ok(Json(Token { jwt: token }))
