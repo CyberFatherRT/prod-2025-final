@@ -11,6 +11,10 @@ static PASSWORD_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"[a-zA-Z0-9$&+,:;=?@#|'<>.^*()%!-]{8,}").expect("Invalid regex for password")
 });
 
+static DOMAIN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#"[a-zA-Z]{3,30}"#).expect("Invalid regex for domain")
+});
+
 #[derive(Serialize, Deserialize, Validate)]
 pub struct LoginForm {
     pub email: String,
@@ -27,10 +31,27 @@ pub struct UserLoginData {
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct RegisterForm {
-    pub username: String,
+    #[validate(length(
+        min = 1,
+        max = 120,
+        message = "User name length must be between 1 and 120"
+    ))]
+    pub name: Option<String>,
+
+    #[validate(length(
+        min = 1,
+        max = 120,
+        message = "User name length must be between 1 and 120"
+    ))]
+    pub surname: Option<String>,
+
+    #[validate(email(message = "Email is invalid"))]
     pub email: String,
+
+    #[validate(regex(path = *PASSWORD_REGEX, message = "Invalid password"))]
     pub password: String,
-    pub company_id: Uuid,
+    #[validate(regex(path = *DOMAIN_REGEX, message = "Invalid company domain"))]
+    pub company_domain: String,
 }
 
 #[derive(Serialize, Deserialize, Validate)]

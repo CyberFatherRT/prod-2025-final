@@ -14,6 +14,8 @@ pub struct CompaniesModel {
     ))]
     name: String,
 
+    domain: String,
+
     avatar: Option<String>,
 }
 
@@ -61,6 +63,8 @@ pub struct UserModel {
 
     #[serde(skip)]
     pub company_id: Uuid,
+
+    pub company_domain: String,
 
     pub role: RoleModel,
 }
