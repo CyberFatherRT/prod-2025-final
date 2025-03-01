@@ -46,18 +46,19 @@ fun AuthTextField(
     placeholder: String,
     isPassword: Boolean = false,
     iconResId: Int,
+    isLocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    var color = if (isFocused) MaterialTheme.colorScheme.primary else Color(0xFFE8EAED)
+    // Если поле заблокировано, фокус всегда false
+    var color = if (isFocused && !isLocked) MaterialTheme.colorScheme.primary else Color(0xFFE8EAED)
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(iconResId),
@@ -69,36 +70,38 @@ fun AuthTextField(
                 modifier = Modifier.width(12.dp)
             )
 
-
-
-                BasicTextField(
-                    value = value,
-                    onValueChange = onValueChange,
-                    singleLine = true,
-                    textStyle = TextStyle(
-                        fontSize = 16.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-                    modifier = Modifier
-                        .onFocusChanged { focusState ->
+            BasicTextField(
+                value = value,
+                onValueChange = { if (!isLocked) onValueChange(it) }, // Изменение текста только если не заблокировано
+                enabled = !isLocked, // Отключаем взаимодействие если заблокировано
+                singleLine = true,
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Normal
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                modifier = Modifier
+                    .onFocusChanged { focusState ->
+                        if (!isLocked) {
                             isFocused = focusState.isFocused
+                        } else {
+                            isFocused = false
                         }
-                        .fillMaxWidth(),
-                    decorationBox = { innerTextField ->
-
-                        if (value.isEmpty()) {
-                            Text(
-                                text = placeholder,
-                                color = Color(0xFFE8EAED).copy(alpha = 0.5f),
-                                fontSize = 16.sp
-                            )
-                        }
-                        innerTextField()
                     }
-                )
+                    .fillMaxWidth(),
+                decorationBox = { innerTextField ->
+                    if (value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            color = Color(0xFFE8EAED).copy(alpha = 0.5f),
+                            fontSize = 16.sp
+                        )
+                    }
+                    innerTextField()
+                }
+            )
         }
         Box(
             modifier
@@ -110,7 +113,6 @@ fun AuthTextField(
                 )
         )
     }
-
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
@@ -122,6 +124,7 @@ fun AuthTextFieldEmailPreview() {
             value = text,
             onValueChange = { text = it },
             placeholder = "Email",
+            isLocked = true,
             iconResId = R.drawable.mail_24
         )
     }
