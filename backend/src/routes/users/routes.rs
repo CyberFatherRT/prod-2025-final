@@ -1,9 +1,7 @@
-use crate::controllers::users::update_user;
+use crate::controllers::users::{register_user, update_user};
 use crate::forms::users::{LoginForm, PatchProfileFormData, RegisterForm, Token, UserLoginData};
 use crate::jwt::generate::create_token;
 use crate::jwt::hashing::Argon;
-use crate::models::CompanyUuid;
-use crate::models::TokenData;
 
 use crate::{
     db::Db,
@@ -15,7 +13,6 @@ use crate::{
 };
 use axum::extract::Multipart;
 use axum::{extract::State, http::HeaderMap, Json};
-use sqlx::Acquire;
 use validator::Validate;
 
 /// Login user
@@ -49,9 +46,10 @@ pub async fn login(
                company_id,
                role as "role: RoleModel"
         FROM users
-        WHERE users.email = $1
+        WHERE users.email = $1 AND users.company_domain = $2
         "#,
-        form.email
+        form.email,
+        form.domain
     )
     .fetch_one(conn.as_mut())
     .await
@@ -86,51 +84,7 @@ pub async fn register(
     Json(form): Json<RegisterForm>,
 ) -> Result<Json<Token>, ProdError> {
     form.validate()?;
-    let mut conn = state.pool.conn().await?;
-
-    let mut tx = conn.begin().await?;
-    let company = sqlx::query_as!(
-        CompanyUuid,
-        r#"
-        SELECT id FROM companies
-        WHERE companies.domain = $1
-        "#,
-        form.company_domain
-    )
-    .fetch_one(tx.as_mut())
-    .await
-    .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NoCompany,
-        _ => ProdError::DatabaseError(err),
-    })?;
-
-    let user = sqlx::query_as!(
-        TokenData,
-        r#"
-        INSERT INTO users (
-            name, surname, email,
-            password, company_id, company_domain
-        )
-        VALUES ( $1, $2, $3, $4, $5, $6)
-        RETURNING id, company_id, role as "role: RoleModel"
-        "#,
-        form.name,
-        form.surname,
-        form.email,
-        Argon::hash_password(form.password.as_bytes())?,
-        company.id,
-        form.company_domain
-    )
-    .fetch_one(tx.as_mut())
-    .await
-    .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-        sqlx::Error::Database(e) if e.is_unique_violation() => ProdError::Conflict(e.to_string()),
-        _ => ProdError::DatabaseError(err),
-    })?;
-
-    tx.commit().await?;
-
+    let user = register_user(state, form).await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;
 
     Ok(Json(Token { jwt: token }))

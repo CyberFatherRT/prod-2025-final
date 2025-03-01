@@ -1,16 +1,64 @@
 use crate::db::Db;
 use crate::errors::ProdError;
-use crate::forms::users::PatchProfileForm;
+use crate::forms::users::{PatchProfileForm, RegisterForm};
 use crate::jwt::hashing::Argon;
-use crate::models::RoleModel;
 use crate::models::UserModel;
+use crate::models::{CompanyUuid, RoleModel, TokenData};
 use crate::s3::utils::upload_file;
 use crate::AppState;
 use axum::body::Bytes;
 use axum::extract::Multipart;
+use sqlx::Acquire;
 use tracing::log::warn;
 use uuid::Uuid;
 use validator::Validate;
+
+pub async fn register_user(state: AppState, form: RegisterForm) -> Result<TokenData, ProdError> {
+    let mut conn = state.pool.conn().await?;
+
+    let mut tx = conn.begin().await?;
+    let company = sqlx::query_as!(
+        CompanyUuid,
+        r#"
+        SELECT id FROM companies
+        WHERE companies.domain = $1
+        "#,
+        form.company_domain
+    )
+    .fetch_one(tx.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NoCompany,
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    let user = sqlx::query_as!(
+        TokenData,
+        r#"
+        INSERT INTO users (
+            name, surname, email,
+            password, company_id, company_domain
+        )
+        VALUES ( $1, $2, $3, $4, $5, $6)
+        RETURNING id, company_id, role as "role: RoleModel"
+        "#,
+        form.name,
+        form.surname,
+        form.email,
+        Argon::hash_password(form.password.as_bytes())?,
+        company.id,
+        form.company_domain
+    )
+    .fetch_one(tx.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::Database(e) if e.is_unique_violation() => ProdError::Conflict(e.to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    tx.commit().await?;
+    Ok(user)
+}
 
 pub async fn update_user(
     user_id: Uuid,

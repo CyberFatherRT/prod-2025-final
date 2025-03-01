@@ -6,18 +6,18 @@ use validator::Validate;
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct CompaniesModel {
-    id: Uuid,
+    pub id: Uuid,
 
     #[validate(length(
         min = 1,
         max = 120,
         message = "Company name length must be between 1 and 120"
     ))]
-    name: String,
+    pub name: String,
 
-    domain: String,
+    pub domain: String,
 
-    avatar: Option<String>,
+    pub avatar: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Type, Clone, PartialEq, Eq, ToSchema)]
@@ -70,8 +70,8 @@ pub struct UserModel {
 
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct CoworkingSpacesModel {
-    id: Uuid,
-    company_id: Uuid,
+    pub id: Uuid,
+    pub company_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize, FromRow)]
@@ -83,35 +83,35 @@ pub struct TokenData {
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct ItemsModel {
-    id: Uuid,
-    name: Option<String>,
-    description: Option<String>,
-    icon: Option<String>,
-    company_id: Uuid,
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub icon: Option<String>,
+    pub company_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct CoworkingItemsModel {
-    id: Uuid,
-    items_id: Uuid,
-    coworking_id: Uuid,
+    pub id: Uuid,
+    pub items_id: Uuid,
+    pub coworking_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct BookingModel {
-    id: Uuid,
-    user_id: Uuid,
-    coworking_space_id: Uuid,
-    coworking_item_id: Uuid,
-    time_start: chrono::DateTime<chrono::Utc>,
-    time_end: chrono::DateTime<chrono::Utc>,
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub coworking_space_id: Uuid,
+    pub coworking_item_id: Uuid,
+    pub time_start: chrono::DateTime<chrono::Utc>,
+    pub time_end: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct PendingVerificationsModel {
-    user_id: Uuid,
-    company_id: Uuid,
-    document_name: Option<String>,
+    pub user_id: Uuid,
+    pub company_id: Uuid,
+    pub document_name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, FromRow)]

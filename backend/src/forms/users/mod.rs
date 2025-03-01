@@ -19,6 +19,7 @@ static DOMAIN_REGEX: LazyLock<Regex> =
 pub struct LoginForm {
     pub email: String,
     pub password: String,
+    pub domain: String,
 }
 
 #[derive(Serialize, Deserialize, Validate)]
@@ -37,14 +38,14 @@ pub struct RegisterForm {
         max = 120,
         message = "User name length must be between 1 and 120"
     ))]
-    pub name: Option<String>,
+    pub name: String,
 
     #[validate(length(
         min = 1,
         max = 120,
         message = "User name length must be between 1 and 120"
     ))]
-    pub surname: Option<String>,
+    pub surname: String,
 
     #[validate(email(message = "Email is invalid"))]
     pub email: String,

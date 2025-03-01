@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO companies (name, domain)\n        VALUES ($1, $2)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "81d2f66c1e3b18b7726057bfc6665dd7152a09ab2d85586a025f30f93b51ebb6"
+}
