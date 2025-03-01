@@ -1,6 +1,9 @@
-use axum::{extract::Path, extract::State};
+use axum::extract::Multipart;
+use axum::{extract::Path, extract::State, Json};
 use uuid::Uuid;
 
+use crate::controllers::users::update_user;
+use crate::models::UserModel;
 use crate::{db::Db, errors::ProdError, AppState};
 
 /// Verify guest user
@@ -10,6 +13,7 @@ use crate::{db::Db, errors::ProdError, AppState};
     path = "/admin/verify_guest/{user_id}",
     responses(
         (status = 200),
+        (status = 403, description = "not admin / no auth"),
         (status = 404, description = "guest not found"),
     )
 )]
@@ -44,6 +48,7 @@ pub async fn verify_guest(
     path = "/user/{user_id}",
     responses(
         (status = 200),
+        (status = 403, description = "not admin / no auth"),
         (status = 404, description = "user not found"),
     )
 )]
@@ -68,4 +73,24 @@ pub async fn delete_user(
     })?;
 
     Ok(())
+}
+
+/// Patch user
+#[utoipa::path(
+    patch,
+    tag = "Admin",
+    path = "/user/{user_id}",
+    responses(
+        (status = 200),
+        (status = 403, description = "not admin / no auth"),
+        (status = 404, description = "user not found"),
+    )
+)]
+pub async fn patch_user(
+    Path(user_id): Path<Uuid>,
+    State(state): State<AppState>,
+    multipart: Multipart,
+) -> Result<Json<UserModel>, ProdError> {
+    let updated_user = update_user(user_id, multipart, state).await?;
+    Ok(Json(updated_user))
 }
