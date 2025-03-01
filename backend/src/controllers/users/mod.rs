@@ -10,6 +10,7 @@ use axum::body::Bytes;
 use axum::extract::Multipart;
 use tracing::log::warn;
 use uuid::Uuid;
+use validator::Validate;
 
 pub async fn update_user(
     user_id: Uuid,
@@ -58,6 +59,10 @@ pub async fn update_user(
                 }
             }
         }
+    }
+
+    if let Some(form_data) = form.as_ref() {
+        form_data.validate()?;
     }
 
     let mut avatar_url: Option<String> = None;

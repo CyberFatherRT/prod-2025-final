@@ -16,6 +16,7 @@ use crate::{
 use axum::extract::Multipart;
 use axum::{extract::State, http::HeaderMap, Json};
 use sqlx::Acquire;
+use validator::Validate;
 
 /// Login user
 #[utoipa::path(
@@ -77,6 +78,7 @@ pub async fn register(
     State(state): State<AppState>,
     Json(form): Json<RegisterForm>,
 ) -> Result<Json<Token>, ProdError> {
+    form.validate()?;
     let mut conn = state.pool.conn().await?;
 
     let mut tx = conn.begin().await?;
