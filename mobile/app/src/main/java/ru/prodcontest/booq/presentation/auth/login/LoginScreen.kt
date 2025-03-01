@@ -68,7 +68,8 @@ fun LoginScreen(
             onPasswordChange = { password = it },
             isLoading = viewState.isLoading,
             isLocked = false, // ИЗМЕНИТЬ
-            onLoginClick = { }, // ЭВЕНТ НА НАЖАТИЕ ТВОЁ
+            onLoginClick = { }, // ЭВЕНТ НА НАЖАТИЕ СВОЙ
+            onCreateAccountClick = { }, // ЭВЕНТ НА НАЖАТИЕ СВОЙ
             error = "Нижний лейбл", // ЭТО НИЖНИЙ ЛЕЙБЛ С ОШИБКОЙ
             modifier = Modifier
                 .padding(horizontal = 22.dp)
@@ -120,6 +121,7 @@ fun DemoScreen() {
                 isLocked = false,
                 error = "Привет как дела",
                 onLoginClick = { isClick = true },
+                onCreateAccountClick = { },
                 modifier = Modifier
                     .padding(horizontal = 22.dp)
                     .constrainAs(boxLogin) {
