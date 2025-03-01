@@ -12,5 +12,20 @@ pub async fn verify_guest(
 ) -> Result<(), ProdError> {
     let mut conn = state.pool.conn().await?;
 
+    let _ = sqlx::query!(
+        r#"
+        UPDATE users
+        SET role = 'verified_guest'
+        WHERE id = $1
+        "#,
+        user_id
+    )
+    .execute(&mut *conn)
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
     Ok(())
 }
