@@ -17,6 +17,7 @@ stages:
   - deploy
 
 deploy:
+  needs: [ ]
   extends:
     - .ssh
     - .global-variables
