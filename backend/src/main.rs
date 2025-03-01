@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
     };
 
     let router = Router::new()
-        .route("/", get("<h1>Hello World from cfrt-dev</h1>"))
+        .route("/", get("<h1>Hello World</h1>"))
         .route("/healthz", get(StatusCode::OK))
         .nest("/user", users::get_routes(app_state.clone()))
         .nest("/admin", admin::get_routes(app_state.clone()))
