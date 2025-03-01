@@ -79,7 +79,6 @@ pub async fn login(
     }))
 }
 
-pub async fn patch_profile(headers: HeaderMap, State(state): State<AppState>) {}
 pub async fn patch_profile(
     headers: HeaderMap,
     State(state): State<AppState>,
@@ -111,12 +110,12 @@ pub async fn patch_profile(
         hashed_password,
         form.avatar
     )
-    .fetch_one(&mut *conn)
-    .await
-    .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-        _ => ProdError::DatabaseError(err),
-    })?;
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(|err| match err {
+            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+            _ => ProdError::DatabaseError(err),
+        })?;
 
     Ok(Json(user))
 }

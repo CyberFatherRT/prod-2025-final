@@ -46,7 +46,7 @@ impl IntoResponse for ProdError {
             Self::AlreadyExists(_) | Self::InvalidRequest(_) | Self::ShitHappened(_) => {
                 (StatusCode::BAD_REQUEST, self.to_string())
             }
-            Self::DatabaseError(_) | Self::Unknown(_) => {
+            Self::DatabaseError(_) | Self::Unknown(_) | Self::HashingError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
             Self::Forbidden(_) | Self::InvalidToken(_) => (StatusCode::FORBIDDEN, self.to_string()),
