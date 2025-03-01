@@ -2,8 +2,6 @@
 
 ### DELETE /
 
-### POST /upload_document
-
 # Booking (/booking)
 
 ### GET /list_booking_by_space/{space_id}
@@ -25,15 +23,4 @@ For admin, add sensitive info (like user_id who booked)
 
 # Admin (/admin)
 
-### POST /verify_guest/{user_id} (auth)
-Request:
-path parameters
-
-Response: \
-Status Code - 200, 404, 400
-
 ### PATCH /user/{user_id}
-
-### DELETE /user/{user_id}
-
-### POST /verify_qr
