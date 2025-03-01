@@ -30,33 +30,39 @@ pub enum RoleModel {
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
-pub struct UsersModel {
-    id: Uuid,
+pub struct UserModel {
+    #[serde(skip)]
+    pub id: Uuid,
 
     #[validate(length(
         min = 1,
         max = 120,
         message = "User name length must be between 1 and 120"
     ))]
-    name: String,
+    pub name: String,
 
     #[validate(length(
         min = 1,
         max = 120,
         message = "User surname length must be between 1 and 120"
     ))]
-    surname: String,
+    pub surname: String,
 
     #[validate(
         email,
         length(min = 1, max = 120, message = "Email length must be between 1 and 120")
     )]
-    email: String,
+    pub email: String,
 
-    password: String,
-    avatar: Option<String>,
-    company_id: Uuid,
-    role: RoleModel,
+    #[serde(skip)]
+    pub password: String,
+
+    pub avatar: Option<String>,
+
+    #[serde(skip)]
+    pub company_id: Uuid,
+
+    pub role: RoleModel,
 }
 
 #[derive(Serialize, Deserialize, FromRow)]
