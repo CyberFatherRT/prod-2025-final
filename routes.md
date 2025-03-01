@@ -84,13 +84,9 @@ For admin, add sensitive info (like user_id who booked)
 
 # Admin (/admin)
 
-### POST /verify_guest (auth)
+### POST /verify_guest/{user_id} (auth)
 Request:
-```json
-{
-    "user_id": "uuid"
-}
-```
+path parameters
 
 Response: \
 Status Code - 200, 404, 400
