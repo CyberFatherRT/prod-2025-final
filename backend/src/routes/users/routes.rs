@@ -1,5 +1,6 @@
-use axum::{extract::State, http::HeaderMap, Json};
-
+use crate::forms::users::{LoginForm, Token, UserLoginData};
+use crate::jwt::generate::create_token;
+use crate::jwt::hashing::Argon;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -8,6 +9,7 @@ use crate::{
     models::{RoleModel, UserModel},
     AppState,
 };
+use axum::{extract::State, http::HeaderMap, Json};
 
 pub async fn profile(
     headers: HeaderMap,
@@ -32,16 +34,52 @@ pub async fn profile(
         "#,
         user_id
     )
-    .fetch_one(&mut *conn)
-    .await
-    .map_err(|err| match err {
-        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-        _ => ProdError::DatabaseError(err)
-    })?;
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(|err| match err {
+            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+            _ => ProdError::DatabaseError(err)
+        })?;
 
     Ok(Json(user_profile))
 }
 
+pub async fn login(
+    State(state): State<AppState>,
+    Json(form): Json<LoginForm>,
+) -> Result<Json<Token>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let credentials = sqlx::query_as!(
+        UserLoginData,
+        r#"
+        SELECT email,
+               id,
+               password,
+               role as "role: RoleModel"
+        FROM users
+        WHERE users.email = $1
+        "#,
+        form.email
+    )
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(|err| match err {
+            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+            _ => ProdError::DatabaseError(err)
+        })?;
+
+    if !Argon::verify(form.password.as_bytes(), &credentials.password)? {
+        return Err(ProdError::Forbidden("wrong password".to_string()));
+    }
+
+    let token = create_token(&credentials.id, &credentials.role)?;
+
+    Ok(Json(Token {
+        jwt: token,
+    }))
+}
+
+pub async fn patch_profile(headers: HeaderMap, State(state): State<AppState>) {}
 pub async fn patch_profile(
     headers: HeaderMap,
     State(state): State<AppState>,

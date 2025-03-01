@@ -18,6 +18,14 @@ pub struct LoginForm {
 }
 
 #[derive(Serialize, Deserialize, Validate)]
+pub struct UserLoginData {
+    pub id: Uuid,
+    pub email: String,
+    pub password: String,
+    pub role: RoleModel,
+}
+
+#[derive(Serialize, Deserialize, Validate)]
 pub struct RegisterForm {
     pub username: String,
     pub email: String,
@@ -55,4 +63,9 @@ pub struct PatchProfileForm {
     #[validate(regex(path = *PASSWORD_REGEX, message = "Invalid password"))]
     pub password: Option<String>,
     pub avatar: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Validate)]
+pub struct Token {
+    pub jwt: String,
 }

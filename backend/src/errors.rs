@@ -6,6 +6,9 @@ pub enum ProdError {
     #[error("JWT error")]
     InvalidToken(#[from] jsonwebtoken::errors::Error),
 
+    #[error("hashing error")]
+    HashingError(#[from] argon2::Error),
+
     /// If the request was invalid or malformed.
     #[error("the request was invalid {0}")]
     InvalidRequest(#[from] validator::ValidationErrors),
