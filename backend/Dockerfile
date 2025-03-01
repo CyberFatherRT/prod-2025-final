@@ -1,5 +1,5 @@
 FROM rust:1.84.1-alpine3.21 AS base
-RUN apk add --no-cache musl-dev pkgconfig
+RUN apk add --no-cache musl-dev openssl-dev openssl-libs-static pkgconfig curl
 RUN cargo install cargo-chef
 
 
@@ -20,7 +20,7 @@ RUN cargo chef cook --release --recipe-path recipe.json --target x86_64-unknown-
 FROM base AS builder
 WORKDIR /app
 
-# COPY .sqlx .sqlx
+COPY .sqlx .sqlx
 COPY migrations migrations
 COPY src src
 COPY Cargo.toml Cargo.toml
@@ -30,7 +30,11 @@ COPY --from=planner /app/Cargo.lock Cargo.lock
 
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
+FROM alpine AS certificates
+RUN apk add --no-cache ca-certificates
+
 FROM busybox:musl AS final
 WORKDIR /app
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/backend /app/backend
+COPY --from=certificates /etc/ssl/certs /etc/ssl/certs
 ENTRYPOINT [ "/app/backend" ]

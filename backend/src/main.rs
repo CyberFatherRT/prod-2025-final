@@ -11,17 +11,21 @@ pub mod forms;
 pub mod jwt;
 pub mod middlewares;
 pub mod models;
+mod openapi;
 pub mod routes;
 pub mod s3;
 pub mod util;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use middlewares::log_request;
+use openapi::ApiDoc;
 use routes::{admin, users};
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tracing::Level;
 use util::env;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -50,7 +54,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/healthz", get(StatusCode::OK))
         .nest("/users", users::get_routes(app_state.clone()))
         .nest("/admin", admin::get_routes(app_state.clone()))
-        .layer(from_fn(log_request));
+        .layer(from_fn(log_request))
+        .merge(SwaggerUi::new("/api/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()));
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
     axum::serve(listener, router).await?;

@@ -2,6 +2,7 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -11,9 +12,8 @@ static PASSWORD_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"[a-zA-Z0-9$&+,:;=?@#|'<>.^*()%!-]{8,}").expect("Invalid regex for password")
 });
 
-static DOMAIN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"[a-zA-Z]{3,30}"#).expect("Invalid regex for domain")
-});
+static DOMAIN_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[a-zA-Z]{3,30}").expect("Invalid regex for domain"));
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct LoginForm {
@@ -86,7 +86,7 @@ pub struct PatchProfileForm {
     pub avatar: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, ToSchema)]
 pub struct Token {
     pub jwt: String,
 }
