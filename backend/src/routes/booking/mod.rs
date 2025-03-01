@@ -1,9 +1,5 @@
-use crate::{middlewares, AppState};
-use axum::routing::patch;
-use axum::{
-    routing::{delete, post},
-    Router,
-};
+use crate::AppState;
+use axum::Router;
 
 pub mod routes;
 pub fn get_routes(state: AppState) -> Router {
