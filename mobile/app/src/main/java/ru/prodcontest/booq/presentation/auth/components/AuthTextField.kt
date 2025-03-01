@@ -1,5 +1,6 @@
 package ru.prodcontest.booq.presentation.auth.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,17 +50,23 @@ fun AuthTextField(
     isPassword: Boolean = false,
     iconResId: Int,
     isLocked: Boolean = false,
+    error: String = "",
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
     // Если поле заблокировано, фокус всегда false
-    var color = if (isFocused && !isLocked) MaterialTheme.colorScheme.primary else Color(0xFFE8EAED)
+    val color = when {
+        error.isNotEmpty() -> Color.Red
+        isFocused && !isLocked -> MaterialTheme.colorScheme.primary
+        else -> Color(0xFFE8EAED)
+    }
+
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 17.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -72,8 +81,8 @@ fun AuthTextField(
 
             BasicTextField(
                 value = value,
-                onValueChange = { if (!isLocked) onValueChange(it) }, // Изменение текста только если не заблокировано
-                enabled = !isLocked, // Отключаем взаимодействие если заблокировано
+                onValueChange = { if (!isLocked) onValueChange(it) },
+                enabled = !isLocked,
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = 16.sp,
@@ -104,7 +113,7 @@ fun AuthTextField(
             )
         }
         Box(
-            modifier
+            modifier = Modifier
                 .padding(top = 6.dp)
                 .fillMaxWidth()
                 .height(2.dp)
@@ -112,6 +121,29 @@ fun AuthTextField(
                     color = color
                 )
         )
+
+        Row(
+            modifier = Modifier
+                .padding(top = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.fmd_bad_24),
+                contentDescription = null,
+                colorFilter = if (error.isNotEmpty()) ColorFilter.tint(Color.Red) else ColorFilter.tint(Color.Transparent),
+                modifier = Modifier.size(12.dp)
+            )
+
+            Spacer(Modifier.width(2.dp))
+
+            Text(
+                text = error,
+                color = Color.Red,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -123,9 +155,29 @@ fun AuthTextFieldEmailPreview() {
         AuthTextField(
             value = text,
             onValueChange = { text = it },
-            placeholder = "Email",
+            placeholder = "Почта",
             isLocked = true,
-            iconResId = R.drawable.mail_24
+            iconResId = R.drawable.mail_24,
+            modifier = Modifier
+                .padding(horizontal = 17.dp, vertical = 12.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF3B3F48, name = "Email Empty")
+@Composable
+fun AuthTextFieldEmailFailedPreview() {
+    BooqTheme {
+        var text by remember { mutableStateOf("") }
+        AuthTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = "Почта",
+            isLocked = false,
+            error = "Почта слишком хороша",
+            iconResId = R.drawable.mail_24,
+            modifier = Modifier
+                .padding(horizontal = 17.dp, vertical = 12.dp)
         )
     }
 }
@@ -138,9 +190,11 @@ fun AuthTextFieldPasswordPreview() {
         AuthTextField(
             value = text,
             onValueChange = { text = it },
-            placeholder = "Password",
+            placeholder = "Пароль",
             isPassword = true,
-            iconResId = R.drawable.key_24
+            iconResId = R.drawable.key_24,
+            modifier = Modifier
+                .padding(horizontal = 17.dp, vertical = 12.dp)
         )
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,16 +27,17 @@ fun AuthButton(
     text: String,
     onClick: () -> Unit,
     isLoaded: Boolean = false,
+    isLocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
-        enabled = !isLoaded,
+        enabled = !isLoaded or !isLocked,
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = if (!isLocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
             disabledContainerColor = MaterialTheme.colorScheme.primary
         )
     ) {
@@ -63,7 +65,7 @@ fun AuthButton(
 fun AuthButtonPreview() {
 
     BooqTheme {
-        AuthButton("Войти", {}, isLoaded = true,)
+        AuthButton("Войти", {}, isLoaded = false, isLocked = true)
     }
 
 }

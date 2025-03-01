@@ -31,7 +31,7 @@ class LoginViewModel @Inject constructor(
                     setAction { LoginScreenAction.NavigateToHomeScreen }
                 }
 
-                ResultWrapper.Loading -> setState { copy(isLoading = true) }
+                is ResultWrapper.Loading -> setState { copy(isLoading = true) }
                 is ResultWrapper.Error -> setState { copy(error = it.message) }
             }
         }.collect()
