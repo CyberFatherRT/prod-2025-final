@@ -14,7 +14,7 @@ pub async fn upload_file(
     let bucket_name = state.bucket_name.clone();
 
     let mut args = PutObjectApiArgs::new(&bucket_name, name, content.as_ref())
-        .expect("Failed to create PutObjectApiArgs");
+        .map_err(|err| ProdError::S3Error(format!("Failed to create PutObjectApiArgs - {err}")))?;
 
     let headers = Multimap::from_iter(vec![("Content-Type".to_string(), content_type.clone())]);
     args.headers = Some(&headers);
