@@ -1,12 +1,19 @@
-use axum::{extract::Path, extract::State, http::HeaderMap, Json};
-use axum_macros::debug_handler;
+use axum::{extract::Path, extract::State};
 use uuid::Uuid;
 
 use crate::{db::Db, errors::ProdError, AppState};
 
-#[debug_handler]
+/// Verify guest user
+#[utoipa::path(
+    post,
+    tag = "Admin",
+    path = "/admin/verify_guest/{user_id}",
+    responses(
+        (status = 200),
+        (status = 404, description = "guest not found"),
+    )
+)]
 pub async fn verify_guest(
-    headers: HeaderMap,
     Path(user_id): Path<Uuid>,
     State(state): State<AppState>,
 ) -> Result<(), ProdError> {
