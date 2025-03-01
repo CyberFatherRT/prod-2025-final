@@ -7,6 +7,9 @@
 
 pub mod db;
 pub mod errors;
+pub mod forms;
+pub mod models;
+pub mod routes;
 mod util;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
