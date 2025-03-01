@@ -44,7 +44,7 @@ pub async fn verify_guest(
     path = "/user/{user_id}",
     responses(
         (status = 200),
-        (status = 404, description = "guest not found"),
+        (status = 404, description = "user not found"),
     )
 )]
 pub async fn delete_user(

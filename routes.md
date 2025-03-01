@@ -85,6 +85,7 @@ For admin, add sensitive info (like user_id who booked)
 ### GET /get_qr_data
 
 ### GET /verify_qr_data
+
 ```json
 {
   "booking-
