@@ -16,7 +16,8 @@ pub async fn profile(
     let user_profile = sqlx::query_as!(
         ProfileResponseForm,
         r#"
-        SELECT username,
+        SELECT name,
+               surname,
                email,
                avatar,
                company_id,
