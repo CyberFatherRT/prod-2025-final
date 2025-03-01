@@ -61,12 +61,12 @@ pub async fn login(
         "#,
         form.email
     )
-        .fetch_one(&mut *conn)
-        .await
-        .map_err(|err| match err {
-            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-            _ => ProdError::DatabaseError(err)
-        })?;
+    .fetch_one(&mut *conn)
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
 
     if !Argon::verify(form.password.as_bytes(), &credentials.password)? {
         return Err(ProdError::Forbidden("wrong password".to_string()));
@@ -74,9 +74,7 @@ pub async fn login(
 
     let token = create_token(&credentials.id, &credentials.role)?;
 
-    Ok(Json(Token {
-        jwt: token,
-    }))
+    Ok(Json(Token { jwt: token }))
 }
 
 pub async fn patch_profile(
@@ -87,8 +85,10 @@ pub async fn patch_profile(
     let mut conn = state.pool.conn().await?;
     let user_id = claims_from_headers(&headers)?.id;
 
-    // TODO: implement argon2 hashing
-    let hashed_password = form.password;
+    let hashed_password = match form.password {
+        Some(password) => Some(Argon::hash_password(password.as_bytes())?),
+        None => None,
+    };
 
     let user = sqlx::query_as!(
         UserModel,
@@ -110,12 +110,12 @@ pub async fn patch_profile(
         hashed_password,
         form.avatar
     )
-        .fetch_one(&mut *conn)
-        .await
-        .map_err(|err| match err {
-            sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
-            _ => ProdError::DatabaseError(err),
-        })?;
+    .fetch_one(&mut *conn)
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
 
     Ok(Json(user))
 }
