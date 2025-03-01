@@ -14,7 +14,7 @@ pub mod routes;
 mod util;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
-use routes::users;
+use routes::{admin, users};
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tracing::Level;
@@ -45,7 +45,8 @@ async fn main() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/healthz", get(StatusCode::OK))
-        .nest("/users", users::get_routes(app_state))
+        .nest("/users", users::get_routes(app_state.clone()))
+        .nest("/admin", admin::get_routes(app_state.clone()))
         .layer(from_fn(log_request));
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
