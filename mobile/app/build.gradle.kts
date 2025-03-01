@@ -78,4 +78,6 @@ dependencies {
     // Koil
     implementation(libs.coil.compose)
     implementation(libs.coil.ktor)
+
+    implementation(libs.datastore)
 }

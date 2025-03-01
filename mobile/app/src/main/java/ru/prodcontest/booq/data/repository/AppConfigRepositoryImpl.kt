@@ -1,70 +1,45 @@
 package ru.prodcontest.booq.data.repository
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ru.prodcontest.booq.domain.model.AppConfig
 import ru.prodcontest.booq.domain.repository.AppConfigRepository
-import java.io.File
 
 class AppConfigRepositoryImpl(
     @ApplicationContext private val context: Context
 ) : AppConfigRepository {
 
     companion object {
-        private const val CONFIG_FILENAME = "config.json"
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("config")
+        val TOKEN_KEY = stringPreferencesKey("TOKEN")
     }
 
-    private val json = Json { ignoreUnknownKeys = true }
-    private val configFile = File(context.filesDir, CONFIG_FILENAME)
+    override fun getFlowConfig(): Flow<AppConfig> =
+        context.dataStore.data.map { prefs ->
+            AppConfig(
+                prefs[TOKEN_KEY]
+            )
+        }
 
-    private var config = loadInitialConfig()
-
-    private val _configFlow = MutableStateFlow(config)
-    private val configFlow = _configFlow.asStateFlow()
-
-    init {
-        if (!configFile.exists()) {
-            copyConfigFromAssets()
-            config = loadInitialConfig()
-            _configFlow.value = config
+    private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
+        if (value != null) {
+            this[key] = value
+        } else {
+            this.remove(key)
         }
     }
-
-    override fun getFlowConfig(): StateFlow<AppConfig> = configFlow
 
     override suspend fun updateConfig(newConfig: AppConfig) {
-        withContext(Dispatchers.IO) {
-            saveConfig(newConfig)
-            _configFlow.emit(newConfig)
-        }
-    }
-
-    override fun getConfig(): AppConfig = config
-
-    private fun loadInitialConfig(): AppConfig {
-        return try {
-            json.decodeFromString(configFile.readText())
-        } catch (e: Exception) {
-            json.decodeFromString(context.assets.open(CONFIG_FILENAME).bufferedReader().use { it.readText() })
-        }
-    }
-
-    private fun saveConfig(newConfig: AppConfig) {
-        config = newConfig
-        configFile.writeText(json.encodeToString(newConfig))
-    }
-
-    private fun copyConfigFromAssets() {
-        context.assets.open(CONFIG_FILENAME).use { input ->
-            configFile.outputStream().use { output ->
-                input.copyTo(output)
-            }
+        context.dataStore.edit {
+            it.setOrRemove(TOKEN_KEY, newConfig.token)
         }
     }
 }
