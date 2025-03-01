@@ -11,19 +11,21 @@ const JWT_EXPIRY_HOURS: i64 = 1;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub role: RoleModel,
-    pub id: Uuid,
+    pub user_id: Uuid,
+    pub company_id: Uuid,
     pub iat: i64,
     pub exp: i64,
 }
 
 impl Claims {
-    pub fn new(user_id: &Uuid, role: &RoleModel) -> Self {
+    pub fn new(user_id: &Uuid, company_id: &Uuid, role: &RoleModel) -> Self {
         let iat = Utc::now();
         let exp = iat + Duration::hours(JWT_EXPIRY_HOURS);
 
         Self {
             role: role.clone(),
-            id: *user_id,
+            user_id: *user_id,
+            company_id: *company_id,
             iat: iat.timestamp(),
             exp: exp.timestamp(),
         }

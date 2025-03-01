@@ -77,6 +77,7 @@ pub struct CoworkingSpacesModel {
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct TokenData {
     pub id: Uuid,
+    pub company_id: Uuid,
     pub role: RoleModel,
 }
 

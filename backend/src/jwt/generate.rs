@@ -12,8 +12,12 @@ static SECRET: LazyLock<Vec<u8>> = LazyLock::new(|| {
     env::var("JWT_SECRET").map_or_else(|_| generate_bytes(32), |data| data.as_bytes().to_vec())
 });
 
-pub fn create_token(user_id: &Uuid, role: &RoleModel) -> Result<String, ProdError> {
-    let claims = Claims::new(user_id, role);
+pub fn create_token(
+    user_id: &Uuid,
+    company_id: &Uuid,
+    role: &RoleModel,
+) -> Result<String, ProdError> {
+    let claims = Claims::new(user_id, company_id, role);
 
     encode(
         &Header::new(Algorithm::HS256),

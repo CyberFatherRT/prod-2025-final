@@ -26,6 +26,7 @@ pub struct UserLoginData {
     pub id: Uuid,
     pub email: String,
     pub password: String,
+    pub company_id: Uuid,
     pub role: RoleModel,
 }
 

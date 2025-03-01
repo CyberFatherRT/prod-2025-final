@@ -5,7 +5,7 @@
 #![allow(clippy::missing_panics_doc)]
 #![allow(clippy::must_use_candidate)]
 
-mod controllers;
+pub mod controllers;
 pub mod db;
 pub mod errors;
 pub mod forms;

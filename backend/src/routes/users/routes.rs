@@ -1,10 +1,10 @@
+use crate::controllers::users::update_user;
 use crate::forms::users::{LoginForm, PatchProfileFormData, RegisterForm, Token, UserLoginData};
 use crate::jwt::generate::create_token;
 use crate::jwt::hashing::Argon;
 use crate::models::CompanyUuid;
 use crate::models::TokenData;
 
-use crate::controllers::users::update_user;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -34,12 +34,19 @@ pub async fn login(
     Json(form): Json<LoginForm>,
 ) -> Result<Json<Token>, ProdError> {
     let mut conn = state.pool.conn().await?;
-    let credentials = sqlx::query_as!(
+    let UserLoginData {
+        id,
+        password,
+        company_id,
+        role,
+        ..
+    } = sqlx::query_as!(
         UserLoginData,
         r#"
         SELECT email,
                id,
                password,
+               company_id,
                role as "role: RoleModel"
         FROM users
         WHERE users.email = $1
@@ -53,11 +60,11 @@ pub async fn login(
         _ => ProdError::DatabaseError(err),
     })?;
 
-    if !Argon::verify(form.password.as_bytes(), &credentials.password)? {
+    if !Argon::verify(form.password.as_bytes(), &password)? {
         return Err(ProdError::Forbidden("wrong password".to_string()));
     }
 
-    let token = create_token(&credentials.id, &credentials.role)?;
+    let token = create_token(&id, &company_id, &role)?;
 
     Ok(Json(Token { jwt: token }))
 }
@@ -101,21 +108,11 @@ pub async fn register(
         TokenData,
         r#"
         INSERT INTO users (
-            name,
-            surname,
-            email,
-            password,
-            company_id,
-            company_domain
-        ) VALUES (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6
+            name, surname, email,
+            password, company_id, company_domain
         )
-        RETURNING id, role as "role: RoleModel"
+        VALUES ( $1, $2, $3, $4, $5, $6)
+        RETURNING id, company_id, role as "role: RoleModel"
         "#,
         form.name,
         form.surname,
@@ -131,8 +128,10 @@ pub async fn register(
         sqlx::Error::Database(e) if e.is_unique_violation() => ProdError::Conflict(e.to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
+
     tx.commit().await?;
-    let token = create_token(&user.id, &user.role)?;
+
+    let token = create_token(&user.id, &user.company_id, &user.role)?;
 
     Ok(Json(Token { jwt: token }))
 }
@@ -153,7 +152,7 @@ pub async fn profile(
 ) -> Result<Json<ProfileResponseForm>, ProdError> {
     let mut conn = state.pool.conn().await?;
 
-    let user_id = claims_from_headers(&headers)?.id;
+    let user_id = claims_from_headers(&headers)?.user_id;
 
     let user_profile = sqlx::query_as!(
         ProfileResponseForm,
@@ -202,7 +201,7 @@ pub async fn patch_profile(
     State(state): State<AppState>,
     multipart: Multipart,
 ) -> Result<Json<UserModel>, ProdError> {
-    let user_id = claims_from_headers(&headers)?.id;
+    let user_id = claims_from_headers(&headers)?.user_id;
     let updated_user = update_user(user_id, multipart, state).await?;
     Ok(Json(updated_user))
 }

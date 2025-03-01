@@ -29,6 +29,9 @@ pub enum ProdError {
     #[error("{0}")]
     S3Error(String),
 
+    #[error("User already submit verification request")]
+    VerificationError,
+
     /// Not found error
     #[error("{0}")]
     NotFound(String),
@@ -57,7 +60,7 @@ impl IntoResponse for ProdError {
             | Self::HashingError(_)
             | Self::S3Error(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             Self::Forbidden(_) | Self::InvalidToken(_) => (StatusCode::FORBIDDEN, self.to_string()),
-            Self::Conflict(_) => (StatusCode::CONFLICT, self.to_string()),
+            Self::Conflict(_) | Self::VerificationError => (StatusCode::CONFLICT, self.to_string()),
             Self::NotFound(_) | Self::NoCompany => (StatusCode::NOT_FOUND, self.to_string()),
         };
 
