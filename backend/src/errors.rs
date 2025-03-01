@@ -24,7 +24,7 @@ pub enum ProdError {
     DatabaseError(#[from] sqlx::Error),
 
     #[error("{0}")]
-    S3Error(#[from] minio::s3::error::Error),
+    S3Error(String),
 
     /// Not found error
     #[error("{0}")]

@@ -22,7 +22,7 @@ pub async fn upload_file(
     let response = client
         .put_object_api(&args)
         .await
-        .map_err(ProdError::S3Error)?;
+        .map_err(|err| ProdError::S3Error(err.to_string()))?;
 
     info!("Response: {:?}", response);
 

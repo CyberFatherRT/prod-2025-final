@@ -47,7 +47,7 @@ pub async fn login(
         "#,
         form.email
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(conn.as_mut())
     .await
     .map_err(|err| match err {
         sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
@@ -170,7 +170,7 @@ pub async fn profile(
         "#,
         user_id
     )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await
         .map_err(|err| match err {
             sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),

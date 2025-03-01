@@ -3,16 +3,14 @@ use crate::jwt::models::Claims;
 use crate::models::RoleModel;
 use axum::http::HeaderMap;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use lazy_static::lazy_static;
 use rand::RngCore;
-use std::env;
+use std::{env, sync::LazyLock};
 use tonic::metadata::MetadataMap;
 use uuid::Uuid;
 
-lazy_static! {
-    static ref SECRET: Vec<u8> =
-        env::var("JWT_SECRET").map_or_else(|_| generate_bytes(32), |data| data.as_bytes().to_vec());
-}
+static SECRET: LazyLock<Vec<u8>> = LazyLock::new(|| {
+    env::var("JWT_SECRET").map_or_else(|_| generate_bytes(32), |data| data.as_bytes().to_vec())
+});
 
 pub fn create_token(user_id: &Uuid, role: &RoleModel) -> Result<String, ProdError> {
     let claims = Claims::new(user_id, role);
@@ -22,7 +20,7 @@ pub fn create_token(user_id: &Uuid, role: &RoleModel) -> Result<String, ProdErro
         &claims,
         &EncodingKey::from_secret(&SECRET),
     )
-        .map_err(ProdError::InvalidToken)
+    .map_err(ProdError::InvalidToken)
 }
 
 pub fn validate_token(token: &str) -> Result<Claims, ProdError> {
@@ -31,8 +29,8 @@ pub fn validate_token(token: &str) -> Result<Claims, ProdError> {
         &DecodingKey::from_secret(&SECRET),
         &Validation::new(Algorithm::HS256),
     )
-        .map(|data| data.claims)
-        .map_err(ProdError::InvalidToken)
+    .map(|data| data.claims)
+    .map_err(ProdError::InvalidToken)
 }
 
 pub fn claims_from_headers(headers: &impl Map) -> Result<Claims, ProdError> {
