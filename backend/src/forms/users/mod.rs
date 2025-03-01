@@ -8,7 +8,7 @@ use validator::Validate;
 use crate::models::RoleModel;
 
 static PASSWORD_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"[a-zA-Z0-9$&+,:;=?@#|'<>.^*()%!-]{8,}"#).expect("Invalid regex for password")
+    Regex::new(r"[a-zA-Z0-9$&+,:;=?@#|'<>.^*()%!-]{8,}").expect("Invalid regex for password")
 });
 
 #[derive(Serialize, Deserialize, Validate)]

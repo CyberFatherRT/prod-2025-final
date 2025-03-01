@@ -12,6 +12,7 @@ jsonwebtoken = "9.3.1"
 rust-argon2 = "2.1.0"
 serde = { version = "1.0.218", features = ["derive"] }
 serde_json = "1.0.139"
+minio = { git = "https://github.com/minio/minio-rs", version = "0.2.0-alpha", rev = "b19513c90fa44724c4bd0ce328a0509c91652fae" }
 sqlx = { version = "0.8.3", features = ["postgres", "uuid", "runtime-tokio", "chrono"] }
 thiserror = "2.0.11"
 tokio = { version = "1.43.0", features = ["full"] }

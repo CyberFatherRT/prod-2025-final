@@ -17,7 +17,7 @@ pub struct CompaniesModel {
     avatar: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Type, Clone)]
+#[derive(Serialize, Deserialize, Type, Clone, PartialEq, Eq)]
 #[sqlx(type_name = "ROLE", rename_all = "lowercase")]
 #[serde(rename_all = "UPPERCASE")]
 pub enum RoleModel {

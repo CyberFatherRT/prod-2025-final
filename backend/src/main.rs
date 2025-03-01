@@ -8,17 +8,20 @@
 pub mod db;
 pub mod errors;
 pub mod forms;
-mod jwt;
+pub mod jwt;
+pub mod middlewares;
 pub mod models;
 pub mod routes;
-mod util;
+pub mod s3;
+pub mod util;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
+use middlewares::log_request;
 use routes::{admin, users};
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tracing::Level;
-use util::{env, log_request};
+use util::env;
 
 #[derive(Clone)]
 pub struct AppState {
