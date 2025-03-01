@@ -11,6 +11,7 @@ pub mod forms;
 pub mod models;
 pub mod routes;
 mod util;
+mod jwt;
 
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use sqlx::PgPool;

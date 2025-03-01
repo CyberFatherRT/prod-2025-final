@@ -13,5 +13,5 @@ enum class UserRole {
     ADMIN,
     STUDENTS,
     GUEST,
-    VERIFIED_GUEST
+    VerifiedGuest
 }

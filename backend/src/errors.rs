@@ -3,9 +3,15 @@ use tracing::info;
 
 #[derive(thiserror::Error, Debug)]
 pub enum ProdError {
+    #[error("JWT error")]
+    InvalidToken(#[from] jsonwebtoken::errors::Error),
+
     /// If the request was invalid or malformed.
     #[error("the request was invalid {0}")]
     InvalidRequest(#[from] validator::ValidationErrors),
+
+    #[error("some shit happened {0}")]
+    ShitHappened(String),
 
     #[error("{0}")]
     AlreadyExists(String),
@@ -34,13 +40,13 @@ pub enum ProdError {
 impl IntoResponse for ProdError {
     fn into_response(self) -> axum::response::Response {
         let (status, message) = match &self {
-            Self::AlreadyExists(_) | Self::InvalidRequest(_) => {
+            Self::AlreadyExists(_) | Self::InvalidRequest(_) | Self::ShitHappened(_) => {
                 (StatusCode::BAD_REQUEST, self.to_string())
             }
             Self::DatabaseError(_) | Self::Unknown(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
-            Self::Forbidden(_) => (StatusCode::FORBIDDEN, self.to_string()),
+            Self::Forbidden(_) | Self::InvalidToken(_) => (StatusCode::FORBIDDEN, self.to_string()),
             Self::Conflict(_) => (StatusCode::CONFLICT, self.to_string()),
             Self::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
         };
