@@ -1,5 +1,5 @@
 use crate::routes::{
-    admin::routes::{__path_delete_user, __path_verify_guest},
+    admin::routes::{__path_delete_user, __path_patch_user, __path_verify_guest},
     users::routes::{__path_login, __path_patch_profile, __path_profile, __path_register},
 };
 use utoipa::OpenApi;
@@ -8,10 +8,10 @@ use utoipa::OpenApi;
 #[openapi(
     paths(
         login, register, profile, patch_profile,
-        verify_guest, delete_user
+        verify_guest, delete_user, patch_user
     ),
     tags(
-        (name = "Users", description = "User management: register, login, patch"),
+        (name = "Users", description = "User management"),
         (name = "Admin", description = "Admin related functionality")
     )
 )]
