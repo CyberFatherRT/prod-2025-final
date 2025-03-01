@@ -73,7 +73,7 @@ Response:
 
 # Booking (/booking)
 
-### GET /list_booking_by_space/{space_id} 
+### GET /list_booking_by_space/{space_id}
 For admin, add sensitive info (like user_id who booked)
 
 ### GET /list_booking_by_item/{item_id}
