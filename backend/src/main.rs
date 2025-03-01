@@ -52,7 +52,7 @@ async fn main() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/healthz", get(StatusCode::OK))
-        .nest("/users", users::get_routes(app_state.clone()))
+        .nest("/user", users::get_routes(app_state.clone()))
         .nest("/admin", admin::get_routes(app_state.clone()))
         .layer(from_fn(log_request))
         .merge(SwaggerUi::new("/api/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()));
