@@ -1,10 +1,11 @@
 use axum::{routing::post, Router};
 
-use crate::AppState;
+use crate::{middlewares::auth_admin, AppState};
 
 mod routes;
 pub fn get_routes(state: AppState) -> Router {
     Router::new()
         .route("/verify_guest/{user_id}", post(routes::verify_guest))
         .with_state(state)
+        .layer(axum::middleware::from_fn(auth_admin))
 }
