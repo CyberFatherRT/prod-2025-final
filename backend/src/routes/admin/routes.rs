@@ -27,7 +27,40 @@ pub async fn verify_guest(
         "#,
         user_id
     )
-    .execute(&mut *conn)
+    .execute(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    Ok(())
+}
+
+/// Delete user
+#[utoipa::path(
+    delete,
+    tag = "Admin",
+    path = "/user/{user_id}",
+    responses(
+        (status = 200),
+        (status = 404, description = "guest not found"),
+    )
+)]
+pub async fn delete_user(
+    Path(user_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> Result<(), ProdError> {
+    let mut conn = state.pool.conn().await?;
+
+    let _ = sqlx::query!(
+        r#"
+        DELETE FROM users
+        WHERE id = $1
+        "#,
+        user_id
+    )
+    .execute(conn.as_mut())
     .await
     .map_err(|err| match err {
         sqlx::Error::RowNotFound => ProdError::NotFound(err.to_string()),
