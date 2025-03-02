@@ -20,18 +20,20 @@ deploy:
   only:
     changes:
       - compose.yml
-      - nginx
-      - backend
+      - nginx/**
+      - backend/**
   needs: [ ]
   extends:
     - .ssh
     - .global-variables
-    - .rules-merge-or-master
   stage: deploy
   script:
     - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker buildx build --file backend/Dockerfile --tag cyberfather/prod-backend:latest --cache-to=type=registry,ref=cyberfather/prod-backend:cache,mode=max --cache-from=type=registry,ref=cyberfather/prod-backend:cache ./backend && docker buildx prune -f && docker compose down backend && docker compose up -d backend"
 
 buildApp:
+  only:
+    changes:
+      - mobile/**
   stage: build
   image: eclipse-temurin:17-jdk
   variables:
