@@ -50,9 +50,11 @@ fun RegisterScreen(
 
     val emailValid by remember { derivedStateOf { Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}").matches(email) || email.isEmpty() } }
     val passwordValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(password)  || password.isEmpty() } }
-    val nameValid = true
-    val surnameValid = true
-    val companyDomainValid = true
+    val nameValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(name)  || name.isEmpty() } }
+    val surnameValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(surname)  || surname.isEmpty() } }
+    val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(companyDomain)  || companyDomain.isEmpty() } }
+
+    val isError = !(emailValid && passwordValid && nameValid && surnameValid && companyDomainValid)
 
     ConstraintLayout(
         modifier = Modifier
@@ -119,10 +121,11 @@ fun RegisterScreen(
                 value = companyDomain,
                 onValueChange = { companyDomain = it },
                 placeholder = "Домен компании",
-                error = if (passwordValid) "" else "Некорректный домен компании"
+                error = if (companyDomainValid) "" else "Некорректный домен компании"
             ),
             isLoading = viewState.isLoading,
             isLocked = false,
+            isLockedRegister = isError or name.isEmpty() or surname.isEmpty() or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
             onRegisterClick = { },
             onLoginClick = { },
             error = "",

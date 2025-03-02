@@ -42,6 +42,7 @@ fun RegisterElement(
     isLoading: Boolean,
     isLocked: Boolean,
     onRegisterClick: () -> Unit,
+    isLockedRegister: Boolean,
     onLoginClick: () -> Unit,
     error: String = "",
     modifier: Modifier = Modifier
@@ -150,7 +151,7 @@ fun RegisterElement(
                     text = "Создать аккаунт",
                     onClick = onRegisterClick,
                     isLoaded = isLoading,
-                    isLocked = isLocked,
+                    isLocked = isLockedRegister ,
                     modifier = Modifier
                 )
             }
@@ -235,6 +236,7 @@ fun RegisterElementPreview() {
             onRegisterClick = { isClick = !isClick },
             onLoginClick = { },
             error = "Привет как дела",
+            isLockedRegister = false,
             modifier = Modifier
                 .padding(10.dp)
         )

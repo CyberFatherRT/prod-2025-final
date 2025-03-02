@@ -40,6 +40,7 @@ fun LoginElement(
     isLoading: Boolean,
     isLocked: Boolean,
     onLoginClick: () -> Unit,
+    isLockedLogin: Boolean,
     onCreateAccountClick: () -> Unit,
     error: String = "",
     modifier: Modifier = Modifier,
@@ -134,7 +135,7 @@ fun LoginElement(
                     text = "Войти",
                     onClick = onLoginClick,
                     isLoaded = isLoading,
-                    isLocked = isLocked,
+                    isLocked = isLockedLogin,
                     modifier = Modifier
                 )
             }
@@ -205,6 +206,7 @@ fun LoginElementPreview() {
             isLoading = isClick,
             isLocked = false,
             error = "Привет как дела",
+            isLockedLogin = false,
             onLoginClick = { isClick = true },
             onCreateAccountClick = { },
             modifier = Modifier

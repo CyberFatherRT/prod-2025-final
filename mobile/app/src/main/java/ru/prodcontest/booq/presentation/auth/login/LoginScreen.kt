@@ -69,9 +69,10 @@ fun LoginScreen(
 
     val emailValid by remember { derivedStateOf { Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}").matches(email) || email.isEmpty() } }
     val passwordValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(password)  || password.isEmpty() } }
-    val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(password)  || password.isEmpty() } }
+    val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z]{3,30}").matches(companyDomain)  || companyDomain.isEmpty() } }
 
-    val isLocked by remember { mutableStateOf("") }
+
+    val isError = !(emailValid && passwordValid && companyDomainValid)
 
     ConstraintLayout(
         modifier = Modifier
@@ -83,7 +84,7 @@ fun LoginScreen(
             text = "Войдите в аккаунт!",
             modifier = Modifier
                 .constrainAs(boxText) {
-                    top.linkTo(parent.top, margin = 130.dp)
+                    top.linkTo(parent.top, margin = 50.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
@@ -114,33 +115,33 @@ fun LoginScreen(
                 value = email,
                 onValueChange = { email = it },
                 placeholder = "Почта",
-                error = if (emailValid) "Гойда почта" else ""
+                error = if (emailValid) "" else "Некорректный email"
             ),
             passwordData = AuthTextData(
                 value = password,
                 onValueChange = { password = it },
                 placeholder = "Пароль",
-                error = if (passwordValid) "Гойда пароль" else ""
+                error = if (!passwordValid) "Некорректный пароль" else ""
             ),
             companyDomainData = AuthTextData(
                 value = companyDomain,
                 onValueChange = { companyDomain = it },
                 placeholder = "Домен компании",
-                error = if (companyDomainValid) "Гойд домен" else ""
+                error = if (companyDomainValid) "" else "Длина домена от 3 до 30"
             ),
             isLoading = viewState.isLoading,
-            isLocked = false,
-            onLoginClick = { },
+            isLocked = viewState.isLoading,
+            isLockedLogin = isError or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
+            onLoginClick = { viewModel.login(email = email, password = password, domain = companyDomain) },
             onCreateAccountClick = { },
-            error = "Нижний лейбл",
+            error = "", // Сюда добавить обработку ошибки.
             modifier = Modifier
                 .padding(horizontal = 22.dp)
                 .constrainAs(boxLogin) {
-                    top.linkTo(boxText.bottom, margin = 100.dp)
+                    top.linkTo(boxText.bottom, margin = 90.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
         )
-
     }
 }

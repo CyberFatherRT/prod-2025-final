@@ -32,13 +32,13 @@ fun AuthButton(
 ) {
     Button(
         onClick = onClick,
-        enabled = !isLoaded or !isLocked,
+        enabled = !(isLoaded or isLocked),
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (!isLocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-            disabledContainerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary,
+            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
         )
     ) {
         if (isLoaded) {
