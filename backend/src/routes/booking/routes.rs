@@ -107,7 +107,7 @@ pub async fn create_booking(
     Ok((StatusCode::CREATED, Json(booking)))
 }
 
-/// Delete booking
+/// Delete bookingn
 #[utoipa::path(
     delete,
     tag = "Bookings",
@@ -116,6 +116,9 @@ pub async fn create_booking(
         (status = 204, description = "Booking was successully deleted"),
         (status = 403, description = "User doesn't own that booking"),
         (status = 404, description = "No booking was found with booking_id"),
+    ),
+    security(
+        ("bearerAuth" = [])
     )
 )]
 pub async fn delete_booking(
