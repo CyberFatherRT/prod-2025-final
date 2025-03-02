@@ -11,10 +11,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -24,11 +26,12 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.presentation.auth.components.AuthTextData
-import ru.prodcontest.booq.presentation.auth.login.LoginViewModel
-import ru.prodcontest.booq.presentation.auth.login.components.LoginElement
+import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.components.RegisterElement
+import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.theme.BooqTheme
 
 @Serializable
@@ -37,10 +40,22 @@ object RegisterScreenDestination
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: RegisterViewModel = hiltViewModel()
 ) {
-
     val viewState = viewModel.viewState.value
+
+    val actionsScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        actionsScope.launch {
+            viewModel.action.collect { action ->
+                when(action) {
+                    is RegisterScreenAction.NavigateToHomeScreen -> {
+                        navController.navigate(ProfileScreenDestination)
+                    }
+                }
+            }
+        }
+    }
 
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
@@ -50,9 +65,9 @@ fun RegisterScreen(
 
     val emailValid by remember { derivedStateOf { Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}").matches(email) || email.isEmpty() } }
     val passwordValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(password)  || password.isEmpty() } }
-    val nameValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(name)  || name.isEmpty() } }
-    val surnameValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(surname)  || surname.isEmpty() } }
-    val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(companyDomain)  || companyDomain.isEmpty() } }
+    val nameValid by remember { derivedStateOf { (name.length > 1) and (name.length < 120) || name.isEmpty() } }
+    val surnameValid by remember { derivedStateOf { (surname.length > 1) and (surname.length < 120) || surname.isEmpty() } }
+    val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z]{3,30}").matches(companyDomain) || companyDomain.isEmpty() } }
 
     val isError = !(emailValid && passwordValid && nameValid && surnameValid && companyDomainValid)
 
@@ -122,12 +137,13 @@ fun RegisterScreen(
                 onValueChange = { companyDomain = it },
                 placeholder = "Домен компании",
                 error = if (companyDomainValid) "" else "Некорректный домен компании"
+            
             ),
             isLoading = viewState.isLoading,
             isLocked = false,
             isLockedRegister = isError or name.isEmpty() or surname.isEmpty() or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
-            onRegisterClick = { },
-            onLoginClick = { },
+            onRegisterClick = { viewModel.register(name, surname, email, password, companyDomain) },
+            onLoginClick = { navController.navigate(LoginScreenDestination) },
             error = "",
             modifier = Modifier
                 .padding(horizontal = 22.dp)
@@ -137,7 +153,6 @@ fun RegisterScreen(
                     end.linkTo(parent.end)
                 }
         )
-
     }
 }
 

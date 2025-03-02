@@ -22,9 +22,9 @@ class RegisterViewModel @Inject constructor(
         error = null
     )
 
-    fun register(name: String, surname: String, email: String, password: String) =
+    fun register(name: String, surname: String, email: String, password: String, domain: String) =
         viewModelScope.launch {
-            apiRepository.register(RegisterDto(name, surname, email, password)).onEach {
+            apiRepository.register(RegisterDto(name, surname, email, password, domain)).onEach {
                 when (it) {
                     is ResultWrapper.Ok -> {
                         setTokenUseCase(it.data.token)

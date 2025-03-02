@@ -1,5 +1,6 @@
 package ru.prodcontest.booq.presentation.auth.login
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
@@ -36,6 +37,7 @@ class LoginViewModel @Inject constructor(
                 is ResultWrapper.Error ->  {
                     setState { copy(isLoading = false) }
                     setAction { LoginScreenAction.ShowError(it.message) }
+                    Log.d("MEOW", it.message)
                 }
             }
         }.collect()

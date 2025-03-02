@@ -132,7 +132,7 @@ fun RegisterElement(
 
                 AuthTextField(
                     data = companyDomainData,
-                    isPassword = true,
+                    isPassword = false,
                     isLocked = isLoading,
                     iconResId = R.drawable.apartment_24,
                 )
