@@ -72,6 +72,9 @@ pub async fn create_coworking(
         (status = 200, body = Vec<CoworkingSpacesModel>, description = "List of coworkings"),
         (status = 403, description = "You are not an admin"),
     ),
+    security(
+        ("bearerAuth" = [])
+    )
 )]
 pub async fn list_coworkings(
     headers: HeaderMap,
