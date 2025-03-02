@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT i.bookable\n        FROM coworking_items ci\n        JOIN items i ON i.id = ci.item_id\n        WHERE ci.id = $1 AND ci.coworking_id = $2\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "bookable",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1092514c19bc400543daff3d7abf378053b82262e04e7fcd58418df0ab6a7083"
+}
