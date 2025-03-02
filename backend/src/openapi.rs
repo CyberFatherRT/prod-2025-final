@@ -42,6 +42,12 @@ impl Modify for SecurityAddon {
         (name = "Bookings", description = "Booking related functionality"),
         (name = "Companies", description = "Companies related functionality")
     ),
+    info(
+        title = "BooQ",
+        license(
+            name = "BookIT solution",
+        )
+    ),
     modifiers(&SecurityAddon)
 )]
 pub struct ApiDoc;
