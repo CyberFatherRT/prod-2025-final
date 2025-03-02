@@ -7,3 +7,8 @@ pub struct CreateCoworkingForm {
     pub height: i32,
     pub width: i32,
 }
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct UpdateCoworkingForm {
+    pub address: String,
+}
