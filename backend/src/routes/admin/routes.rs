@@ -130,7 +130,7 @@ pub async fn list_users(
     let users = sqlx::query_as!(
         PublicUserData,
         r#"
-        SELECT 
+        SELECT
         id, name, surname, email, avatar, role as "role: RoleModel"
         FROM users
         WHERE company_id = $1
@@ -138,8 +138,7 @@ pub async fn list_users(
         company_id
     )
     .fetch_all(conn.as_mut())
-    .await
-    .map_err(ProdError::DatabaseError)?;
+    .await?;
 
     Ok(Json(users))
 }

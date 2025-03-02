@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, Type};
 use utoipa::ToSchema;
@@ -77,15 +78,15 @@ pub struct CoworkingItemsModel {
     pub coworking_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, FromRow, Validate)]
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]
 pub struct BookingModel {
     pub id: Uuid,
     pub user_id: Uuid,
     pub coworking_space_id: Uuid,
     pub coworking_item_id: Uuid,
     pub company_id: Uuid,
-    pub time_start: chrono::DateTime<chrono::Utc>,
-    pub time_end: chrono::DateTime<chrono::Utc>,
+    pub time_start: NaiveDateTime,
+    pub time_end: NaiveDateTime,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]

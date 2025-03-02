@@ -1,4 +1,12 @@
-use crate::routes::{admin::routes::*, companies::routes::*, users::routes::*, users::validate::*};
+use crate::routes::{
+    admin::routes::{
+        __path_delete_user, __path_list_users, __path_patch_user, __path_verify_guest,
+    },
+    booking::routes::__path_create_booking,
+    companies::routes::__path_company_register,
+    users::routes::{__path_login, __path_patch_profile, __path_profile, __path_register},
+    users::validate::__path_upload_document,
+};
 use utoipa::openapi::security::{Http, HttpAuthScheme, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 
@@ -21,11 +29,13 @@ impl Modify for SecurityAddon {
     paths(
         login, register, profile, patch_profile, upload_document,
         verify_guest, delete_user, patch_user, list_users,
-        company_register
+        create_booking,
+        company_register,
     ),
     tags(
         (name = "Users", description = "User management"),
         (name = "Admin", description = "Admin related functionality"),
+        (name = "Bookings", description = "Booking related functionality"),
         (name = "Companies", description = "Companies related functionality")
     ),
     modifiers(&SecurityAddon)
