@@ -28,16 +28,18 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlin.math.sqrt
 
 @Serializable
 object MapScreenDestination
@@ -62,7 +64,13 @@ data class SpaceItem(
     val offsets: List<Point>,
     var selected: Boolean = false,
     val name: String
-)
+) {
+    fun massCenter() =
+        Offset(
+            (offsets.sumOf { it.x }.toFloat() / offsets.size + basePoint.x) * CELL + CELL / 2,
+            (offsets.sumOf { it.y }.toFloat() / offsets.size + basePoint.y) * CELL + CELL / 2
+        )
+}
 
 const val CELL = 80f
 
@@ -75,12 +83,49 @@ val AnimatableFloatSaver = Saver<Animatable<Float, AnimationVector1D>, Float>(
     restore = { Animatable(it) }
 )
 
+enum class Corner {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+}
+
+fun DrawScope.drawRoundRectWithCorners(
+    color: Color,
+    topLeft: Offset,
+    size: Size,
+    radius: Float,
+    corners: List<Corner>
+) {
+    drawRoundRect(color, topLeft, size, CornerRadius(radius, radius))
+    corners.forEach { corner ->
+        when (corner) {
+            Corner.TopLeft -> {
+                drawRect(color, topLeft, size / 2F)
+            }
+
+            Corner.TopRight -> {
+                drawRect(color, Offset(topLeft.x + size.width / 2, topLeft.y), size / 2F)
+            }
+
+            Corner.BottomLeft -> {
+                drawRect(color, Offset(topLeft.x, topLeft.y + size.height / 2), size / 2F)
+            }
+
+            Corner.BottomRight -> {
+                drawRect(
+                    color,
+                    Offset(topLeft.x + size.width / 2, topLeft.y + size.height / 2),
+                    size / 2F
+                )
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen() {
-//    var camera by remember { mutableStateOf(Offset(10f, 50f)) }
-//    val cameraTransX = remember { Animatable(0f) }
-//    val cameraTransY = remember { Animatable(0f) }
     val camera = rememberSaveable(saver = AnimatableOffsetSaver) {
         Animatable(
             Offset.Zero,
@@ -134,10 +179,6 @@ fun MapScreen() {
         )
     }
 
-    val scalingLimiter = { value: Float ->
-        1 / (-10 * value - 5) + 2
-    }
-
     fun zoomTo(
         centroid: Offset,
         pan: Offset,
@@ -160,14 +201,28 @@ fun MapScreen() {
         }
     }
 
+    fun focusToItem(item: SpaceItem, canvasSize: IntSize) {
+        cameraAnimationScope.launch {
+            camera.animateTo(
+                Offset(
+                    item.massCenter().x - canvasSize.width / 4,
+                    item.massCenter().y - canvasSize.height / 4 + canvasSize.height / 8
+                ), animationSpec = tween(1000)
+            )
+        }
+        cameraScalingAnimationScope.launch {
+            cameraScaling.animateTo(2f, animationSpec = tween(1000))
+        }
+    }
+
     LaunchedEffect(Unit) {
         Toast.makeText(ctx, "asdasdasd", Toast.LENGTH_SHORT).show()
     }
-    val mtoast = { txt: String ->
-        Toast.makeText(ctx, txt, Toast.LENGTH_SHORT).show()
-    }
 
     var selectedName by remember { mutableStateOf("") }
+    var canvasSize by remember { mutableStateOf(Size.Unspecified) }
+
+
 
     Canvas(
         Modifier
@@ -186,29 +241,10 @@ fun MapScreen() {
                                 item.selected = !item.selected
                                 invalidations++
                                 Log.d("MEOW", "$item")
-                                showBottomSheet = true
+//                                showBottomSheet = true
                                 selectedName = item.name
 
-//                                val centroid = Offset(it.x, it.y)
-//                                val oldScale = cameraScaling.value
-//                                val newScale = sqrt(cameraScaling.value) + 0.5f
-//                                Log.d("MEOW1", "$oldScale")
-//                                cameraAnimationScope.launch {
-//                                    camera.animateTo(
-//                                        (camera.value + centroid / oldScale) - (centroid / newScale),
-//                                        animationSpec = tween(1000)
-//                                    )
-//                                }
-//                                cameraScalingAnimationScope.launch {
-//                                    cameraScaling.animateTo(newScale, animationSpec = tween(1000))
-//                                }
-                                zoomTo(
-                                    it,
-                                    Offset.Zero,
-                                    sqrt(cameraScaling.value) + 0.5f,
-                                    tween(1000),
-                                    tween(1000)
-                                )
+                                focusToItem(item, size)
                             }
                         }
                     }
@@ -216,21 +252,8 @@ fun MapScreen() {
             }
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
-                    Log.d("MEOW", "$pan")
-//                    val oldScale = cameraScaling.value
-//                    val newScale = cameraScaling.value * zoom
-//                    cameraAnimationScope.launch {
-//                        camera.animateTo(
-//                            (camera.value + centroid / oldScale) - (centroid / newScale + pan / oldScale),
-//                            animationSpec = snap(0)
-//                        )
-//                    }
-//                    cameraScalingAnimationScope.launch {
-//                        cameraScaling.animateTo(newScale, animationSpec = snap(0))
-//                    }
                     zoomTo(centroid, pan, cameraScaling.value * zoom)
                 }
-
             }
             .graphicsLayer {
                 translationX = -camera.value.x * cameraScaling.value
@@ -240,6 +263,7 @@ fun MapScreen() {
                 transformOrigin = TransformOrigin(0f, 0f)
             }
     ) {
+        canvasSize = size
         invalidations.let { _ ->
             drawLine(Color.Gray, Offset(0f, 0f), Offset(meow.width * CELL, 0f))
             drawLine(Color.Gray, Offset(0f, 0f), Offset(0f, meow.height * CELL))
@@ -297,12 +321,46 @@ fun MapScreen() {
             meow.items.forEach { item ->
                 item.offsets.forEach { dot ->
                     val actualDot = item.basePoint + dot
-                    drawRect(
+                    val corners = mutableListOf<Corner>().apply {
+                        if (item.offsets.any { it.x == dot.x - 1 && it.y == dot.y }) {
+                            addAll(listOf(Corner.TopLeft, Corner.BottomLeft))
+                        }
+                        if (item.offsets.any { it.x == dot.x + 1 && it.y == dot.y }) {
+                            addAll(listOf(Corner.TopRight, Corner.BottomRight))
+                        }
+                        if (item.offsets.any { it.y == dot.y - 1 && it.x == dot.x }) {
+                            addAll(listOf(Corner.TopLeft, Corner.TopRight))
+                        }
+                        if (item.offsets.any { it.y == dot.y + 1 && it.x == dot.x }) {
+                            addAll(listOf(Corner.BottomLeft, Corner.BottomRight))
+                        }
+                    }
+                    drawRoundRectWithCorners(
                         if (item.selected) Color.White else Color.Green,
                         Offset(actualDot.x * CELL - 2f, actualDot.y * CELL - 2f),
-                        Size(CELL + 2f, CELL + 2f)
+                        Size(CELL + 2f, CELL + 2f),
+                        CELL / 4,
+                        corners
                     )
                 }
+//                val topLeftBoundX = item.offsets.minBy { it.x }.x
+//                val topLeftBoundY = item.offsets.minBy {it.y}.y
+//                val botRightBoundX = item.offsets.maxBy { it.x }.x
+//                val botRightBoundY = item.offsets.maxBy { it.y }.y
+//                (topLeftBoundX..botRightBoundX).forEach { xCell ->
+//                    (topLeftBoundY..botRightBoundY).forEach { yCell ->
+//                        if (
+//                            item.offsets.any { it.x == xCell + 1 && it.y == yCell } and
+//                            item.offsets.any { it.x == xCell && it.y == yCell - 1 } and
+//                            item.offsets.none { it.x == xCell - 1 && it.y == yCell } and
+//                            item.offsets.none { it.x == xCell && it.y == yCell + 1 }
+//                        ) {
+//                            val actualDot = item.basePoint + Point(xCell, yCell)
+//                            drawRect(if (item.selected) Color.White else Color.Green, actualDot.toOffset(), Size(CELL+2f, CELL +2f))
+//                            drawRoundRect(Color.Gray, actualDot.toOffset(), Size(CELL+2f, CELL +2f), CornerRadius(CELL/4,CELL/4))
+//                        }
+//                    }
+//                }
             }
         }
     }
