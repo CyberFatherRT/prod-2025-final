@@ -4,6 +4,7 @@ use crate::errors::ProdError;
 use crate::forms::companies::CompanyRegisterData;
 use crate::forms::users::{RegisterForm, Token};
 use crate::jwt::generate::create_token;
+use crate::models::RoleModel;
 use crate::util::ValidatedJson;
 use crate::AppState;
 use axum::extract::State;
@@ -51,6 +52,7 @@ pub async fn company_register(
             password: "password".to_string(),
             company_domain: form.domain,
         },
+        RoleModel::Admin,
     )
     .await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;

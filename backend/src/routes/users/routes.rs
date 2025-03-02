@@ -83,7 +83,7 @@ pub async fn register(
     State(state): State<AppState>,
     ValidatedJson(form): ValidatedJson<RegisterForm>,
 ) -> Result<Json<Token>, ProdError> {
-    let user = register_user(state, form).await?;
+    let user = register_user(state, form, RoleModel::Guest).await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;
 
     Ok(Json(Token { jwt: token }))

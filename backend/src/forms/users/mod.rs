@@ -112,3 +112,13 @@ pub struct PatchProfileFormData {
 pub struct Token {
     pub jwt: String,
 }
+
+#[derive(Serialize, Deserialize, Validate, ToSchema)]
+pub struct PublicUserData {
+    pub id: Uuid,
+    pub name: String,
+    pub surname: String,
+    pub email: String,
+    pub avatar: Option<String>,
+    pub role: RoleModel,
+}

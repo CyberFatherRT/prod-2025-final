@@ -13,7 +13,11 @@ use tracing::log::warn;
 use uuid::Uuid;
 use validator::Validate;
 
-pub async fn register_user(state: AppState, form: RegisterForm) -> Result<TokenData, ProdError> {
+pub async fn register_user(
+    state: AppState,
+    form: RegisterForm,
+    role: RoleModel,
+) -> Result<TokenData, ProdError> {
     let mut conn = state.pool.conn().await?;
 
     let mut tx = conn.begin().await?;
@@ -36,15 +40,16 @@ pub async fn register_user(state: AppState, form: RegisterForm) -> Result<TokenD
         TokenData,
         r#"
         INSERT INTO users (
-            name, surname, email,
+            name, surname, email, role,
             password, company_id, company_domain
         )
-        VALUES ( $1, $2, $3, $4, $5, $6)
+        VALUES ( $1, $2, $3, $4, $5, $6, $7)
         RETURNING id, company_id, role as "role: RoleModel"
         "#,
         form.name,
         form.surname,
         form.email,
+        role as RoleModel,
         Argon::hash_password(form.password.as_bytes())?,
         company.id,
         form.company_domain
@@ -52,7 +57,9 @@ pub async fn register_user(state: AppState, form: RegisterForm) -> Result<TokenD
     .fetch_one(tx.as_mut())
     .await
     .map_err(|err| match err {
-        sqlx::Error::Database(e) if e.is_unique_violation() => ProdError::Conflict(e.to_string()),
+        sqlx::Error::Database(e) if e.is_unique_violation() => {
+            ProdError::Conflict("Пользователь с таким e-mail уже существует.".to_string())
+        }
         _ => ProdError::DatabaseError(err),
     })?;
 
