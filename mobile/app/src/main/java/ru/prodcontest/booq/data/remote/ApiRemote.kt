@@ -15,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.channels.ProducerScope
+import ru.prodcontest.booq.data.remote.dto.BookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
@@ -32,6 +33,7 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val VERIFICATIONS_ENDPOINT = "$BASE_DOMAIN/admin/list_requests"
         const val REGISTER_COMPANY_ENDPOINT = "$BASE_DOMAIN/company/register"
         const val UPLOAD_DOCUMENT_ENDPOINT = "$BASE_DOMAIN/user/upload_document"
+        const val BOOKING_LIST_ENDPOINT = "$BASE_DOMAIN/booking/list"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -48,7 +50,7 @@ class ApiRemote(private val httpClient: HttpClient) {
             attributes.put(InsertAuthAttrs.DontInsert, true)
         }.body<TokenDto>()
 
-    suspend fun profile() = httpClient.get(PROFILE_ENDPOINT).body<ProfileDto>()
+    suspend fun getProfile() = httpClient.get(PROFILE_ENDPOINT).body<ProfileDto>()
     suspend fun verifications() =
         httpClient.get(VERIFICATIONS_ENDPOINT).body<List<VerificationDto>>()
 
@@ -87,4 +89,12 @@ class ApiRemote(private val httpClient: HttpClient) {
         }
         flow.send(res)
     }
+
+    suspend fun getBookingList() =
+        httpClient.get(BOOKING_LIST_ENDPOINT) {
+            contentType(ContentType.Application.Json)
+            attributes.put(InsertAuthAttrs.DontInsert, true)
+        }.body<List<BookingDto>>()
+
+
 }

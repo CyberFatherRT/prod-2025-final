@@ -26,8 +26,8 @@ fun NavGraph(navController: NavHostController) {
         startDestination = LoginScreenDestination
     ) {
         composable<LoginScreenDestination> {
-            LoginScreen(navController)
-//            MapScreen()
+//            LoginScreen(navController)
+            MapScreen()
         }
         composable<RegisterScreenDestination> {
             RegisterScreen(navController)

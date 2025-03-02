@@ -1,5 +1,7 @@
 package ru.prodcontest.booq.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import ru.prodcontest.booq.data.remote.ApiRemote
@@ -7,6 +9,7 @@ import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
+import ru.prodcontest.booq.domain.model.BookingModel
 import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.repository.ApiRepository
@@ -22,7 +25,7 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
         wrapToResult { apiRemote.register(creds) }
 
     override suspend fun getProfile(): ResultFlow<UserModel> = wrapToResult {
-        apiRemote.profile().toModel()
+        apiRemote.getProfile().toModel()
     }
 
     override suspend fun getVerifications(): ResultFlow<List<VerificationModel>> = wrapToResult {
@@ -32,7 +35,14 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
     override suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto> =
         wrapToResult { apiRemote.registerCompany(creds) }
 
+
     override suspend fun uploadDocument(document: ByteArray): Flow<UploadProgress> = channelFlow {
         apiRemote.uploadDocument(document, this)
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun getBookingList(): ResultFlow<List<BookingModel>> =
+        wrapToResult { apiRemote.getBookingList().map { it.toModel() } }
+
 }
+

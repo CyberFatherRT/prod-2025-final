@@ -272,7 +272,7 @@ fun HomeBookingCardPreview() {
             data = BookingDataUi(
                 name = "K-254",
                 label = "- тянки\n- монитор\n- очень тихо",
-                address = "Москва, ул. Ленина, д. 1",
+                address = "Москва, ул. Ленина, д. 1\nИгровая комната 3",
                 date = "13:00-15:00 12.12.2021",
                 status = "Подтверждено"
             ),
