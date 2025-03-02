@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,74 +73,83 @@ fun LoginScreen(
 
     val isError = !(emailValid && passwordValid && companyDomainValid)
 
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val (boxText, boxLogin, boxBackground) = createRefs()
-
-        Text(
-            text = "Войдите в аккаунт!",
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+        ConstraintLayout(
             modifier = Modifier
-                .constrainAs(boxText) {
-                    top.linkTo(parent.top, margin = 50.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 28.sp
-            )
-        )
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            val (boxText, boxLogin, boxBackground) = createRefs()
 
-        Box(
-            modifier = Modifier
-                .height(260.dp)
-                .width(80.dp)
-                .offset(x = (-50).dp)
-                .background(
+            Text(
+                text = "Войдите в аккаунт!",
+                modifier = Modifier
+                    .constrainAs(boxText) {
+                        top.linkTo(parent.top, margin = 50.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(41.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp
                 )
-                .constrainAs(boxBackground) {
-                    top.linkTo(boxLogin.top, margin = 60.dp)
-                    start.linkTo(boxLogin.start)
-                }
-        )
+            )
 
-        LoginElement(
-            emailData = AuthTextData(
-                value = email,
-                onValueChange = { email = it },
-                placeholder = "Почта",
-                error = if (emailValid) "" else "Некорректный email"
-            ),
-            passwordData = AuthTextData(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = "Пароль",
-                error = if (!passwordValid) "Некорректный пароль" else ""
-            ),
-            companyDomainData = AuthTextData(
-                value = companyDomain,
-                onValueChange = { companyDomain = it },
-                placeholder = "Домен компании",
-                error = if (companyDomainValid) "" else "Длина домена от 3 до 30"
-            ),
-            isLoading = viewState.isLoading,
-            isLocked = viewState.isLoading,
-            isLockedLogin = isError or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
-            onLoginClick = { viewModel.login(email = email, password = password, domain = companyDomain) },
-            onCreateAccountClick = { navController.navigate(RegisterScreenDestination) },
-            error = "", // Сюда добавить обработку ошибки.
-            modifier = Modifier
-                .padding(horizontal = 22.dp)
-                .constrainAs(boxLogin) {
-                    top.linkTo(boxText.bottom, margin = 90.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-        )
+            Box(
+                modifier = Modifier
+                    .height(260.dp)
+                    .width(80.dp)
+                    .offset(x = (-50).dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(41.dp),
+                    )
+                    .constrainAs(boxBackground) {
+                        top.linkTo(boxLogin.top, margin = 60.dp)
+                        start.linkTo(boxLogin.start)
+                    }
+            )
+
+            LoginElement(
+                emailData = AuthTextData(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = "Почта",
+                    error = if (emailValid) "" else "Некорректный email"
+                ),
+                passwordData = AuthTextData(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = "Пароль",
+                    error = if (!passwordValid) "Некорректный пароль" else ""
+                ),
+                companyDomainData = AuthTextData(
+                    value = companyDomain,
+                    onValueChange = { companyDomain = it },
+                    placeholder = "Домен компании",
+                    error = if (companyDomainValid) "" else "Длина домена от 3 до 30"
+                ),
+                isLoading = viewState.isLoading,
+                isLocked = viewState.isLoading,
+                isLockedLogin = isError or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
+                onLoginClick = {
+                    viewModel.login(
+                        email = email,
+                        password = password,
+                        domain = companyDomain
+                    )
+                },
+                onCreateAccountClick = { navController.navigate(RegisterScreenDestination) },
+                error = "", // Сюда добавить обработку ошибки.
+                modifier = Modifier
+                    .padding(horizontal = 22.dp)
+                    .constrainAs(boxLogin) {
+                        top.linkTo(boxText.bottom, margin = 90.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            )
+        }
     }
 }

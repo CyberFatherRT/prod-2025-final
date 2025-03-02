@@ -137,7 +137,7 @@ fun RegisterScreen(
                 onValueChange = { companyDomain = it },
                 placeholder = "Домен компании",
                 error = if (companyDomainValid) "" else "Некорректный домен компании"
-            
+
             ),
             isLoading = viewState.isLoading,
             isLocked = false,
