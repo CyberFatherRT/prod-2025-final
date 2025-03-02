@@ -10,4 +10,5 @@ interface ApiRepository {
     suspend fun login(creds: LoginDto): ResultFlow<TokenDto>
     suspend fun register(creds: RegisterDto): ResultFlow<TokenDto>
     suspend fun getProfile(): ResultFlow<UserModel>
+    suspend fun getVerifications(): ResultFlow<>
 }
