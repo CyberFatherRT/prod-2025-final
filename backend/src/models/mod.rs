@@ -91,6 +91,25 @@ pub struct BookingModel {
     pub time_end: NaiveDateTime,
 }
 
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]
+pub struct PublicBookingModel {
+    pub id: Uuid,
+    pub user_id: Uuid,
+
+    pub coworking_space_id: Uuid,
+    pub coworking_item_id: Uuid,
+    pub company_id: Uuid,
+
+    pub time_start: NaiveDateTime,
+    pub time_end: NaiveDateTime,
+
+    pub company_name: String,
+    pub building_address: String,
+
+    pub booking_item_name: String,
+    pub booking_item_description: Option<String>,
+}
+
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct PendingVerificationsModel {
     pub user_id: Uuid,

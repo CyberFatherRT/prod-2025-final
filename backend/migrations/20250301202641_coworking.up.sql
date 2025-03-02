@@ -1,17 +1,21 @@
 -- Add up migration script here
 
-DO $$
-BEGIN
-    CREATE TYPE point AS (
-        x INT,
-        y INT
-    );
-EXCEPTION
-    WHEN DUPLICATE_OBJECT THEN NULL;
-END $$;
+DO
+$$
+    BEGIN
+        CREATE TYPE point AS
+        (
+            x INT,
+            y INT
+        );
+    EXCEPTION
+        WHEN DUPLICATE_OBJECT THEN NULL;
+    END
+$$;
 
-CREATE TABLE IF NOT EXISTS buildings (
-    id         UUID    DEFAULT uuidv7() PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS buildings
+(
+    id         UUID DEFAULT uuidv7() PRIMARY KEY,
     address    VARCHAR NOT NULL,
     company_id UUID    NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
@@ -35,7 +39,7 @@ CREATE TABLE IF NOT EXISTS coworking_spaces
 CREATE INDEX IF NOT EXISTS coworking_spaces_company_id_idx ON coworking_spaces (company_id);
 
 
-CREATE TABLE IF NOT EXISTS items
+CREATE TABLE IF NOT EXISTS item_types
 (
     id          UUID    DEFAULT uuidv7() PRIMARY KEY,
     name        VARCHAR               NOT NULL,
@@ -47,16 +51,18 @@ CREATE TABLE IF NOT EXISTS items
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS items_company_id_idx ON items (company_id);
+CREATE INDEX IF NOT EXISTS items_company_id_idx ON item_types (company_id);
 
 
 CREATE TABLE IF NOT EXISTS coworking_items
 (
     id           UUID DEFAULT uuidv7() PRIMARY KEY,
-    item_id      UUID NOT NULL,
+    name         VARCHAR NOT NULL,
+    description  VARCHAR,
+    item_id      UUID    NOT NULL,
     base_point   point,
-    coworking_id UUID NOT NULL,
-    FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE,
+    coworking_id UUID    NOT NULL,
+    FOREIGN KEY (item_id) REFERENCES item_types (id) ON DELETE CASCADE,
     FOREIGN KEY (coworking_id) REFERENCES coworking_spaces (id) ON DELETE CASCADE
 );
 
