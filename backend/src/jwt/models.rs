@@ -1,6 +1,6 @@
 use crate::errors::ProdError;
-use crate::jwt::generate::validate_token;
-use crate::models::RoleModel;
+use crate::jwt::generate::{validate_qr_token, validate_token};
+use crate::models::{BookingModel, RoleModel};
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -17,6 +17,19 @@ pub struct Claims {
     pub exp: i64,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct QrClaims {
+    pub booking_id: Uuid,
+}
+
+impl QrClaims {
+    pub fn new(booking: &BookingModel) -> Self {
+        Self {
+            booking_id: booking.id,
+        }
+    }
+}
+
 impl Claims {
     pub fn new(user_id: &Uuid, company_id: &Uuid, role: &RoleModel) -> Self {
         let iat = Utc::now();
@@ -29,6 +42,18 @@ impl Claims {
             iat: iat.timestamp(),
             exp: exp.timestamp(),
         }
+    }
+}
+
+impl FromStr for QrClaims {
+    type Err = ProdError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let claims: Vec<_> = s.split(' ').collect();
+        let token = claims.get(1).ok_or(ProdError::ShitHappened(
+            "Wrong authorization Bearer format".to_string(),
+        ))?;
+        validate_qr_token(token)
     }
 }
 

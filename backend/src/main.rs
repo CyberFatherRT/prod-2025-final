@@ -17,7 +17,7 @@ pub mod routes;
 pub mod s3;
 pub mod util;
 
-use crate::routes::companies;
+use crate::routes::{companies, items};
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use middlewares::log_request;
 use openapi::ApiDoc;
@@ -71,6 +71,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/booking", booking::get_routes(app_state.clone()))
         .nest("/company", companies::get_routes(app_state.clone()))
         .nest("/place", places::get_routes(app_state.clone()))
+        .nest("/items", items::get_routes(app_state.clone()))
         .layer(from_fn(log_request))
         .merge(SwaggerUi::new("/api/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()));
 

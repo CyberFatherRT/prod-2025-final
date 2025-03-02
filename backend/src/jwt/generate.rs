@@ -1,6 +1,6 @@
 use crate::errors::ProdError;
-use crate::jwt::models::Claims;
-use crate::models::RoleModel;
+use crate::jwt::models::{Claims, QrClaims};
+use crate::models::{BookingModel, RoleModel};
 use axum::http::HeaderMap;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use rand::RngCore;
@@ -27,8 +27,29 @@ pub fn create_token(
     .map_err(ProdError::InvalidToken)
 }
 
+pub fn create_qr_token(booking_model: &BookingModel) -> Result<String, ProdError> {
+    let claims = QrClaims::new(booking_model);
+
+    encode(
+        &Header::new(Algorithm::HS256),
+        &claims,
+        &EncodingKey::from_secret(&SECRET),
+    )
+    .map_err(ProdError::InvalidToken)
+}
+
 pub fn validate_token(token: &str) -> Result<Claims, ProdError> {
     decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(&SECRET),
+        &Validation::new(Algorithm::HS256),
+    )
+    .map(|data| data.claims)
+    .map_err(ProdError::InvalidToken)
+}
+
+pub fn validate_qr_token(token: &str) -> Result<QrClaims, ProdError> {
+    decode::<QrClaims>(
         token,
         &DecodingKey::from_secret(&SECRET),
         &Validation::new(Algorithm::HS256),

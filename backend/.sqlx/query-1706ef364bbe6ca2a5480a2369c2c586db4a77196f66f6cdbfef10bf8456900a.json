@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n        id, user_id, coworking_space_id, coworking_item_id, company_id, time_start, time_end\n        FROM bookings\n        WHERE user_id = $1 AND id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "coworking_space_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "coworking_item_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "company_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "time_start",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "time_end",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1706ef364bbe6ca2a5480a2369c2c586db4a77196f66f6cdbfef10bf8456900a"
+}
