@@ -8,6 +8,8 @@ import ru.prodcontest.booq.presentation.auth.login.LoginScreen
 import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreen
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
+import ru.prodcontest.booq.presentation.profile.ProfileScreen
+import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -16,10 +18,13 @@ fun NavGraph(navController: NavHostController) {
         startDestination = LoginScreenDestination
     ) {
         composable<LoginScreenDestination> {
-            LoginScreen()
+            LoginScreen(navController)
         }
         composable<RegisterScreenDestination> {
             RegisterScreen()
+        }
+        composable<ProfileScreenDestination> {
+            ProfileScreen(navController)
         }
     }
 }

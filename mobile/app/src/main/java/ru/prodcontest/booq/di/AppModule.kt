@@ -45,12 +45,12 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideHttpClient(getTokenUseCase: GetTokenUseCase): HttpClient = HttpClient(Android) {
+    fun provideHttpClient(useCase: GetTokenUseCase): HttpClient = HttpClient(Android) {
         install(ContentNegotiation) {
             json()
         }
         install(InsertAuthKtorPlugin) {
-            getTokenUseCase
+            getTokenUseCase=useCase
         }
     }
 

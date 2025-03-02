@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.usecase.SetTokenUseCase
@@ -19,20 +20,23 @@ class LoginViewModel @Inject constructor(
 ) : BaseViewModel<LoginScreenState, LoginScreenAction>() {
 
     override fun setInitialState() = LoginScreenState(
-        isLoading = false,
-        error = null
+        isLoading = false
     )
 
-    fun login(email: String, password: String) = viewModelScope.launch {
-        apiRepository.login(LoginDto(email, password)).onEach {
+    fun login(email: String, password: String, domain: String) = viewModelScope.launch {
+        apiRepository.login(LoginDto(email, password, domain)).onEach {
             when (it) {
                 is ResultWrapper.Ok -> {
-                    setTokenUseCase(it.data.token)
+                    setState { copy(isLoading = false) }
+                    runBlocking { setTokenUseCase(it.data.token) }
                     setAction { LoginScreenAction.NavigateToHomeScreen }
                 }
 
-                is ResultWrapper.Loading -> setState { copy(isLoading = true) }
-                is ResultWrapper.Error -> setState { copy(error = it.message) }
+                ResultWrapper.Loading -> setState { copy(isLoading = true) }
+                is ResultWrapper.Error ->  {
+                    setState { copy(isLoading = false) }
+                    setAction { LoginScreenAction.ShowError(it.message) }
+                }
             }
         }.collect()
     }
@@ -41,4 +45,5 @@ class LoginViewModel @Inject constructor(
 
 sealed class LoginScreenAction {
     data object NavigateToHomeScreen : LoginScreenAction()
+    data class ShowError(val message: String) : LoginScreenAction()
 }

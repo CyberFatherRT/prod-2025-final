@@ -13,25 +13,29 @@ data class ProfileDto(
     @SerialName("surname")
     val surname: String,
     @SerialName("avatar")
-    val avatarUrl: String,
+    val avatarUrl: String? = null,
     @SerialName("role")
     val role: String,
     @SerialName("pending_verification")
     val pendingVerification: Boolean,
     @SerialName("company_id")
-    val companyId: String
+    val companyId: String,
+    @SerialName("email")
+    val email: String
 ) {
     fun toModel() = UserModel(
         name = name,
         surname = surname,
         avatarUrl = avatarUrl,
         role = when(role) {
-            "admin" -> UserRole.Admin
-            "student" -> UserRole.Student
-            "guest" -> UserRole.Guest
-            "verified_guest" -> UserRole.VerifiedGuest
+            "ADMIN" -> UserRole.Admin
+            "STUDENT" -> UserRole.Student
+            "GUEST" -> UserRole.Guest
+            "VERIFIEDGUEST" -> UserRole.VerifiedGuest
             else -> throw Exception("invalid role")
         },
-        companyId = UUID.fromString(companyId)
+        companyId = UUID.fromString(companyId),
+        email = email,
+        pendingVerification = pendingVerification
     )
 }
