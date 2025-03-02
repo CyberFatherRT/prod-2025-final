@@ -3,6 +3,7 @@ use crate::forms::users::{LoginForm, PatchProfileFormData, RegisterForm, Token, 
 use crate::jwt::generate::create_token;
 use crate::jwt::hashing::Argon;
 
+use crate::s3::utils::get_file;
 use crate::util::ValidatedJson;
 use crate::{
     db::Db,
@@ -12,9 +13,13 @@ use crate::{
     models::{RoleModel, UserModel},
     AppState,
 };
-use axum::extract::Multipart;
+use axum::body::Body;
+use axum::extract::{Multipart, Path};
+use axum::http::header::CONTENT_TYPE;
 use axum::http::StatusCode;
+use axum::response::Response;
 use axum::{extract::State, http::HeaderMap, Json};
+use uuid::Uuid;
 
 /// Login user
 #[utoipa::path(
@@ -196,4 +201,49 @@ pub async fn delete_user(
     .await?;
 
     Ok(StatusCode::NO_CONTENT)
+}
+
+/// Get user avatar
+#[utoipa::path(
+    get,
+    tag = "Users",
+    path = "/user/{user_id}/avatar",
+    responses(
+        (status = 200, description = "user avatar"),
+        (status = 404, description = "user or avatar not found")
+    )
+)]
+pub async fn get_avatar(
+    Path(user_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> Result<Response, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let avatar = sqlx::query!(
+        r#"
+            SELECT avatar
+            FROM users
+            WHERE id = $1
+            "#,
+        user_id
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map(|record| record.avatar)
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No such user".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+    if avatar.is_none() {
+        return Err(ProdError::NotFound("Avatar not found".to_string()));
+    };
+
+    let file_name = format!("users/{user_id}/avatar");
+
+    let (stream, content_type) = get_file(&state, &file_name).await?;
+    let response = Response::builder()
+        .header(CONTENT_TYPE, content_type)
+        .body(Body::from_stream(stream))
+        .map_err(|e| ProdError::Unknown(e.into()))?;
+
+    Ok(response)
 }

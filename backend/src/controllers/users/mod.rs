@@ -5,7 +5,7 @@ use crate::jwt::hashing::Argon;
 use crate::models::UserModel;
 use crate::models::{RoleModel, TokenData};
 use crate::s3::utils::upload_file;
-use crate::AppState;
+use crate::{AppState, BASE_URL};
 use axum::body::Bytes;
 use axum::extract::Multipart;
 use sqlx::Acquire;
@@ -125,7 +125,7 @@ pub async fn update_user(
     if let Some(image) = image {
         let name = format!("users/{user_id}/avatar");
         upload_file(&state, &name, image_content_type.expect("Really???"), image).await?;
-        avatar_url = Some(name);
+        avatar_url = Some(format!("{BASE_URL}/user/{user_id}/avatar"));
     }
 
     let hashed_password = match form.as_ref().and_then(|data| data.password.as_ref()) {
