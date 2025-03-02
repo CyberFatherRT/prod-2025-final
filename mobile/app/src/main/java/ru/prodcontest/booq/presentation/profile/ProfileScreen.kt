@@ -118,7 +118,6 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
 
                     }) { Icon(Icons.Default.Create, null) }
                 },
-//                expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
                 scrollBehavior = null
             )
         },

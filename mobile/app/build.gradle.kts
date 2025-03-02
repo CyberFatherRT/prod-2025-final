@@ -95,4 +95,11 @@ dependencies {
     implementation(libs.datastore)
 
     implementation(libs.constraintLayout)
+
+    implementation(libs.accompanist.permissions)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.mlkit.barcode)
+    implementation(libs.camera.vision)
 }
