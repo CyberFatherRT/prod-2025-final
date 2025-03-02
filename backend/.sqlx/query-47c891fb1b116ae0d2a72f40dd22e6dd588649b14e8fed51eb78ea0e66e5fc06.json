@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT i.bookable\n        FROM coworking_items ci\n        JOIN items i ON i.id = ci.item_id\n        WHERE ci.id = $1 AND ci.coworking_id = $2\n    ",
+  "query": "\n        SELECT i.bookable\n        FROM coworking_items ci\n        JOIN item_types i ON i.id = ci.item_id\n        WHERE ci.id = $1 AND ci.coworking_id = $2\n    ",
   "describe": {
     "columns": [
       {
@@ -19,5 +19,5 @@
       false
     ]
   },
-  "hash": "1092514c19bc400543daff3d7abf378053b82262e04e7fcd58418df0ab6a7083"
+  "hash": "47c891fb1b116ae0d2a72f40dd22e6dd588649b14e8fed51eb78ea0e66e5fc06"
 }

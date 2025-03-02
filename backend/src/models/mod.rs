@@ -44,19 +44,21 @@ pub struct UserModel {
     pub role: RoleModel,
 }
 
-#[derive(Serialize, Deserialize, FromRow)]
+#[derive(Serialize, Deserialize, FromRow, ToSchema)]
 pub struct CoworkingSpacesModel {
     pub id: Uuid,
+    pub address: String,
+    pub height: i32,
+    pub width: i32,
+    pub building_id: Uuid,
     pub company_id: Uuid,
-    pub height: i64,
-    pub width: i64,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Type)]
 #[sqlx(type_name = "point")]
 pub struct Point {
-    x: i64,
-    y: i64,
+    x: i32,
+    y: i32,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
@@ -87,6 +89,25 @@ pub struct BookingModel {
     pub company_id: Uuid,
     pub time_start: NaiveDateTime,
     pub time_end: NaiveDateTime,
+}
+
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]
+pub struct PublicBookingModel {
+    pub id: Uuid,
+    pub user_id: Uuid,
+
+    pub coworking_space_id: Uuid,
+    pub coworking_item_id: Uuid,
+    pub company_id: Uuid,
+
+    pub time_start: NaiveDateTime,
+    pub time_end: NaiveDateTime,
+
+    pub company_name: String,
+    pub building_address: String,
+
+    pub booking_item_name: String,
+    pub booking_item_description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]

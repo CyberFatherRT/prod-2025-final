@@ -6,6 +6,7 @@ use axum::{
 use sqlx::Acquire;
 use uuid::Uuid;
 
+use crate::models::PublicBookingModel;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -57,7 +58,7 @@ pub async fn create_booking(
         r#"
         SELECT i.bookable
         FROM coworking_items ci
-        JOIN items i ON i.id = ci.item_id
+        JOIN item_types i ON i.id = ci.item_id
         WHERE ci.id = $1 AND ci.coworking_id = $2
     "#,
         form.coworking_item_id,
@@ -164,7 +165,7 @@ pub async fn delete_booking(
     Ok(StatusCode::NO_CONTENT)
 }
 
-/// Upadte booking place and time
+/// Update booking place and time
 #[utoipa::path(
     patch,
     tag = "Bookings",
@@ -231,4 +232,53 @@ pub async fn patch_booking(
     tx.commit().await?;
 
     Ok(Json(booking))
+}
+
+/// List active future bookings
+#[utoipa::path(
+    get,
+    tag = "Bookings",
+    path = "/booking/list",
+    responses(
+        (status = 200, body = Vec<PublicBookingModel>, description = "List of user's bookings"),
+        (status = 403, description = "No auth"),
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn list_bookings(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<PublicBookingModel>>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let claim = claims_from_headers(&headers)?;
+
+    let bookings = sqlx::query_as!(
+        PublicBookingModel,
+        r#"
+        SELECT
+            b.id,
+            b.user_id,
+            b.company_id,
+            b.coworking_space_id,
+            b.coworking_item_id,
+            b.time_start,
+            b.time_end,
+            c.name as company_name,
+            bu.address as building_address,
+            i.name as booking_item_name,
+            i.description as booking_item_description
+        FROM bookings b
+        JOIN companies c ON c.id = b.company_id
+        JOIN buildings bu ON bu.company_id = b.company_id
+        JOIN coworking_items i ON i.coworking_id = b.coworking_space_id
+        WHERE b.user_id = $1 AND b.time_end > NOW()
+        "#,
+        claim.user_id,
+    )
+    .fetch_all(conn.as_mut())
+    .await?;
+
+    Ok(Json(bookings))
 }

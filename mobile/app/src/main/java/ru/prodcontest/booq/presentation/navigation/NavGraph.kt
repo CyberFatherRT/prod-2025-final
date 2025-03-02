@@ -14,6 +14,8 @@ import ru.prodcontest.booq.presentation.map.MapScreen
 import ru.prodcontest.booq.presentation.map.MapScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreen
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
+import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestination
+import ru.prodcontest.booq.presentation.verifications.VerificationsScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -36,6 +38,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable<MapScreenDestination> {
             MapScreen()
+        }
+        composable<VerificationsScreenDestination> {
+            VerificationsScreen(navController)
         }
     }
 }
