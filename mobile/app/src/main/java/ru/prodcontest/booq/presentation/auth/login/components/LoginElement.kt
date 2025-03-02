@@ -177,7 +177,7 @@ fun LoginElement(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF2A2E37, name = "Email Empty")
+@Preview(showBackground = true, backgroundColor = 0xFF2A2E37)
 @Composable
 fun LoginElementPreview() {
 

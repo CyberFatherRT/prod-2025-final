@@ -15,6 +15,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = DarkGrey1,   // #414650
     tertiary = DarkGrey2,     // #3B3F48
     background = DarkGrey3,
+    onBackground = LightGrey1
 )
 
 @Composable
