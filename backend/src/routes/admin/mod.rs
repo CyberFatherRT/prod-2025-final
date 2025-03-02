@@ -9,6 +9,7 @@ pub mod routes;
 pub fn get_routes(state: AppState) -> Router {
     Router::new()
         .route("/verify_guest/{user_id}", post(routes::verify_guest))
+        .route("/user/{user_id}", get(routes::get_user))
         .route("/user/{user_id}", delete(routes::delete_user))
         .route("/user/{user_id}", patch(routes::patch_user))
         .route("/user/list", get(routes::list_users))

@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n        id, name, surname, email, avatar, role as \"role: RoleModel\"\n        FROM users\n        WHERE company_id = $1 AND id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "surname",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "avatar",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "role: RoleModel",
+        "type_info": {
+          "Custom": {
+            "name": "role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "student",
+                "guest",
+                "verified_guest"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "ef578e324ed21a30335d51baab37eb9582b5528837244004a42668c17dc026a0"
+}

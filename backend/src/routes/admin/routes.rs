@@ -5,10 +5,51 @@ use axum::{extract::Path, extract::State, Json};
 use uuid::Uuid;
 
 use crate::controllers::users::update_user;
-use crate::forms::users::PublicUserData;
+use crate::forms::users::{PatchProfileFormData, PublicUserData};
 use crate::jwt::generate::claims_from_headers;
 use crate::models::UserModel;
 use crate::{db::Db, errors::ProdError, AppState};
+
+/// Get user by id
+#[utoipa::path(
+    get,
+    tag = "Admin",
+    path = "/admin/user/{user_id}",
+    responses(
+        (status = 200, body = PublicUserData),
+        (status = 403, description = "not admin / no auth"),
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn get_user(
+    headers: HeaderMap,
+    Path(user_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> Result<Json<PublicUserData>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let company_id = claims_from_headers(&headers)?.company_id;
+    let user = sqlx::query_as!(
+        PublicUserData,
+        r#"
+        SELECT 
+        id, name, surname, email, avatar, role as "role: RoleModel"
+        FROM users
+        WHERE company_id = $1 AND id = $2
+        "#,
+        company_id,
+        user_id
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("Such user does not exist".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    Ok(Json(user))
+}
 
 /// Verify guest user
 #[utoipa::path(
@@ -90,8 +131,16 @@ pub async fn delete_user(
     patch,
     tag = "Admin",
     path = "/admin/user/{user_id}",
+    request_body = PatchProfileForm,
     responses(
         (status = 200, body = UserModel),
+        (status = 400, description = "wrong data format"),
+        (status = 403, description = "not admin / no auth"),
+    ),
+    request_body(content = PatchProfileFormData, content_type = "multipart/form-data"),
+    responses(
+        (status = 200, description = "Profile updated", body = UserModel),
+        (status = 400, description = "Wrong body", body = String),
         (status = 403, description = "not admin / no auth"),
         (status = 404, description = "user not found"),
     ),

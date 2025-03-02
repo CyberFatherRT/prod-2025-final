@@ -3,6 +3,7 @@ use axum::{
     http::HeaderMap,
 };
 
+use crate::forms::users::UploadedDocument;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -12,7 +13,21 @@ use crate::{
     AppState,
 };
 
-#[utoipa::path(post, tag = "Users", path = "/user/upload_document")]
+/// Upload document for user verification
+#[utoipa::path(
+    post,
+    tag = "Users",
+    path = "/user/upload_document",
+    request_body(content = UploadedDocument, content_type = "multipart/form-data"),
+    responses(
+        (status = 200, description = "document successfully uploaded"),
+        (status = 403, description = "no auth / already verified"),
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+
 pub async fn upload_document(
     headers: HeaderMap,
     State(state): State<AppState>,

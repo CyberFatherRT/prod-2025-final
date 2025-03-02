@@ -108,6 +108,12 @@ pub struct PatchProfileFormData {
     pub avatar: Option<Vec<u8>>,
 }
 
+#[derive(ToSchema)]
+pub struct UploadedDocument {
+    #[schema(value_type = String, format = "binary")]
+    pub document: String,
+}
+
 #[derive(Serialize, Deserialize, Validate, ToSchema)]
 pub struct Token {
     pub jwt: String,
