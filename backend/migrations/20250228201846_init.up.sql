@@ -1,5 +1,7 @@
 -- Add up migration script here
 
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 CREATE OR REPLACE FUNCTION uuidv7() RETURNS UUID
 AS
 $$
@@ -13,4 +15,3 @@ SELECT ENCODE(
                                52, 1),
                        53, 1), 'hex')::UUID;
 $$ LANGUAGE sql VOLATILE;
-

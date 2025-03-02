@@ -1,9 +1,14 @@
 -- Add up migration script here
 
-CREATE TYPE point AS (
-    x INTEGER,
-    y INTEGER
-);
+DO $$
+BEGIN
+    CREATE TYPE point AS (
+        x INTEGER,
+        y INTEGER
+    );
+EXCEPTION
+    WHEN DUPLICATE_OBJECT THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS coworking_spaces
 (
@@ -16,14 +21,13 @@ CREATE TABLE IF NOT EXISTS coworking_spaces
 
 CREATE TABLE IF NOT EXISTS items
 (
-    id          UUID DEFAULT uuidv7() PRIMARY KEY,
+    id          UUID    DEFAULT uuidv7() PRIMARY KEY,
     name        VARCHAR,
     description VARCHAR,
     icon        VARCHAR,
-    base_point  point,
     offsets     point[],
-    rotation    SMALLINT CHECK (rotation BETWEEN 0 AND 3),
-    company_id  UUID NOT NULL,
+    bookable    BOOLEAN DEFAULT FALSE NOT NULL,
+    company_id  UUID                  NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
 
@@ -31,6 +35,7 @@ CREATE TABLE IF NOT EXISTS coworking_items
 (
     id           UUID DEFAULT uuidv7() PRIMARY KEY,
     item_id      UUID NOT NULL,
+    base_point   point,
     coworking_id UUID NOT NULL,
     FOREIGN KEY (item_id) REFERENCES items (id),
     FOREIGN KEY (coworking_id) REFERENCES coworking_spaces (id)

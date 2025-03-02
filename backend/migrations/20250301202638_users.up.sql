@@ -1,6 +1,11 @@
 -- Add up migration script here
 
-CREATE TYPE ROLE AS ENUM ('admin', 'student', 'guest', 'verified_guest');
+DO $$
+BEGIN
+    CREATE TYPE ROLE AS ENUM ('admin', 'student', 'guest', 'verified_guest');
+EXCEPTION
+    WHEN DUPLICATE_OBJECT THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS users
 (
