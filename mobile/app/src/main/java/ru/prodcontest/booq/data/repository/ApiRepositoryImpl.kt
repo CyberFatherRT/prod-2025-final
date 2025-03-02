@@ -22,6 +22,6 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
     }
 
     override suspend fun getVerifications(): ResultFlow<List<VerificationModel>> = wrapToResult {
-        apiRemote.verifications().toModel()
+        apiRemote.verifications().map { it.toModel() }
     }
 }

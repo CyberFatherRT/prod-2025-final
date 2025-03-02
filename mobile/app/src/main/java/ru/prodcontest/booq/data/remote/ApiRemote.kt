@@ -37,5 +37,5 @@ class ApiRemote(private val httpClient: HttpClient) {
         }.body<TokenDto>()
 
     suspend fun profile() = httpClient.get(PROFILE_ENDPOINT).body<ProfileDto>()
-    suspend fun verifications() = httpClient.get(VERIFICATIONS_ENDPOINT).body<VerificationDto>()
+    suspend fun verifications() = httpClient.get(VERIFICATIONS_ENDPOINT).body<List<VerificationDto>>()
 }

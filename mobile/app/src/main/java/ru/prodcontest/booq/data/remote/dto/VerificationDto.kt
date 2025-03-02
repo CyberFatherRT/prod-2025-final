@@ -24,7 +24,7 @@ data class VerificationUserDto(
 )
 
 @Serializable
-data class VerificationDto(
+data class  VerificationDto(
     @SerialName("document")
     val document: String,
     @SerialName("user")

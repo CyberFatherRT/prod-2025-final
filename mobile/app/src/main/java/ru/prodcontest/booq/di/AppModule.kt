@@ -24,6 +24,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class AppModule {
 
+    // =============================================
+    //                  USERCASE
+    // =============================================
+
     @Provides
     @Singleton
     fun provideAppConfigRepository(
@@ -31,17 +35,6 @@ class AppModule {
     ): AppConfigRepository {
         return AppConfigRepositoryImpl(context)
     }
-
-    @Provides
-    @Singleton
-    fun provideGetTokenUseCase(appConfigRepository: AppConfigRepository): GetTokenUseCase =
-        GetTokenUseCase(appConfigRepository)
-
-    @Provides
-    @Singleton
-    fun provideSetTokenUseCase(appConfigRepository: AppConfigRepository): SetTokenUseCase =
-        SetTokenUseCase(appConfigRepository)
-
 
     @Provides
     @Singleton
@@ -53,6 +46,7 @@ class AppModule {
             getTokenUseCase=useCase
         }
     }
+
 
     @Provides
     @Singleton

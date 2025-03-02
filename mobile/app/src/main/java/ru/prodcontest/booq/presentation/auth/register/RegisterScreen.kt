@@ -92,20 +92,20 @@ fun RegisterScreen(
             )
         )
 
-        Box(
-            modifier = Modifier
-                .height(300.dp)
-                .width(80.dp)
-                .offset(x = -40.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(41.dp),
-                )
-                .constrainAs(boxBackground) {
-                    top.linkTo(boxLogin.top, margin = 80.dp)
-                    start.linkTo(boxLogin.end)
-                }
-        )
+//        Box(
+//            modifier = Modifier
+//                .height(300.dp)
+//                .width(80.dp)
+//                .offset(x = -40.dp)
+//                .background(
+//                    color = MaterialTheme.colorScheme.primary,
+//                    shape = RoundedCornerShape(41.dp),
+//                )
+//                .constrainAs(boxBackground) {
+//                    top.linkTo(boxLogin.top, margin = 80.dp)
+//                    start.linkTo(boxLogin.end)
+//                }
+//        )
 
         RegisterElement(
             nameData = AuthTextData(

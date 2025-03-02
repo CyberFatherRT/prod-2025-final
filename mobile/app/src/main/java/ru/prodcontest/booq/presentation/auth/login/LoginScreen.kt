@@ -96,20 +96,20 @@ fun LoginScreen(
                 )
             )
 
-            Box(
-                modifier = Modifier
-                    .height(260.dp)
-                    .width(80.dp)
-                    .offset(x = (-50).dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(41.dp),
-                    )
-                    .constrainAs(boxBackground) {
-                        top.linkTo(boxLogin.top, margin = 60.dp)
-                        start.linkTo(boxLogin.start)
-                    }
-            )
+//            Box(
+//                modifier = Modifier
+//                    .height(260.dp)
+//                    .width(80.dp)
+//                    .offset(x = (-50).dp)
+//                    .background(
+//                        color = MaterialTheme.colorScheme.primary,
+//                        shape = RoundedCornerShape(41.dp),
+//                    )
+//                    .constrainAs(boxBackground) {
+//                        top.linkTo(boxLogin.top, margin = 60.dp)
+//                        start.linkTo(boxLogin.start)
+//                    }
+//            )
 
             LoginElement(
                 emailData = AuthTextData(
