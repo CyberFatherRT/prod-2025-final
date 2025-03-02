@@ -1,9 +1,16 @@
 -- Add up migration script here
 
+CREATE TYPE IF NOT EXISTS point AS (
+    x INTEGER,
+    y INTEGER
+);
+
 CREATE TABLE IF NOT EXISTS coworking_spaces
 (
-    id         UUID DEFAULT uuidv7() PRIMARY KEY,
-    company_id UUID NOT NULL,
+    id         UUID    DEFAULT uuidv7() PRIMARY KEY,
+    height     INTEGER NOT NULL,
+    width      INTEGER NOT NULL,
+    company_id UUID    NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
 
@@ -13,6 +20,8 @@ CREATE TABLE IF NOT EXISTS items
     name        VARCHAR,
     description VARCHAR,
     icon        VARCHAR,
+    base_point  point,
+    offsets     point[],
     company_id  UUID NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
