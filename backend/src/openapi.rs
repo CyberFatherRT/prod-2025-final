@@ -9,7 +9,7 @@ use crate::routes::{
     companies::routes::__path_company_register,
     items::{
         routes::{__path_create_items_type, __path_delete_item_type},
-        selecting::__path_get_items_by_coworking,
+        selecting::{__path_get_items_by_coworking, __path_list_items_by_company},
     },
     places::{
         building::{
@@ -53,7 +53,7 @@ impl Modify for SecurityAddon {
         verify_guest, admin_delete_user, patch_user, list_users, get_user, get_verify_requests, get_user_document,
         create_booking, delete_booking, patch_booking, list_bookings,
         company_register, create_coworking, create_building, list_buildings, get_building, list_coworkings, patch_building, patch_coworking, get_coworking_by_id,
-        create_items_type, delete_item_type, get_items_by_coworking
+        create_items_type, delete_item_type, get_items_by_coworking, list_items_by_company
     ),
     tags(
         (name = "Users", description = "User management"),

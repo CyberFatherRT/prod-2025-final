@@ -9,7 +9,7 @@ use crate::{
     db::Db,
     errors::ProdError,
     jwt::generate::claims_from_headers,
-    models::{CoworkingItemsModel, Point},
+    models::{CoworkingItemsModel, ItemsModel, Point},
     AppState,
 };
 
@@ -49,6 +49,41 @@ pub async fn get_items_by_coworking(
         "#,
         building_id,
         coworking_id,
+        company_id
+    )
+    .fetch_all(conn.as_mut())
+    .await?;
+
+    Ok(Json(items))
+}
+
+/// List all item types for company by id
+#[utoipa::path(
+    get,
+    tag = "Items",
+    path = "/items",
+    responses(
+        (status = 200, body = Vec<ItemsModel>, description = "List of items in coworking"),
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn list_items_by_company(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<ItemsModel>>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let company_id = claims_from_headers(&headers)?.company_id;
+
+    let items = sqlx::query_as!(
+        ItemsModel,
+        r#"
+        SELECT id, name, description, bookable, icon,
+               offsets as "offsets: Vec<Point>", company_id
+        FROM item_types
+        WHERE company_id = $1
+        "#,
         company_id
     )
     .fetch_all(conn.as_mut())
