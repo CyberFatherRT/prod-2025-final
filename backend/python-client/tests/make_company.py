@@ -2,6 +2,7 @@ from bookit.company import Company, CompanyApi
 from bookit.admin import AdminApi
 from .util import rand_n_str
 
+
 def create_company(domain, name):
     company = Company(domain, name)
     api = CompanyApi()
@@ -9,6 +10,7 @@ def create_company(domain, name):
     print(status_code)
 
     return status_code, data
+
 
 def test_create_company():
     domain = rand_n_str(10)
