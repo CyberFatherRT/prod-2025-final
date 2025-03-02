@@ -3,7 +3,7 @@ use crate::routes::{
         __path_delete_user, __path_get_user, __path_list_users, __path_patch_user,
         __path_verify_guest,
     },
-    booking::routes::__path_create_booking,
+    booking::routes::{__path_create_booking, __path_delete_booking, __path_patch_booking},
     companies::routes::__path_company_register,
     users::routes::{__path_login, __path_patch_profile, __path_profile, __path_register},
     users::validate::__path_upload_document,
@@ -30,7 +30,7 @@ impl Modify for SecurityAddon {
     paths(
         login, register, profile, patch_profile, upload_document,
         verify_guest, delete_user, patch_user, list_users, get_user,
-        create_booking,
+        create_booking, delete_booking, patch_booking,
         company_register,
     ),
     tags(

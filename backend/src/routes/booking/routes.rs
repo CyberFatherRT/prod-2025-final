@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{
     db::Db,
     errors::ProdError,
-    forms::bookings::CreateBookingForm,
+    forms::bookings::{CreateBookingForm, PatchBookingForm},
     jwt::{generate::claims_from_headers, models::Claims},
     models::{BookingModel, RoleModel},
     util::ValidatedJson,
@@ -71,6 +71,9 @@ pub async fn create_booking(
             "No item was found with that uuid - {}",
             form.coworking_item_id
         )),
+        sqlx::Error::Database(e) if e.is_check_violation() => {
+            ProdError::ShitHappened(e.to_string())
+        }
         _ => ProdError::DatabaseError(err),
     })?;
 
@@ -107,11 +110,14 @@ pub async fn create_booking(
     Ok((StatusCode::CREATED, Json(booking)))
 }
 
-/// Delete bookingn
+/// Delete booking
 #[utoipa::path(
     delete,
     tag = "Bookings",
     path = "/booking/{booking_id}",
+    params(
+        ("booking_id" = Uuid, Path)
+    ),
     responses(
         (status = 204, description = "Booking was successully deleted"),
         (status = 403, description = "User doesn't own that booking"),
@@ -156,4 +162,73 @@ pub async fn delete_booking(
     tx.commit().await?;
 
     Ok(StatusCode::NO_CONTENT)
+}
+
+/// Upadte booking place and time
+#[utoipa::path(
+    patch,
+    tag = "Bookings",
+    path = "/booking/{booking_id}",
+    request_body = PatchBookingForm,
+    params(
+        ("booking_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 200, body = BookingModel, description = "Successully update booking"),
+        (status = 400, description = "Wrong request"),
+        (status = 403, description = "User doesn't own that booking"),
+        (status = 404, description = "Coworking or coworking_item not found")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn patch_booking(
+    header: HeaderMap,
+    State(state): State<AppState>,
+    Path(booking_id): Path<Uuid>,
+    ValidatedJson(form): ValidatedJson<PatchBookingForm>,
+) -> Result<Json<BookingModel>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let claim = claims_from_headers(&header)?;
+    let mut tx = conn.begin().await?;
+
+    let booking = sqlx::query_as!(
+        BookingModel,
+        r#"
+        UPDATE bookings
+        SET
+            coworking_space_id = COALESCE($2, coworking_space_id),
+            coworking_item_id = COALESCE($3, coworking_item_id),
+            time_start = COALESCE($4, time_start),
+            time_end = COALESCE($5, time_end)
+        WHERE id = $1
+        RETURNING id, user_id, coworking_space_id, coworking_item_id,
+                  company_id, time_start, time_end
+        "#,
+        booking_id,
+        form.coworking_id,
+        form.coworking_item_id,
+        form.time_start,
+        form.time_end
+    )
+    .fetch_one(tx.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No booking was found".to_string()),
+        sqlx::Error::Database(e) if e.is_check_violation() => {
+            ProdError::ShitHappened(e.to_string())
+        }
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    if claim.user_id != booking.user_id || claim.company_id != booking.company_id {
+        return Err(ProdError::Forbidden(
+            "You don't have permission to that booking".to_string(),
+        ));
+    }
+
+    tx.commit().await?;
+
+    Ok(Json(booking))
 }

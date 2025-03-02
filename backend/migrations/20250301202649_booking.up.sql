@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS bookings
     EXCLUDE USING gist (
         coworking_item_id WITH =,
         tsrange(time_start, time_end) WITH &&
-    )
+        ),
+    CHECK (bookings.time_start < bookings.time_end),
+    CHECK (EXTRACT(EPOCH FROM time_end - time_start)::integer % 900 = 0)
 );
 
 CREATE INDEX IF NOT EXISTS booking_user_id_idx ON bookings (user_id);
