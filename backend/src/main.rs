@@ -21,7 +21,7 @@ use crate::routes::companies;
 use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
 use middlewares::log_request;
 use openapi::ApiDoc;
-use routes::{admin, booking, users};
+use routes::{admin, booking, places, users};
 use s3::setup_s3;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
@@ -70,6 +70,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/admin", admin::get_routes(app_state.clone()))
         .nest("/booking", booking::get_routes(app_state.clone()))
         .nest("/company", companies::get_routes(app_state.clone()))
+        .nest("/place", places::get_routes(app_state.clone()))
         .layer(from_fn(log_request))
         .merge(SwaggerUi::new("/api/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()));
 

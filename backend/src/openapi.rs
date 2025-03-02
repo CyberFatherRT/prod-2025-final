@@ -7,7 +7,7 @@ use crate::routes::{
         __path_create_booking, __path_delete_booking, __path_list_bookings, __path_patch_booking,
     },
     companies::routes::__path_company_register,
-    coworkings::routes::__path_create_coworking,
+    places::coworking::__path_create_coworking,
     users::{
         routes::{
             __path_delete_user, __path_get_avatar, __path_login, __path_patch_profile,

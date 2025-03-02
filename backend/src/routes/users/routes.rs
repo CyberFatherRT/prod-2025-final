@@ -233,9 +233,10 @@ pub async fn get_avatar(
         sqlx::Error::RowNotFound => ProdError::NotFound("No such user".to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
+
     if avatar.is_none() {
         return Err(ProdError::NotFound("Avatar not found".to_string()));
-    };
+    }
 
     let file_name = format!("users/{user_id}/avatar");
 
