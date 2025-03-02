@@ -80,7 +80,7 @@ pub async fn login(
     path = "/user/register",
     request_body = RegisterForm,
     responses(
-        (status = 200, body = Token),
+        (status = 201, body = Token, description = "JWT for created user"),
         (status = 400, description = "wrong data format"),
         (status = 409, description = "conflict")
     )
@@ -88,11 +88,11 @@ pub async fn login(
 pub async fn register(
     State(state): State<AppState>,
     ValidatedJson(form): ValidatedJson<RegisterForm>,
-) -> Result<Json<Token>, ProdError> {
+) -> Result<(StatusCode, Json<Token>), ProdError> {
     let user = register_user(state, form, RoleModel::Guest).await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;
 
-    Ok(Json(Token { jwt: token }))
+    Ok((StatusCode::CREATED, Json(Token { jwt: token })))
 }
 
 /// Get user profile
@@ -146,7 +146,6 @@ pub async fn profile(
     patch,
     tag = "Users",
     path = "/user/profile",
-    request_body = PatchProfileForm,
     responses(
         (status = 200, body = UserModel),
         (status = 400, description = "wrong data format"),
@@ -233,9 +232,10 @@ pub async fn get_avatar(
         sqlx::Error::RowNotFound => ProdError::NotFound("No such user".to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
+
     if avatar.is_none() {
         return Err(ProdError::NotFound("Avatar not found".to_string()));
-    };
+    }
 
     let file_name = format!("users/{user_id}/avatar");
 

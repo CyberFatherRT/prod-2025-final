@@ -1,5 +1,6 @@
 pub mod admin;
 pub mod bookings;
 pub mod companies;
-pub mod coworkings;
+pub mod items;
+pub mod places;
 pub mod users;

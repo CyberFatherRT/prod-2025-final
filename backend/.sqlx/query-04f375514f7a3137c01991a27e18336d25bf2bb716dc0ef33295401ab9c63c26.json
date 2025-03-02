@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, address, height, width, building_id, company_id\n        FROM coworking_spaces\n        WHERE building_id = $1\n        AND company_id = $2\n        AND id = $3\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "address",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "height",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "width",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "building_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "company_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "04f375514f7a3137c01991a27e18336d25bf2bb716dc0ef33295401ab9c63c26"
+}
