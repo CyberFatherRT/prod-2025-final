@@ -1,7 +1,9 @@
 package ru.prodcontest.booq.presentation.auth.login.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -34,6 +36,7 @@ import ru.prodcontest.booq.presentation.theme.BooqTheme
 fun LoginElement(
     emailData: AuthTextData,
     passwordData: AuthTextData,
+    companyDomainData: AuthTextData,
     isLoading: Boolean,
     isLocked: Boolean,
     onLoginClick: () -> Unit,
@@ -85,33 +88,31 @@ fun LoginElement(
 
             val horizontalMargin = 8.dp
 
-            val (emailBox, passwordBox, buttonBox, errorMsg, createAccount) = createRefs()
+            val (inputBox, buttonBox, errorMsg, createAccount) = createRefs()
 
-            Box(
+            Column(
+                verticalArrangement = Arrangement.spacedBy(14.dp),
                 modifier = Modifier
-                    .constrainAs(emailBox) {
+                    .padding(top = 22.dp)
+                    .constrainAs(inputBox) {
                         start.linkTo(parent.start, margin = horizontalMargin)
                         end.linkTo(parent.end, margin = horizontalMargin)
-                        top.linkTo(parent.top, margin = 22.dp)
+                        top.linkTo(parent.top, margin = 16.dp)
                         width = Dimension.fillToConstraints
                     }
             ) {
+                AuthTextField(
+                    data = companyDomainData,
+                    isLocked = isLoading,
+                    iconResId = R.drawable.apartment_24,
+                )
+
                 AuthTextField(
                     data = emailData,
                     isLocked = isLoading,
                     iconResId = R.drawable.mail_24,
                 )
-            }
 
-            Box(
-                modifier = Modifier
-                    .constrainAs(passwordBox) {
-                        start.linkTo(emailBox.start)
-                        end.linkTo(emailBox.end)
-                        top.linkTo(emailBox.bottom, margin = 12.dp)
-                        width = Dimension.fillToConstraints
-                    }
-            ) {
                 AuthTextField(
                     data = passwordData,
                     isPassword = true,
@@ -123,9 +124,9 @@ fun LoginElement(
             Box(
                 modifier = Modifier
                     .constrainAs(buttonBox) {
-                        start.linkTo(passwordBox.start, margin = horizontalMargin)
-                        end.linkTo(passwordBox.end, margin = horizontalMargin)
-                        top.linkTo(passwordBox.bottom, margin = 42.dp)
+                        start.linkTo(inputBox.start, margin = horizontalMargin)
+                        end.linkTo(inputBox.end, margin = horizontalMargin)
+                        top.linkTo(inputBox.bottom, margin = 42.dp)
                         width = Dimension.fillToConstraints
                     }
             ) {
@@ -188,11 +189,18 @@ fun LoginElementPreview() {
             emailData = AuthTextData(
                 value = email,
                 onValueChange = { email = it },
+                placeholder = "Почта",
                 error = "Гойда почта"
             ),
             passwordData = AuthTextData(
                 value = email,
+                placeholder = "Пароль",
                 onValueChange = { password = it },
+            ),
+            companyDomainData = AuthTextData(
+                value = email,
+                placeholder = "Домен компании",
+                onValueChange = { email = it },
             ),
             isLoading = isClick,
             isLocked = false,
