@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM pending_verifications\n        WHERE user_id = $1 AND company_id = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dd37532cd84c63d6bf4c00409290ed2abab2a9de0e8e7097099c99f79384f1fe"
+}
