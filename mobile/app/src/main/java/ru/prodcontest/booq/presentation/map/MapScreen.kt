@@ -30,16 +30,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import androidx.compose.ui.graphics.nativeCanvas
 
 @Serializable
 object MapScreenDestination
@@ -343,6 +349,48 @@ fun MapScreen() {
                         corners
                     )
                 }
+
+
+                val topLeftBoundX = item.offsets.minBy { it.x }.x
+                val topLeftBoundY = item.offsets.minBy { it.y }.y
+                val botRightBoundX = item.offsets.maxBy { it.x }.x
+                val botRightBoundY = item.offsets.maxBy { it.y }.y
+                (topLeftBoundX..botRightBoundX).forEach { xCell ->
+                    (topLeftBoundY..botRightBoundY).forEach { yCell ->
+                        val hasRight = item.offsets.any { it.x == xCell + 1 && it.y == yCell }
+                        val hasLeft = item.offsets.any { it.x == xCell - 1 && it.y == yCell }
+                        val hasTop = item.offsets.any { it.x == xCell && it.y == yCell - 1 }
+                        val hasBottom = item.offsets.any { it.x == xCell && it.y == yCell + 1 }
+
+                        val hasTopRight = hasTop && hasRight
+                        val hasTopLeft = hasTop && hasLeft
+                        val hasBottomRight = hasBottom && hasRight
+                        val hasBottomLeft = hasBottom && hasLeft
+
+                        if (hasTopRight || hasTopLeft || hasBottomRight || hasBottomLeft) {
+                            val actualDot = item.basePoint + Point(xCell, yCell)
+                            val rectOffset = actualDot.toOffset()
+                            val rectSize = Size(CELL+2f, CELL+2f)
+
+                            val cornersToRound = mutableListOf<Corner>()
+
+                            if (hasTopRight) cornersToRound.add(Corner.TopRight)
+                            if (hasTopLeft) cornersToRound.add(Corner.TopLeft)
+                            if (hasBottomRight) cornersToRound.add(Corner.BottomRight)
+                            if (hasBottomLeft) cornersToRound.add(Corner.BottomLeft)
+
+                            drawRectWithCustomCorners(
+                                color = if (item.selected) Color.White else Color.Green,
+                                offset = rectOffset,
+                                size = rectSize,
+                                cornerRadius = CELL/4,
+                                cornersToRound = cornersToRound,
+                                cornersToKeepSquare = emptyList()
+                            )
+                        }
+                    }
+                }
+
 //                val topLeftBoundX = item.offsets.minBy { it.x }.x
 //                val topLeftBoundY = item.offsets.minBy {it.y}.y
 //                val botRightBoundX = item.offsets.maxBy { it.x }.x
@@ -361,12 +409,134 @@ fun MapScreen() {
 //                        }
 //                    }
 //                }
+
+
             }
         }
     }
     if (showBottomSheet) {
         ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
             Text(selectedName)
+        }
+    }
+}
+
+fun DrawScope.drawRectWithCustomCorners(
+    color: Color,
+    offset: Offset,
+    size: Size,
+    cornerRadius: Float,
+    cornersToRound: List<Corner> = listOf(Corner.TopLeft, Corner.TopRight, Corner.BottomLeft, Corner.BottomRight),
+    cornersToKeepSquare: List<Corner> = emptyList()
+) {
+    val effectiveCornersToRound = cornersToRound.filter { it !in cornersToKeepSquare }
+
+    drawIntoCanvas { canvas ->
+        val checkpointCount = canvas.nativeCanvas.save()
+
+        try {
+            canvas.nativeCanvas.saveLayer(null, null)
+
+            val paint = androidx.compose.ui.graphics.Paint()
+            paint.color = color
+            canvas.drawRect(
+                offset.x,
+                offset.y,
+                offset.x + size.width,
+                offset.y + size.height,
+                paint
+            )
+
+            paint.blendMode = BlendMode.DstOut
+            paint.color = Color.Black
+
+            val path = Path().apply {
+                moveTo(offset.x + cornerRadius, offset.y)
+
+                lineTo(offset.x + size.width - cornerRadius, offset.y)
+
+                if (Corner.TopRight in effectiveCornersToRound) {
+                    arcTo(
+                        rect = Rect(
+                            left = offset.x + size.width - 2 * cornerRadius,
+                            top = offset.y,
+                            right = offset.x + size.width,
+                            bottom = offset.y + 2 * cornerRadius
+                        ),
+                        startAngleDegrees = 270f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+                } else {
+                    lineTo(offset.x + size.width, offset.y)
+                    lineTo(offset.x + size.width, offset.y + cornerRadius)
+                }
+
+                lineTo(offset.x + size.width, offset.y + size.height - cornerRadius)
+
+                if (Corner.BottomRight in effectiveCornersToRound) {
+                    arcTo(
+                        rect = Rect(
+                            left = offset.x + size.width - 2 * cornerRadius,
+                            top = offset.y + size.height - 2 * cornerRadius,
+                            right = offset.x + size.width,
+                            bottom = offset.y + size.height
+                        ),
+                        startAngleDegrees = 0f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+                } else {
+                    lineTo(offset.x + size.width, offset.y + size.height)
+                    lineTo(offset.x + size.width - cornerRadius, offset.y + size.height)
+                }
+
+                lineTo(offset.x + cornerRadius, offset.y + size.height)
+
+                if (Corner.BottomLeft in effectiveCornersToRound) {
+                    arcTo(
+                        rect = Rect(
+                            left = offset.x,
+                            top = offset.y + size.height - 2 * cornerRadius,
+                            right = offset.x + 2 * cornerRadius,
+                            bottom = offset.y + size.height
+                        ),
+                        startAngleDegrees = 90f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+                } else {
+                    lineTo(offset.x, offset.y + size.height)
+                    lineTo(offset.x, offset.y + size.height - cornerRadius)
+                }
+
+                lineTo(offset.x, offset.y + cornerRadius)
+
+                if (Corner.TopLeft in effectiveCornersToRound) {
+                    arcTo(
+                        rect = Rect(
+                            left = offset.x,
+                            top = offset.y,
+                            right = offset.x + 2 * cornerRadius,
+                            bottom = offset.y + 2 * cornerRadius
+                        ),
+                        startAngleDegrees = 180f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+                } else {
+                    lineTo(offset.x, offset.y)
+                    lineTo(offset.x + cornerRadius, offset.y)
+                }
+
+                close()
+            }
+
+            canvas.drawPath(path, paint)
+
+            canvas.nativeCanvas.restore()
+        } finally {
+            canvas.nativeCanvas.restoreToCount(checkpointCount)
         }
     }
 }
