@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
@@ -23,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -31,10 +34,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +78,19 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val actionsScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        actionsScope.launch {
+            vm.action.collect { action ->
+                when(action) {
+                    is ProfileScreenAction.ShowError -> {
+                        snackbarHostState.showSnackbar(action.message)
+                    }
+                }
+            }
+        }
+    }
+
     val fileChooserLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
             if (it == null) {
@@ -99,7 +117,9 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
                     IconButton({
 
                     }) { Icon(Icons.Default.Create, null) }
-                }
+                },
+//                expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
+                scrollBehavior = null
             )
         },
         snackbarHost = {
@@ -113,16 +133,16 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
         }
         state.profileInfo?.let { profile ->
             Column(Modifier.padding(innerPadding)) {
-                Row {
+                Row(Modifier.padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     SubcomposeAsyncImage(
-                        model = profile.avatarUrl,
+                        model = profile.avatarUrl ?: "https://camo.githubusercontent.com/c77fbaaf11748827d9df62416bb949748e9c5427dce32c88d09d4d689f7e8c08/68747470733a2f2f612e736c61636b2d656467652e636f6d2f64663130642f696d672f617661746172732f6176615f303032322d3531322e706e67",
                         contentDescription = null,
                         loading = {
                             CircularProgressIndicator(Modifier.size(32.dp))
                         },
-                        modifier = Modifier.size(128.dp)
+                        modifier = Modifier.size(96.dp).padding(12.dp).clip(RoundedCornerShape(48.dp))
                     )
-                    Column {
+                    Column(Modifier.padding(8.dp)) {
                         Text(
                             "${profile.name} ${profile.surname}",
                             style = MaterialTheme.typography.titleLarge
@@ -146,60 +166,81 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
                     )
                 }
                 if (profile.role == UserRole.Guest) {
-//                    if (profile.pendingVerification) {
-                    Card(
-                        Modifier.padding(6.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-                    ) {
-                        Row(
-                            Modifier.padding(4.dp, 12.dp, 4.dp, 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    if (profile.pendingVerification) {
+                        Card(
+                            Modifier.padding(6.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                         ) {
-                            Icon(Icons.Default.Build, null, Modifier.padding(8.dp, 0.dp))
+                            Row(
+                                Modifier.padding(4.dp, 12.dp, 4.dp, 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Build, null, Modifier.padding(8.dp, 0.dp))
+                                Text(
+                                    "Ожидается подтверждение",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                             Text(
-                                "Ожидается подтверждение",
-                                style = MaterialTheme.typography.titleMedium
+                                "Администратор проверит Ваши документы и подтвердит аккаунт. Вам придёт уведомление, когда аккаунт будет подтверждён.",
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(7.dp, 4.dp, 8.dp, 10.dp)
                             )
                         }
-                        Text(
-                            "Администратор проверит Ваши документы и подтвердит аккаунт. Вам придёт уведомление, когда аккаунт будет подтверждён.",
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(7.dp, 4.dp, 8.dp, 10.dp)
-                        )
-                    }
-//                    } else {
-                    Card(
-                        Modifier.padding(6.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-                    ) {
-                        Row(
-                            Modifier.padding(4.dp, 12.dp, 4.dp, 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    } else {
+                        Card(
+                            Modifier.padding(6.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                         ) {
-                            Icon(Icons.Default.Warning, null, Modifier.padding(8.dp, 0.dp))
+                            Row(
+                                Modifier.padding(4.dp, 12.dp, 4.dp, 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Warning, null, Modifier.padding(8.dp, 0.dp))
+                                Text(
+                                    "Загрузите документы",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                             Text(
-                                "Загрузите документы",
-                                style = MaterialTheme.typography.titleMedium
+                                "Необходимо загрузить документ, подтверждающий личность, чтобы получить доступ к бронированию.",
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(8.dp, 4.dp)
                             )
-                        }
-                        Text(
-                            "Необходимо загрузить документ, подтверждающий личность, чтобы получить доступ к бронированию.",
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(8.dp, 4.dp)
-                        )
-                        Button(
-                            {
-                                fileChooserLauncher.launch(arrayOf("application/pdf"))
-                            },
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp, 4.dp)
-                        ) {
-                            Icon(Icons.Default.KeyboardArrowUp, null, Modifier.padding(4.dp, 0.dp))
-                            Text("Прикрепить файл")
+                            if (!state.documentUploaded && state.documentLoadingProgress == null) {
+                                Button(
+                                    {
+                                        fileChooserLauncher.launch(arrayOf("application/pdf"))
+                                    },
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp, 4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.KeyboardArrowUp,
+                                        null,
+                                        Modifier.padding(4.dp, 0.dp)
+                                    )
+                                    Text("Прикрепить файл")
+                                }
+                            }
+                            if (state.documentLoadingProgress != null) {
+                                LinearProgressIndicator(
+//                                    progress = { state.documentLoadingProgress },
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp)
+                                )
+                            }
+                            if (state.documentUploaded) {
+                                Row(
+                                    Modifier.padding(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Check, null, Modifier.padding(8.dp, 4.dp))
+                                    Text("Успешно загружено")
+                                }
+                            }
                         }
                     }
-//                    }
                 }
             }
         }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.util.ResultWrapper
+import ru.prodcontest.booq.domain.util.UploadProgress
 import ru.prodcontest.booq.presentation.BaseViewModel
 import javax.inject.Inject
 
@@ -18,18 +19,20 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     @ApplicationContext private val context: Context
-) : BaseViewModel<ProfileScreenState, Nothing>() {
+) : BaseViewModel<ProfileScreenState, ProfileScreenAction>() {
     override fun setInitialState() = ProfileScreenState(
         profileInfo = null,
         isLoading = true,
-        error = null
+        error = null,
+        documentUploaded = false,
+        documentLoadingProgress = null
     )
 
     init {
         getProfileInfo()
     }
 
-    fun getProfileInfo() = viewModelScope.launch {
+    private fun getProfileInfo() = viewModelScope.launch {
         apiRepository.getProfile().onEach {
             Log.d("CHLEEEN", it.toString())
             when (it) {
@@ -54,6 +57,28 @@ class ProfileViewModel @Inject constructor(
         val data = a.readBytes()
         a.close()
 
-        Log.d("MEOW", "${data.size}")
+        viewModelScope.launch {
+            apiRepository.uploadDocument(data).collect {
+                when(it) {
+                    UploadProgress.Completed -> {
+                        setState { copy(documentLoadingProgress = null, documentUploaded = true) }
+                    }
+                    is UploadProgress.Progress -> {
+                        setState { copy(documentLoadingProgress = it.percent, documentUploaded = false) }
+                    }
+                    UploadProgress.Unknown -> {
+                        setState { copy(documentLoadingProgress = 1f, documentUploaded = false) }
+                    }
+                    is UploadProgress.Error -> {
+                        setAction { ProfileScreenAction.ShowError(it.message) }
+                    }
+                }
+            }
+        }
+
     }
+}
+
+sealed class ProfileScreenAction {
+    data class ShowError(val message: String) : ProfileScreenAction()
 }
