@@ -35,7 +35,8 @@ deploy:
 buildApp:
   only:
     changes:
-      - mobile/**
+      - mobile/*
+      - mobile/**/*
   stage: build
   image: eclipse-temurin:17-jdk
   variables:
