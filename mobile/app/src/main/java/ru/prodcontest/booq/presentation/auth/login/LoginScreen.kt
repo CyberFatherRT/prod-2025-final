@@ -1,8 +1,10 @@
 package ru.prodcontest.booq.presentation.auth.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -21,17 +23,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.components.LoginElement
+import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 
@@ -79,7 +86,7 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            val (boxText, boxLogin, boxBackground) = createRefs()
+            val (boxText, boxLogin, createCompany) = createRefs()
 
             Text(
                 text = "Войдите в аккаунт!",
@@ -95,21 +102,6 @@ fun LoginScreen(
                     fontSize = 28.sp
                 )
             )
-
-//            Box(
-//                modifier = Modifier
-//                    .height(260.dp)
-//                    .width(80.dp)
-//                    .offset(x = (-50).dp)
-//                    .background(
-//                        color = MaterialTheme.colorScheme.primary,
-//                        shape = RoundedCornerShape(41.dp),
-//                    )
-//                    .constrainAs(boxBackground) {
-//                        top.linkTo(boxLogin.top, margin = 60.dp)
-//                        start.linkTo(boxLogin.start)
-//                    }
-//            )
 
             LoginElement(
                 emailData = AuthTextData(
@@ -150,6 +142,44 @@ fun LoginScreen(
                         end.linkTo(parent.end)
                     }
             )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .background(
+                        color = Color(0xFF9EA2AA),
+                        shape = RoundedCornerShape(
+                            topEnd = 0.dp,
+                            topStart = 0.dp,
+                            bottomStart = 28.dp,
+                            bottomEnd = 28.dp
+                        )
+                    )
+                    .clip(
+                        RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
+                    )
+                    .clickable { navController.navigate(RegisterCompanyScreenDestination) }
+                    .constrainAs(createCompany) {
+                        start.linkTo(boxLogin.start, margin = 60.dp)
+                        end.linkTo(boxLogin.end, margin = 60.dp)
+                        top.linkTo(boxLogin.bottom)
+                        width = Dimension.fillToConstraints
+                    }
+            ) {
+                Text(
+                    text = "Создать компанию",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = Color(0xFF000000).copy(alpha = 0.5f),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    ),
+                    color = Color(0xFF000000).copy(alpha = 0.5f),
+                    fontSize = 16.sp
+                )
+            }
+
         }
     }
 }

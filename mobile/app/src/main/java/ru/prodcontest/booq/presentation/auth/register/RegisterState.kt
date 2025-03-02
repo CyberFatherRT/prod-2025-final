@@ -1,6 +1,6 @@
 package ru.prodcontest.booq.presentation.auth.register
 
-data class RegisterScreenState(
+data class RegisterState(
     val isLoading: Boolean,
     val error: String?
 )

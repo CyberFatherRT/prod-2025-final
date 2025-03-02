@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +38,8 @@ fun RegisterCompanyElement(
     nameData: AuthTextData,
     isLoading: Boolean,
     isLocked: Boolean,
-    onRegisterClick: () -> Unit,
+    onRegisterCompanyClick: () -> Unit,
+    onBackClick: () -> Unit,
     error: String = "",
     modifier: Modifier = Modifier
 ) {
@@ -85,7 +87,7 @@ fun RegisterCompanyElement(
 
             val horizontalMargin = 8.dp
 
-            val (inputBox, buttonBox, errorMsg, createAccount) = createRefs()
+            val (inputBox, buttonBox, errorMsg, backEl) = createRefs()
 
 
             Column(
@@ -114,7 +116,6 @@ fun RegisterCompanyElement(
 
             Box(
                 modifier = Modifier
-                    .padding(bottom =  12.dp)
                     .constrainAs(buttonBox) {
                         start.linkTo(inputBox.start, margin = horizontalMargin)
                         end.linkTo(inputBox.end, margin = horizontalMargin)
@@ -124,7 +125,7 @@ fun RegisterCompanyElement(
             ) {
                 AuthButton(
                     text = "Создать аккаунт",
-                    onClick = onRegisterClick,
+                    onClick = onRegisterCompanyClick,
                     isLoaded = isLoading,
                     isLocked = isLocked ,
                     modifier = Modifier
@@ -147,6 +148,22 @@ fun RegisterCompanyElement(
                 overflow = TextOverflow.Ellipsis
             )
 
+            TextButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .padding(bottom = 12.dp)
+                    .constrainAs(backEl) {
+                        start.linkTo(buttonBox.start)
+                        end.linkTo(buttonBox.end)
+                        top.linkTo(buttonBox.bottom)
+                    }
+            ) {
+                Text(
+                    text = "Назад",
+                    color = Color(0xFFE8EAED).copy(alpha = 0.5f),
+                    fontSize = 16.sp
+                )
+            }
         }
     }
 }
@@ -175,8 +192,9 @@ fun RegisterCompanyPreview() {
             ),
             isLoading = isClick,
             isLocked = false,
-            onRegisterClick = { isClick = !isClick },
+            onRegisterCompanyClick = { isClick = !isClick },
             error = "Привет как дела",
+            onBackClick = { },
             modifier = Modifier
                 .padding(10.dp)
         )

@@ -9,6 +9,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
+import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
 import ru.prodcontest.booq.data.remote.dto.VerificationDto
@@ -20,6 +21,7 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val REGISTER_ENDPOINT = "$BASE_DOMAIN/user/register"
         const val PROFILE_ENDPOINT = "$BASE_DOMAIN/user/profile"
         const val VERIFICATIONS_ENDPOINT = "$BASE_DOMAIN/admin/list_requests"
+        const val REGISTER_COMPANY_ENDPOINT = "$BASE_DOMAIN/company/register"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -38,4 +40,13 @@ class ApiRemote(private val httpClient: HttpClient) {
 
     suspend fun profile() = httpClient.get(PROFILE_ENDPOINT).body<ProfileDto>()
     suspend fun verifications() = httpClient.get(VERIFICATIONS_ENDPOINT).body<List<VerificationDto>>()
+
+
+    suspend fun registerCompany(creds: RegisterCompanyDto) =
+        httpClient.post(REGISTER_COMPANY_ENDPOINT) {
+            setBody(creds)
+            contentType(ContentType.Application.Json)
+            attributes.put(InsertAuthAttrs.DontInsert, true)
+        }.body<TokenDto>()
+
 }

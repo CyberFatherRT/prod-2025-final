@@ -1,12 +1,12 @@
 package ru.prodcontest.booq.presentation.auth.register
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,18 +18,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
+import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.components.RegisterElement
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.theme.BooqTheme
@@ -49,7 +54,7 @@ fun RegisterScreen(
         actionsScope.launch {
             viewModel.action.collect { action ->
                 when(action) {
-                    is RegisterScreenAction.NavigateToHomeScreen -> {
+                    is RegisterAction.NavigateToHomeScreen -> {
                         navController.navigate(ProfileScreenDestination)
                     }
                 }
@@ -75,7 +80,7 @@ fun RegisterScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val (boxText, boxLogin, boxBackground) = createRefs()
+        val (boxText, boxLogin, createCompany) = createRefs()
 
         Text(
             text = "Создание аккаунта!",
@@ -91,21 +96,6 @@ fun RegisterScreen(
                 fontSize = 28.sp
             )
         )
-
-//        Box(
-//            modifier = Modifier
-//                .height(300.dp)
-//                .width(80.dp)
-//                .offset(x = -40.dp)
-//                .background(
-//                    color = MaterialTheme.colorScheme.primary,
-//                    shape = RoundedCornerShape(41.dp),
-//                )
-//                .constrainAs(boxBackground) {
-//                    top.linkTo(boxLogin.top, margin = 80.dp)
-//                    start.linkTo(boxLogin.end)
-//                }
-//        )
 
         RegisterElement(
             nameData = AuthTextData(
@@ -137,10 +127,9 @@ fun RegisterScreen(
                 onValueChange = { companyDomain = it },
                 placeholder = "Домен компании",
                 error = if (companyDomainValid) "" else "Некорректный домен компании"
-
             ),
             isLoading = viewState.isLoading,
-            isLocked = false,
+            isLocked = false, // Можно заблокировать ввод и фокус
             isLockedRegister = isError or name.isEmpty() or surname.isEmpty() or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
             onRegisterClick = { viewModel.register(name, surname, email, password, companyDomain) },
             onLoginClick = { navController.navigate(LoginScreenDestination) },
@@ -153,6 +142,43 @@ fun RegisterScreen(
                     end.linkTo(parent.end)
                 }
         )
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(45.dp)
+                .background(
+                    color = Color(0xFF9EA2AA),
+                    shape = RoundedCornerShape(
+                        topEnd = 0.dp,
+                        topStart = 0.dp,
+                        bottomStart = 28.dp,
+                        bottomEnd = 28.dp
+                    )
+                )
+                .clip(
+                    RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
+                )
+                .clickable { navController.navigate(RegisterCompanyScreenDestination) }
+                .constrainAs(createCompany) {
+                    start.linkTo(boxLogin.start, margin = 60.dp)
+                    end.linkTo(boxLogin.end, margin = 60.dp)
+                    top.linkTo(boxLogin.bottom)
+                    width = Dimension.fillToConstraints
+                }
+        ) {
+            Text(
+                text = "Создать компанию",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = Color(0xFF000000).copy(alpha = 0.5f),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                ),
+                color = Color(0xFF000000).copy(alpha = 0.5f),
+                fontSize = 16.sp
+            )
+        }
     }
 }
 

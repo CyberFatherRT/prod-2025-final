@@ -306,7 +306,6 @@ fun MapScreen() {
             }
         }
     }
-
     if (showBottomSheet) {
         ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
             Text(selectedName)

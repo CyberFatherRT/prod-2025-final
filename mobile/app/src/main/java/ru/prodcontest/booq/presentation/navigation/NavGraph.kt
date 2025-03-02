@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import ru.prodcontest.booq.presentation.auth.login.LoginScreen
 import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
+import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreen
+import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 //import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreen
 //import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreen
@@ -30,9 +32,9 @@ fun NavGraph(navController: NavHostController) {
         composable<RegisterScreenDestination> {
             RegisterScreen(navController)
         }
-//        composable<RegisterCompanyScreenDestination> {
-//            RegisterCompanyScreen(navController)
-//        }
+        composable<RegisterCompanyScreenDestination> {
+            RegisterCompanyScreen(navController)
+        }
         composable<ProfileScreenDestination> {
             ProfileScreen(navController)
         }

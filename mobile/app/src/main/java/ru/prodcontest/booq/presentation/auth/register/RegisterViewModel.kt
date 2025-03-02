@@ -16,8 +16,8 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     private val setTokenUseCase: SetTokenUseCase
-) : BaseViewModel<RegisterScreenState, RegisterScreenAction>() {
-    override fun setInitialState() = RegisterScreenState(
+) : BaseViewModel<RegisterState, RegisterAction>() {
+    override fun setInitialState() = RegisterState(
         isLoading = false,
         error = null
     )
@@ -28,7 +28,7 @@ class RegisterViewModel @Inject constructor(
                 when (it) {
                     is ResultWrapper.Ok -> {
                         setTokenUseCase(it.data.token)
-                        setAction { RegisterScreenAction.NavigateToHomeScreen }
+                        setAction { RegisterAction.NavigateToHomeScreen }
                     }
 
                     ResultWrapper.Loading -> setState { copy(isLoading = true) }
@@ -38,6 +38,6 @@ class RegisterViewModel @Inject constructor(
         }
 }
 
-sealed class RegisterScreenAction {
-    data object NavigateToHomeScreen : RegisterScreenAction()
+sealed class RegisterAction {
+    data object NavigateToHomeScreen : RegisterAction()
 }

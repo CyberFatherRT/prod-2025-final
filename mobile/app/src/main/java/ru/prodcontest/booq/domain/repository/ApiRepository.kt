@@ -1,6 +1,7 @@
 package ru.prodcontest.booq.domain.repository
 
 import ru.prodcontest.booq.data.remote.dto.LoginDto
+import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
 import ru.prodcontest.booq.domain.model.UserModel
@@ -12,4 +13,5 @@ interface ApiRepository {
     suspend fun register(creds: RegisterDto): ResultFlow<TokenDto>
     suspend fun getProfile(): ResultFlow<UserModel>
     suspend fun getVerifications(): ResultFlow<List<VerificationModel>>
+    suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto>
 }
