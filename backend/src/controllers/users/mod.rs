@@ -3,7 +3,7 @@ use crate::errors::ProdError;
 use crate::forms::users::{PatchProfileForm, RegisterForm};
 use crate::jwt::hashing::Argon;
 use crate::models::UserModel;
-use crate::models::{CompanyUuid, RoleModel, TokenData};
+use crate::models::{RoleModel, TokenData};
 use crate::s3::utils::upload_file;
 use crate::AppState;
 use axum::body::Bytes;
@@ -21,8 +21,7 @@ pub async fn register_user(
     let mut conn = state.pool.conn().await?;
 
     let mut tx = conn.begin().await?;
-    let company = sqlx::query_as!(
-        CompanyUuid,
+    let company_id = sqlx::query!(
         r#"
         SELECT id FROM companies
         WHERE companies.domain = $1
@@ -31,6 +30,7 @@ pub async fn register_user(
     )
     .fetch_one(tx.as_mut())
     .await
+    .map(|record| record.id)
     .map_err(|err| match err {
         sqlx::Error::RowNotFound => ProdError::NoCompany,
         _ => ProdError::DatabaseError(err),
@@ -51,7 +51,7 @@ pub async fn register_user(
         form.email,
         role as RoleModel,
         Argon::hash_password(form.password.as_bytes())?,
-        company.id,
+        company_id,
         form.company_domain
     )
     .fetch_one(tx.as_mut())

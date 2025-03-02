@@ -12,7 +12,7 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS coworking_spaces
 (
-    id         UUID    DEFAULT uuidv7() PRIMARY KEY,
+    id         UUID DEFAULT uuidv7() PRIMARY KEY,
     height     INTEGER NOT NULL,
     width      INTEGER NOT NULL,
     company_id UUID    NOT NULL,
@@ -22,10 +22,10 @@ CREATE TABLE IF NOT EXISTS coworking_spaces
 CREATE TABLE IF NOT EXISTS items
 (
     id          UUID    DEFAULT uuidv7() PRIMARY KEY,
-    name        VARCHAR,
+    name        VARCHAR               NOT NULL,
     description VARCHAR,
     icon        VARCHAR,
-    offsets     point[],
+    offsets     point[]               NOT NULL,
     bookable    BOOLEAN DEFAULT FALSE NOT NULL,
     company_id  UUID                  NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE

@@ -7,16 +7,8 @@ use validator::Validate;
 #[derive(Serialize, Deserialize, FromRow, Validate)]
 pub struct CompaniesModel {
     pub id: Uuid,
-
-    #[validate(length(
-        min = 1,
-        max = 120,
-        message = "Company name length must be between 1 and 120"
-    ))]
     pub name: String,
-
     pub domain: String,
-
     pub avatar: Option<String>,
 }
 
@@ -37,29 +29,12 @@ pub struct UserModel {
     #[serde(skip)]
     pub id: Uuid,
 
-    #[validate(length(
-        min = 1,
-        max = 120,
-        message = "User name length must be between 1 and 120"
-    ))]
     pub name: String,
-
-    #[validate(length(
-        min = 1,
-        max = 120,
-        message = "User surname length must be between 1 and 120"
-    ))]
     pub surname: String,
-
-    #[validate(
-        email,
-        length(min = 1, max = 120, message = "Email length must be between 1 and 120")
-    )]
     pub email: String,
 
     #[serde(skip)]
     pub password: String,
-
     pub avatar: Option<String>,
 
     #[serde(skip)]
@@ -72,13 +47,15 @@ pub struct UserModel {
 pub struct CoworkingSpacesModel {
     pub id: Uuid,
     pub company_id: Uuid,
+    pub height: i64,
+    pub width: i64,
 }
 
-#[derive(Serialize, Deserialize, FromRow)]
-pub struct TokenData {
-    pub id: Uuid,
-    pub company_id: Uuid,
-    pub role: RoleModel,
+#[derive(Serialize, Deserialize, ToSchema, Type)]
+#[sqlx(type_name = "point")]
+pub struct Point {
+    x: i64,
+    y: i64,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]
@@ -87,6 +64,8 @@ pub struct ItemsModel {
     pub name: Option<String>,
     pub description: Option<String>,
     pub icon: Option<String>,
+    pub offsets: Vec<Point>,
+    pub bookable: Option<bool>,
     pub company_id: Uuid,
 }
 
@@ -94,6 +73,7 @@ pub struct ItemsModel {
 pub struct CoworkingItemsModel {
     pub id: Uuid,
     pub items_id: Uuid,
+    pub base_point: Point,
     pub coworking_id: Uuid,
 }
 
@@ -103,6 +83,7 @@ pub struct BookingModel {
     pub user_id: Uuid,
     pub coworking_space_id: Uuid,
     pub coworking_item_id: Uuid,
+    pub company_id: Uuid,
     pub time_start: chrono::DateTime<chrono::Utc>,
     pub time_end: chrono::DateTime<chrono::Utc>,
 }
@@ -111,10 +92,11 @@ pub struct BookingModel {
 pub struct PendingVerificationsModel {
     pub user_id: Uuid,
     pub company_id: Uuid,
-    pub document_name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, FromRow)]
-pub struct CompanyUuid {
+pub struct TokenData {
     pub id: Uuid,
+    pub company_id: Uuid,
+    pub role: RoleModel,
 }

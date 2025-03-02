@@ -4,6 +4,8 @@
 
 # Booking (/booking)
 
+### POST /create
+
 ### GET /list_booking_by_space/{space_id}
 For admin, add sensitive info (like user_id who booked)
 
