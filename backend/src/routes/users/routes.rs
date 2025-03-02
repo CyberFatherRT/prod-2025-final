@@ -80,7 +80,7 @@ pub async fn login(
     path = "/user/register",
     request_body = RegisterForm,
     responses(
-        (status = 200, body = Token),
+        (status = 201, body = Token, description = "JWT for created user"),
         (status = 400, description = "wrong data format"),
         (status = 409, description = "conflict")
     )
@@ -88,11 +88,11 @@ pub async fn login(
 pub async fn register(
     State(state): State<AppState>,
     ValidatedJson(form): ValidatedJson<RegisterForm>,
-) -> Result<Json<Token>, ProdError> {
+) -> Result<(StatusCode, Json<Token>), ProdError> {
     let user = register_user(state, form, RoleModel::Guest).await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;
 
-    Ok(Json(Token { jwt: token }))
+    Ok((StatusCode::CREATED, Json(Token { jwt: token })))
 }
 
 /// Get user profile

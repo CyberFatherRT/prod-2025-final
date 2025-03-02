@@ -123,9 +123,9 @@ pub struct TokenData {
     pub role: RoleModel,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct BuildingModel {
-    id: Uuid,
-    address: String,
-    company_id: Uuid,
+    pub id: Uuid,
+    pub address: String,
+    pub company_id: Uuid,
 }

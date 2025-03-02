@@ -3,5 +3,5 @@ use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct CreateBuildingForm {
-    address: String,
+    pub address: String,
 }

@@ -8,6 +8,7 @@ use crate::models::RoleModel;
 use crate::util::ValidatedJson;
 use crate::AppState;
 use axum::extract::State;
+use axum::http::StatusCode;
 use axum::Json;
 
 /// Add new company
@@ -17,7 +18,7 @@ use axum::Json;
     path = "/company/register",
     request_body = CompanyRegisterData,
     responses(
-        (status = 200, body = Token),
+        (status = 201, body = Token, description = "JWT token for admin of created company"),
         (status = 400, description = "wrong data format"),
         (status = 409, description = "conflict")
     )
@@ -25,7 +26,7 @@ use axum::Json;
 pub async fn company_register(
     State(state): State<AppState>,
     ValidatedJson(form): ValidatedJson<CompanyRegisterData>,
-) -> Result<Json<Token>, ProdError> {
+) -> Result<(StatusCode, Json<Token>), ProdError> {
     let mut conn = state.pool.conn().await?;
 
     let _ = sqlx::query!(
@@ -57,5 +58,5 @@ pub async fn company_register(
     .await?;
     let token = create_token(&user.id, &user.company_id, &user.role)?;
 
-    Ok(Json(Token { jwt: token }))
+    Ok((StatusCode::CREATED, Json(Token { jwt: token })))
 }

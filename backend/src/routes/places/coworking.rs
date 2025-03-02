@@ -18,15 +18,19 @@ use crate::{
 #[utoipa::path(
     post,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking",
+    path = "/place/{building_id}/coworking/new",
     params(
         ("building_id" = Uuid, Path)
     ),
+    request_body = CreateCoworkingForm,
     responses(
         (status = 201, body = CoworkingSpacesModel, description = "Successully create coworking"),
         (status = 400, description = "Wrong request"),
         (status = 403, description = "You are not an admin"),
     ),
+    security(
+        ("bearerAuth" = [])
+    )
 )]
 pub async fn create_coworking(
     headers: HeaderMap,
@@ -54,4 +58,42 @@ pub async fn create_coworking(
     .await?;
 
     Ok((StatusCode::CREATED, Json(coworking)))
+}
+
+/// List coworkings (everybody can use)
+#[utoipa::path(
+    post,
+    tag = "Coworkings",
+    path = "/place/{building_id}/coworking/list",
+    params(
+        ("building_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 200, body = Vec<CoworkingSpacesModel>, description = "List of coworkings"),
+        (status = 403, description = "You are not an admin"),
+    ),
+)]
+pub async fn list_coworkings(
+    headers: HeaderMap,
+    Path(building_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<CoworkingSpacesModel>>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let Claims { company_id, .. } = claims_from_headers(&headers)?;
+
+    let coworkings = sqlx::query_as!(
+        CoworkingSpacesModel,
+        r#"
+        SELECT id, address, height, width, building_id, company_id
+        FROM coworking_spaces
+        WHERE building_id = $1
+        AND company_id = $2
+        "#,
+        building_id,
+        company_id
+    )
+    .fetch_all(conn.as_mut())
+    .await?;
+
+    Ok(Json(coworkings))
 }
