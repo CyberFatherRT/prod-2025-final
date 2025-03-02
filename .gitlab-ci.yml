@@ -20,8 +20,10 @@ deploy:
   only:
     changes:
       - compose.yml
-      - nginx/**
-      - backend/**
+      - nginx/**/*
+      - nginx/*
+      - backend/*
+      - backend/**/*
   needs: [ ]
   extends:
     - .ssh
