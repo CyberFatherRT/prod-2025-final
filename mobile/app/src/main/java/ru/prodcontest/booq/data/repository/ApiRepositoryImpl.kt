@@ -5,6 +5,7 @@ import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
 import ru.prodcontest.booq.domain.model.UserModel
+import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.util.ResultFlow
 import ru.prodcontest.booq.domain.util.wrapToResult
@@ -18,5 +19,9 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
 
     override suspend fun getProfile(): ResultFlow<UserModel> = wrapToResult {
         apiRemote.profile().toModel()
+    }
+
+    override suspend fun getVerifications(): ResultFlow<List<VerificationModel>> = wrapToResult {
+        apiRemote.verifications().toModel()
     }
 }

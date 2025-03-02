@@ -11,6 +11,7 @@ import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
+import ru.prodcontest.booq.data.remote.dto.VerificationDto
 
 class ApiRemote(private val httpClient: HttpClient) {
     companion object {
@@ -18,6 +19,7 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val LOGIN_ENDPOINT = "$BASE_DOMAIN/user/login"
         const val REGISTER_ENDPOINT = "$BASE_DOMAIN/user/register"
         const val PROFILE_ENDPOINT = "$BASE_DOMAIN/user/profile"
+        const val VERIFICATIONS_ENDPOINT = "$BASE_DOMAIN/admin/list_requests"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -35,4 +37,5 @@ class ApiRemote(private val httpClient: HttpClient) {
         }.body<TokenDto>()
 
     suspend fun profile() = httpClient.get(PROFILE_ENDPOINT).body<ProfileDto>()
+    suspend fun verifications() = httpClient.get(VERIFICATIONS_ENDPOINT).body<VerificationDto>()
 }
