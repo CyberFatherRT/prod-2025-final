@@ -1,5 +1,7 @@
 package ru.prodcontest.booq.data.repository
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import ru.prodcontest.booq.data.remote.ApiRemote
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
@@ -9,6 +11,7 @@ import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.util.ResultFlow
+import ru.prodcontest.booq.domain.util.UploadProgress
 import ru.prodcontest.booq.domain.util.wrapToResult
 
 class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
@@ -29,4 +32,7 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
     override suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto> =
         wrapToResult { apiRemote.registerCompany(creds) }
 
+    override suspend fun uploadDocument(document: ByteArray): Flow<UploadProgress> = channelFlow {
+        apiRemote.uploadDocument(document, this)
+    }
 }

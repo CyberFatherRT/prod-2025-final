@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +52,8 @@ fun RegisterScreen(
 ) {
     val viewState = viewModel.viewState.value
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val actionsScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         actionsScope.launch {
@@ -56,6 +61,9 @@ fun RegisterScreen(
                 when(action) {
                     is RegisterAction.NavigateToHomeScreen -> {
                         navController.navigate(ProfileScreenDestination)
+                    }
+                    is RegisterAction.ShowError -> {
+                        snackbarHostState.showSnackbar(action.message)
                     }
                 }
             }
@@ -76,9 +84,11 @@ fun RegisterScreen(
 
     val isError = !(emailValid && passwordValid && nameValid && surnameValid && companyDomainValid)
 
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
+            .padding(innerPadding)
     ) {
         val (boxText, boxLogin, createCompany) = createRefs()
 
@@ -219,5 +229,5 @@ fun DemoRegisterScreen() {
 
 
         }
-    }
+    }}
 }

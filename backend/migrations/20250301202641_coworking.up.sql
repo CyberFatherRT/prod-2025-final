@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS coworking_items
     name         VARCHAR NOT NULL,
     description  VARCHAR,
     item_id      UUID    NOT NULL,
-    base_point   point,
+    base_point   point   NOT NULL,
     coworking_id UUID    NOT NULL,
     FOREIGN KEY (item_id) REFERENCES item_types (id) ON DELETE CASCADE,
     FOREIGN KEY (coworking_id) REFERENCES coworking_spaces (id) ON DELETE CASCADE

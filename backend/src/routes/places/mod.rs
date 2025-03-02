@@ -6,17 +6,23 @@ use axum::{middleware::from_fn, routing::post, Router};
 use building::create_building;
 use coworking::create_coworking;
 
+use super::items::selecting::get_items_by_coworking;
+
 pub mod building;
 pub mod coworking;
 
 pub fn get_routes(state: AppState) -> Router {
     let admin_routes = Router::new()
         .route("/new", post(create_building))
-        .route("/{building_id}/coworking/new", post(create_coworking))
         .route("/{building_id}", patch(patch_building))
+        .route("/{building_id}/coworking/new", post(create_coworking))
         .route(
             "/{building_id}/coworking/{coworking_id}",
             patch(patch_coworking),
+        )
+        .route(
+            "/{building_id}/coworking/{coworking_id}/items",
+            get(get_items_by_coworking),
         )
         .layer(from_fn(auth_admin))
         .with_state(state.clone());

@@ -18,8 +18,7 @@ class RegisterViewModel @Inject constructor(
     private val setTokenUseCase: SetTokenUseCase
 ) : BaseViewModel<RegisterState, RegisterAction>() {
     override fun setInitialState() = RegisterState(
-        isLoading = false,
-        error = null
+        isLoading = false
     )
 
     fun register(name: String, surname: String, email: String, password: String, domain: String) =
@@ -32,7 +31,10 @@ class RegisterViewModel @Inject constructor(
                     }
 
                     ResultWrapper.Loading -> setState { copy(isLoading = true) }
-                    is ResultWrapper.Error -> setState { copy(error = it.message) }
+                    is ResultWrapper.Error ->  {
+                        setState { copy(isLoading = false) }
+                        setAction { RegisterAction.ShowError(it.message) }
+                    }
                 }
             }.collect()
         }
@@ -40,4 +42,5 @@ class RegisterViewModel @Inject constructor(
 
 sealed class RegisterAction {
     data object NavigateToHomeScreen : RegisterAction()
+    data class ShowError(val message: String) : RegisterAction()
 }
