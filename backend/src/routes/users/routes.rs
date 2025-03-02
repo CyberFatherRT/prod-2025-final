@@ -13,6 +13,7 @@ use crate::{
     AppState,
 };
 use axum::extract::Multipart;
+use axum::http::StatusCode;
 use axum::{extract::State, http::HeaderMap, Json};
 
 /// Login user
@@ -163,4 +164,36 @@ pub async fn patch_profile(
     let user_id = claims_from_headers(&headers)?.user_id;
     let updated_user = update_user(user_id, multipart, state).await?;
     Ok(Json(updated_user))
+}
+
+/// Delete user
+#[utoipa::path(
+    delete,
+    tag = "Users",
+    path = "/user",
+    responses(
+        (status = 204, description = "User was successfully deleted")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn delete_user(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+) -> Result<StatusCode, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let user_id = claims_from_headers(&headers)?.user_id;
+
+    let _ = sqlx::query!(
+        r#"
+        DELETE FROM users
+        WHERE id = $1
+        "#,
+        user_id
+    )
+    .execute(conn.as_mut())
+    .await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }

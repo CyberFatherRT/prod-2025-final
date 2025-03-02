@@ -33,7 +33,7 @@ pub async fn get_user(
     let user = sqlx::query_as!(
         PublicUserData,
         r#"
-        SELECT 
+        SELECT
         id, name, surname, email, avatar, role as "role: RoleModel"
         FROM users
         WHERE company_id = $1 AND id = $2
@@ -103,7 +103,7 @@ pub async fn verify_guest(
         ("bearerAuth" = [])
     )
 )]
-pub async fn delete_user(
+pub async fn admin_delete_user(
     Path(user_id): Path<Uuid>,
     State(state): State<AppState>,
 ) -> Result<(), ProdError> {

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT \n        id, name, surname, email, avatar, role as \"role: RoleModel\"\n        FROM users\n        WHERE company_id = $1 AND id = $2\n        ",
+  "query": "\n        SELECT\n        id, name, surname, email, avatar, role as \"role: RoleModel\"\n        FROM users\n        WHERE company_id = $1 AND id = $2\n        ",
   "describe": {
     "columns": [
       {
@@ -61,5 +61,5 @@
       false
     ]
   },
-  "hash": "ef578e324ed21a30335d51baab37eb9582b5528837244004a42668c17dc026a0"
+  "hash": "74ca594cf01e138ac8a90886d4aeb2283c721a7eafc265583f970efa72b35828"
 }

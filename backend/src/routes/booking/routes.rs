@@ -33,7 +33,7 @@ use crate::{
     )
 )]
 pub async fn create_booking(
-    header: HeaderMap,
+    headers: HeaderMap,
     State(state): State<AppState>,
     ValidatedJson(form): ValidatedJson<CreateBookingForm>,
 ) -> Result<(StatusCode, Json<BookingModel>), ProdError> {
@@ -43,7 +43,7 @@ pub async fn create_booking(
         company_id,
         role,
         ..
-    } = claims_from_headers(&header)?;
+    } = claims_from_headers(&headers)?;
 
     if role == RoleModel::Guest {
         return Err(ProdError::Forbidden(
@@ -128,12 +128,12 @@ pub async fn create_booking(
     )
 )]
 pub async fn delete_booking(
-    header: HeaderMap,
+    headers: HeaderMap,
     State(state): State<AppState>,
     Path(booking_id): Path<Uuid>,
 ) -> Result<StatusCode, ProdError> {
     let mut conn = state.pool.conn().await?;
-    let claim = claims_from_headers(&header)?;
+    let claim = claims_from_headers(&headers)?;
 
     let mut tx = conn.begin().await?;
 
@@ -184,13 +184,13 @@ pub async fn delete_booking(
     )
 )]
 pub async fn patch_booking(
-    header: HeaderMap,
+    headers: HeaderMap,
     State(state): State<AppState>,
     Path(booking_id): Path<Uuid>,
     ValidatedJson(form): ValidatedJson<PatchBookingForm>,
 ) -> Result<Json<BookingModel>, ProdError> {
     let mut conn = state.pool.conn().await?;
-    let claim = claims_from_headers(&header)?;
+    let claim = claims_from_headers(&headers)?;
     let mut tx = conn.begin().await?;
 
     let booking = sqlx::query_as!(
