@@ -101,10 +101,10 @@ pub struct PatchProfileForm {
 
 #[derive(ToSchema)]
 pub struct PatchProfileFormData {
-    #[schema(value_type = PatchProfileForm)]
+    #[schema(value_type = PatchProfileForm, required = false)]
     pub json: Option<String>,
 
-    #[schema(value_type = String, format = "binary")]
+    #[schema(value_type = String, format = "binary", required = false)]
     pub avatar: Option<Vec<u8>>,
 }
 

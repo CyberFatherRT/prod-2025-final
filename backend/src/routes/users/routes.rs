@@ -97,6 +97,9 @@ pub async fn register(
     responses(
         (status = 200, body = ProfileResponseForm),
         (status = 403, description = "no auth / invalid auth"),
+    ),
+    security(
+        ("bearerAuth" = [])
     )
 )]
 pub async fn profile(
@@ -148,6 +151,9 @@ pub async fn profile(
         (status = 200, description = "Profile updated", body = UserModel),
         (status = 400, description = "Wrong body", body = String)
     ),
+    security(
+        ("bearerAuth" = [])
+    )
 )]
 pub async fn patch_profile(
     headers: HeaderMap,

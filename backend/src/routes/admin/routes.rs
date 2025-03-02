@@ -15,6 +15,9 @@ use crate::{db::Db, errors::ProdError, AppState};
         (status = 200),
         (status = 403, description = "not admin / no auth"),
         (status = 404, description = "guest not found"),
+    ),
+    security(
+        ("bearerAuth" = [])
     )
 )]
 pub async fn verify_guest(
@@ -50,6 +53,9 @@ pub async fn verify_guest(
         (status = 200),
         (status = 403, description = "not admin / no auth"),
         (status = 404, description = "user not found"),
+    ),
+    security(
+        ("bearerAuth" = [])
     )
 )]
 pub async fn delete_user(
@@ -84,6 +90,9 @@ pub async fn delete_user(
         (status = 200),
         (status = 403, description = "not admin / no auth"),
         (status = 404, description = "user not found"),
+    ),
+    security(
+        ("bearerAuth" = [])
     )
 )]
 pub async fn patch_user(

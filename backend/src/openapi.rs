@@ -6,7 +6,22 @@ use crate::routes::{
         validate::__path_upload_document,
     },
 };
-use utoipa::OpenApi;
+use utoipa::openapi::security::{Http, HttpAuthScheme, SecurityScheme};
+use utoipa::{Modify, OpenApi};
+
+struct SecurityAddon;
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let components: &mut utoipa::openapi::Components = openapi
+            .components
+            .as_mut()
+            .expect("shit happened at SecurityAddon"); // we can unwrap safely since there already is components registered.
+        components.add_security_scheme(
+            "bearerAuth",
+            SecurityScheme::Http(Http::new(HttpAuthScheme::Bearer)),
+        );
+    }
+}
 
 #[derive(OpenApi)]
 #[openapi(
@@ -19,6 +34,7 @@ use utoipa::OpenApi;
         (name = "Users", description = "User management"),
         (name = "Admin", description = "Admin related functionality"),
         (name = "Companies", description = "Companies related functionality")
-    )
+    ),
+    modifiers(&SecurityAddon)
 )]
 pub struct ApiDoc;
