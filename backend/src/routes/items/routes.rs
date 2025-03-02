@@ -5,15 +5,16 @@ use axum::{
 };
 use bytes::Bytes;
 use sqlx::Acquire;
-use tracing::warn;
+use tracing::{info, warn};
 use uuid::{NoContext, Timestamp, Uuid};
 
+use crate::models::Point;
 use crate::{
     db::Db,
     errors::ProdError,
     forms::items::{CreateItemTypeForm, CreateItemTypeFormData},
     jwt::generate::claims_from_headers,
-    models::{ItemsModel, Point},
+    models::ItemsModel,
     s3::utils::upload_file,
     AppState,
 };
@@ -57,7 +58,9 @@ pub async fn create_items_type(
                     })?);
                 }
                 "icon" => {
-                    if field.content_type() != Some("image/svg") {
+                    if field.content_type() != Some("image/svg")
+                        && field.content_type() != Some("image/svg+xml")
+                    {
                         return Err(ProdError::ShitHappened(
                             "Icon must be of type image/svg".to_string(),
                         ));
@@ -102,12 +105,16 @@ pub async fn create_items_type(
         form.name,
         form.description,
         icon_name,
-        form.offsets as Vec<Point>,
+        form.offsets as Vec<Point>, // FIXME: weird stuff
         form.bookable,
         company_id,
     )
     .fetch_one(conn.as_mut())
-    .await?;
+    .await
+    .map_err(|err| {
+        info!("LOOOOOOK AT ME - {:?}", err);
+        ProdError::DatabaseError(err)
+    })?;
 
     Ok((StatusCode::CREATED, Json(item)))
 }

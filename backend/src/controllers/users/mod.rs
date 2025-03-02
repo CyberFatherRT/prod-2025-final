@@ -93,8 +93,14 @@ pub async fn update_user(
                 }
                 "avatar" => {
                     if let Some(content_type) = field.content_type() {
-                        let valid = ["image/png", "image/jpeg", "image/bmp", "image/svg"]
-                            .contains(&content_type);
+                        let valid = [
+                            "image/png",
+                            "image/jpeg",
+                            "image/bmp",
+                            "image/svg",
+                            "image/svg+xml",
+                        ]
+                        .contains(&content_type);
 
                         if !valid {
                             return Err(ProdError::ShitHappened("Wrong image format".to_string()));

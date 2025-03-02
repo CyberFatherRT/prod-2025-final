@@ -54,11 +54,11 @@ pub struct CoworkingSpacesModel {
     pub company_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, ToSchema, Type, FromRow)]
+#[derive(Serialize, Deserialize, ToSchema, Type, FromRow, Debug)]
 #[sqlx(type_name = "POINT")]
 pub struct Point {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]

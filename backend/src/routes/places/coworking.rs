@@ -63,7 +63,7 @@ pub async fn create_coworking(
 
 /// List coworkings (everybody can use)
 #[utoipa::path(
-    post,
+    get,
     tag = "Coworkings",
     path = "/place/{building_id}/coworking/list",
     params(
@@ -121,8 +121,7 @@ pub async fn list_coworkings(
 )]
 pub async fn get_coworking_by_id(
     headers: HeaderMap,
-    Path(building_id): Path<Uuid>,
-    Path(coworking_id): Path<Uuid>,
+    Path((building_id, coworking_id)): Path<(Uuid, Uuid)>,
     State(state): State<AppState>,
 ) -> Result<Json<CoworkingSpacesModel>, ProdError> {
     let mut conn = state.pool.conn().await?;
@@ -171,8 +170,7 @@ pub async fn get_coworking_by_id(
 )]
 pub async fn patch_coworking(
     headers: HeaderMap,
-    Path(building_id): Path<Uuid>,
-    Path(coworking_id): Path<Uuid>,
+    Path((building_id, coworking_id)): Path<(Uuid, Uuid)>,
     State(state): State<AppState>,
     Json(form): Json<UpdateCoworkingForm>,
 ) -> Result<Json<CoworkingSpacesModel>, ProdError> {

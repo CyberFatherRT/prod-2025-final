@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n        u.email as \"user_email\",\n        b.address as \"building_name\",\n        s.address as \"space_name\",\n        i.name as \"item_name\",\n        bo.time_start,\n        bo.time_end\n        FROM bookings bo\n        JOIN users u ON u.id = bo.user_id\n        JOIN coworking_spaces s ON s.id = bo.coworking_space_id\n        JOIN buildings b ON b.id = s.building_id\n        JOIN coworking_items i ON i.id = bo.coworking_item_id\n        WHERE bo.id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "building_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "space_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "item_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "time_start",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "time_end",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f2a45b0ec7f3b1d925c539f2c7af60bc3cbad6f739fa73159eb51fe22bd8aeed"
+}

@@ -13,5 +13,7 @@ pub fn get_routes(state: AppState) -> Router {
         .route("/create", post(routes::create_booking))
         .route("/{booking_id}", delete(routes::delete_booking))
         .route("/{booking_id}", patch(routes::patch_booking))
+        .route("/{booking_id}/qr", get(routes::get_booking_qr))
+        .route("/verify", post(routes::verify_booking_qr))
         .with_state(state)
 }

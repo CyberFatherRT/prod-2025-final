@@ -6,6 +6,8 @@ use axum::{
 use sqlx::Acquire;
 use uuid::Uuid;
 
+use crate::forms::bookings::{BookingDisplayData, QrToken, Verdict};
+use crate::jwt::generate::{create_qr_token, validate_qr_token};
 use crate::models::PublicBookingModel;
 use crate::{
     db::Db,
@@ -281,4 +283,126 @@ pub async fn list_bookings(
     .await?;
 
     Ok(Json(bookings))
+}
+
+/// Generate QR for booking
+#[utoipa::path(
+    get,
+    tag = "Bookings",
+    path = "/booking/{booking_id}/qr",
+    params(
+        ("booking_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 200, body = QrToken, description = "Booking QR"),
+        (status = 400, description = "Wrong request"),
+        (status = 403, description = "No auth"),
+        (status = 404, description = "Coworking or coworking_item not found")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn get_booking_qr(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+    Path(booking_id): Path<Uuid>,
+) -> Result<Json<QrToken>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let claim = claims_from_headers(&headers)?;
+
+    let booking = sqlx::query_as!(
+        BookingModel,
+        r#"
+        SELECT
+        id, user_id, coworking_space_id, coworking_item_id, company_id, time_start, time_end
+        FROM bookings
+        WHERE user_id = $1 AND id = $2
+        "#,
+        claim.user_id,
+        booking_id,
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No booking found".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    let token = create_qr_token(&booking)?;
+    Ok(Json(QrToken { token }))
+}
+
+/// Verify booking qr
+#[utoipa::path(
+    get,
+    tag = "Bookings",
+    path = "/booking/verify",
+    params(
+        ("booking_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 200, body = Verdict, description = "Booking QR validation data"),
+        (status = 400, description = "Wrong request"),
+        (status = 403, description = "No auth"),
+        (status = 404, description = "Coworking or coworking_item not found")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn verify_booking_qr(
+    State(state): State<AppState>,
+    Json(form): Json<QrToken>,
+) -> Result<Json<Verdict>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let pre_claims = validate_qr_token(&form.token);
+    if pre_claims.is_err() {
+        return Ok(Json(Verdict {
+            valid: false,
+            booking_data: None,
+        }));
+    }
+    let claims = pre_claims?;
+
+    let booking = sqlx::query_as!(
+        BookingDisplayData,
+        r#"
+        SELECT
+        u.email as "user_email",
+        b.address as "building_name",
+        s.address as "space_name",
+        i.name as "item_name",
+        bo.time_start,
+        bo.time_end
+        FROM bookings bo
+        JOIN users u ON u.id = bo.user_id
+        JOIN coworking_spaces s ON s.id = bo.coworking_space_id
+        JOIN buildings b ON b.id = s.building_id
+        JOIN coworking_items i ON i.id = bo.coworking_item_id
+        WHERE bo.id = $1
+        "#,
+        claims.booking_id,
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No booking found".to_string()),
+        _ => ProdError::DatabaseError(err),
+    });
+
+    booking.map_or_else(
+        |_| {
+            Ok(Json(Verdict {
+                valid: false,
+                booking_data: None,
+            }))
+        },
+        |booking| {
+            Ok(Json(Verdict {
+                valid: true,
+                booking_data: Option::from(booking),
+            }))
+        },
+    )
 }
