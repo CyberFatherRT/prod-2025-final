@@ -1,6 +1,6 @@
 -- Add up migration script here
 
-CREATE TYPE IF NOT EXISTS point AS (
+CREATE TYPE point AS (
     x INTEGER,
     y INTEGER
 );
@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS items
     icon        VARCHAR,
     base_point  point,
     offsets     point[],
+    rotation    SMALLINT CHECK (rotation BETWEEN 0 AND 3),
     company_id  UUID NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
