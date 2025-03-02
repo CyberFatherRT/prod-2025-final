@@ -4,6 +4,7 @@ services:
       context: ./backend
     image: cyberfather/prod-backend
     environment:
+      - JWT_SECRET=1ch2vQzw0Libv2mNhuPgWjAuwv7Puudj
       - PORT=8000
       - DATABASE_URL=postgres://postgres:password@db:5432/prod
       - MINIO_BUCKET_NAME=prod
@@ -36,7 +37,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,7 +52,7 @@ services:
       - MINIO_ROOT_PASSWORD=ZZ9ko24AA4OBk9nJTCRmQChHHnkxLVQ3kec6EebA
       - MINIO_DEFAULT_BUCKETS=prod
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 30s
       timeout: 20s
       retries: 3
