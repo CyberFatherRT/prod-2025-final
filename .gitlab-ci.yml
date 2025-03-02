@@ -17,7 +17,12 @@ stages:
   - deploy
 
 deploy:
-  needs: []
+  only:
+    changes:
+      - compose.yml
+      - nginx
+      - backend
+  needs: [ ]
   extends:
     - .ssh
     - .global-variables
