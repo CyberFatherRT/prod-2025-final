@@ -28,7 +28,7 @@ deploy:
     - .global-variables
   stage: deploy
   script:
-    - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker buildx build --file backend/Dockerfile --tag cyberfather/prod-backend:latest --cache-to=type=registry,ref=cyberfather/prod-backend:cache,mode=max --cache-from=type=registry,ref=cyberfather/prod-backend:cache ./backend && docker buildx prune -f && docker compose down backend && docker compose up -d backend"
+    - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker compose up -d --build backend"
 
 buildApp:
   only:
