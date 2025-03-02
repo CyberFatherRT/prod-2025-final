@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::{
     db::Db,
     errors::ProdError,
-    forms::places::CreateCoworkingForm,
+    forms::places::coworking::CreateCoworkingForm,
     jwt::{generate::claims_from_headers, models::Claims},
     models::CoworkingSpacesModel,
     AppState,

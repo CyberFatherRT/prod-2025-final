@@ -146,7 +146,6 @@ pub async fn profile(
     patch,
     tag = "Users",
     path = "/user/profile",
-    request_body = PatchProfileForm,
     responses(
         (status = 200, body = UserModel),
         (status = 400, description = "wrong data format"),

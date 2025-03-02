@@ -13,7 +13,7 @@ pub async fn create_building(
     headers: HeaderMap,
     State(state): State<AppState>,
     Json(form): Json<CreateBuildingForm>,
-) -> Result<(StatusCode, BuildingModel), ProdError> {
+) -> Result<(StatusCode, Json<BuildingModel>), ProdError> {
     let mut conn = state.pool.conn().await?;
     todo!()
 }
