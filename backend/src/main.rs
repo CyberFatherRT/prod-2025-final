@@ -37,6 +37,8 @@ pub struct AppState {
     pub bucket_name: String,
 }
 
+pub const BASE_URL: &str = "https://prod-team-13-cltnksuj.final.prodcontest.ru";
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();

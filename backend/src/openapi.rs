@@ -1,7 +1,7 @@
 use crate::routes::{
     admin::routes::{
-        __path_admin_delete_user, __path_get_user, __path_list_users, __path_patch_user,
-        __path_verify_guest,
+        __path_admin_delete_user, __path_get_user, __path_get_user_document, __path_get_verify_requests,
+        __path_list_users, __path_patch_user, __path_verify_guest,
     },
     booking::routes::{__path_create_booking, __path_delete_booking, __path_patch_booking},
     companies::routes::__path_company_register,
@@ -31,13 +31,13 @@ impl Modify for SecurityAddon {
 #[openapi(
     paths(
         login, register, profile, patch_profile, upload_document, delete_user,
-        verify_guest, admin_delete_user, patch_user, list_users, get_user,
+        verify_guest, admin_delete_user, patch_user, list_users, get_user, get_verify_requests, get_user_document,
         create_booking, delete_booking, patch_booking,
         company_register,
     ),
     tags(
         (name = "Users", description = "User management"),
-        (name = "Admin", description = "Admin related functionality"),
+        (name = "Admin", description = "Admin user related functionality"),
         (name = "Bookings", description = "Booking related functionality"),
         (name = "Companies", description = "Companies related functionality")
     ),

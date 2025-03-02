@@ -8,7 +8,9 @@ use axum::{
 pub mod routes;
 pub fn get_routes(state: AppState) -> Router {
     Router::new()
-        .route("/verify_guest/{user_id}", post(routes::verify_guest))
+        .route("/documents/{user_id}", get(routes::get_user_document))
+        .route("/list_requests", get(routes::get_verify_requests))
+        .route("/user/{user_id}/verify", post(routes::verify_guest))
         .route("/user/{user_id}", get(routes::get_user))
         .route("/user/{user_id}", delete(routes::admin_delete_user))
         .route("/user/{user_id}", patch(routes::patch_user))

@@ -13,10 +13,10 @@ pub enum ProdError {
     HashingError(#[from] argon2::Error),
 
     /// If the request was invalid or malformed.
-    #[error("the request was invalid {0}")]
+    #[error("{0}")]
     InvalidRequest(#[from] validator::ValidationErrors),
 
-    #[error("some shit happened {0}")]
+    #[error("{0}")]
     ShitHappened(String),
 
     #[error("{0}")]
