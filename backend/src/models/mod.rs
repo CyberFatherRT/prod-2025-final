@@ -72,12 +72,13 @@ pub struct ItemsModel {
     pub company_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, FromRow, Validate)]
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]
 pub struct CoworkingItemsModel {
     pub id: Uuid,
-    pub items_id: Uuid,
+    pub item_id: Uuid,
+    pub name: String,
+    pub description: Option<String>,
     pub base_point: Point,
-    pub coworking_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]

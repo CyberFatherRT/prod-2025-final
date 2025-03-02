@@ -117,6 +117,9 @@ pub async fn create_items_type(
     delete,
     tag = "Items",
     path = "/items/{item_id}",
+    params(
+        ("item_id" = Uuid, Path),
+    ),
     responses(
         (status = 204, description = "Item type was successfully deleted"),
         (status = 403, description = "Forbidden")
