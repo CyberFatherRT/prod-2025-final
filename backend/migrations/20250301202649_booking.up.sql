@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS bookings
     company_id         UUID      NOT NULL,
     time_start         timestamp NOT NULL,
     time_end           timestamp NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (coworking_space_id) REFERENCES coworking_spaces (id),
-    FOREIGN KEY (coworking_item_id) REFERENCES coworking_items (id),
-    FOREIGN KEY (company_id) REFERENCES companies (id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (coworking_space_id) REFERENCES coworking_spaces (id) ON DELETE CASCADE,
+    FOREIGN KEY (coworking_item_id) REFERENCES coworking_items (id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
     EXCLUDE USING gist (
         coworking_item_id WITH =,
         tsrange(time_start, time_end) WITH &&
