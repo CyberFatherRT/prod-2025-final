@@ -65,7 +65,7 @@ buildApp:
 
     - chmod +x ./gradlew
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew assembleRelease
   artifacts:
     paths:
       - mobile/app/build/outputs/
