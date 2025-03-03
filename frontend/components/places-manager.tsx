@@ -16,17 +16,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Trash2, Edit, Plus } from "lucide-react";
-import {
-    addBuilding,
-    addCoworking,
-    deleteBuilding,
-    deleteCoworking,
-    getBuildings,
-    getCoworking,
-    getCoworkings,
-    updateBuilding,
-    updateCoworking,
-} from "@/app/actions";
+import { addCoworking, deleteCoworking, getCoworking, getCoworkings, updateCoworking } from "@/app/coworkings";
+import { addBuilding, deleteBuilding, getBuildings, updateBuilding } from "@/app/buildings";
 
 interface PlacesManagerProps {
     token: string | null;

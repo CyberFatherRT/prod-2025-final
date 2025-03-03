@@ -13,9 +13,11 @@ import GridSizeControls from "./grid-size-controls";
 import ItemTypeCreator from "./item-type-creator";
 import Login from "./login";
 import { useAuth } from "@/lib/auth";
-import * as actions from "@/app/actions";
+import * as actions from "@/app/items";
 import PlacesManager from "./places-manager";
-import { getBuildings, getCoworkings, getItems, getItemTypes } from "@/app/actions";
+import { getItems, getItemTypes } from "@/app/items";
+import { getBuildings } from "@/app/buildings";
+import { getCoworkingsByBuilding, updateCoworking } from "@/app/coworkings";
 
 export default function CoworkingAdmin() {
     const router = useRouter();
@@ -65,10 +67,7 @@ export default function CoworkingAdmin() {
     const fetchInitialData = async () => {
         setIsLoading(true);
         try {
-            const [buildingsData, itemTypesData] = await Promise.all([
-                actions.getBuildings(token as string),
-                actions.getItemTypes(),
-            ]);
+            const [buildingsData, itemTypesData] = await Promise.all([getBuildings(token as string), getItemTypes()]);
             setBuildings(buildingsData);
             setItemTypes(itemTypesData);
             if (buildingsData.length > 0) {
@@ -84,7 +83,7 @@ export default function CoworkingAdmin() {
     const fetchCoworkings = async (buildingId: string) => {
         setIsLoading(true);
         try {
-            const data = await actions.getCoworkingsByBuilding(buildingId, token as string);
+            const data = await getCoworkingsByBuilding(buildingId, token as string);
             setCoworkings(data);
             if (data.length > 0) {
                 setSelectedCoworking(data[0]);
@@ -186,7 +185,7 @@ export default function CoworkingAdmin() {
     };
 
     const loadCoworkings = async (buildingId: string) => {
-        const loadedCoworkings = await actions.getCoworkingsByBuilding(buildingId, token);
+        const loadedCoworkings = await getCoworkingsByBuilding(buildingId, token);
         setCoworkings(loadedCoworkings);
         if (loadedCoworkings.length > 0) {
             setSelectedCoworking(loadedCoworkings[0]);
@@ -207,7 +206,7 @@ export default function CoworkingAdmin() {
         setIsLoading(true);
         try {
             if (localChanges.gridSize && selectedCoworking) {
-                await actions.updateCoworking(selectedCoworking.id, localChanges.gridSize);
+                await updateCoworking(selectedCoworking.id, localChanges.gridSize);
                 setSelectedCoworking((prev) => (prev ? { ...prev, ...localChanges.gridSize } : null));
             }
 
