@@ -47,7 +47,7 @@ pub async fn get_items_by_coworking(
         FROM coworking_items ci
         JOIN buildings b ON b.id = $1
         JOIN coworking_spaces c ON c.id = $2 AND c.building_id = b.id
-        WHERE c.company_id = $3
+        WHERE c.company_id = $3 AND ci.coworking_id = $2
         "#,
         building_id,
         coworking_id,
