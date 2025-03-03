@@ -3,12 +3,10 @@ use axum::{
     http::{HeaderMap, StatusCode},
     Json,
 };
-use bytes::Bytes;
 use sqlx::Acquire;
-use tracing::{info, warn};
+use tracing::warn;
 use uuid::{NoContext, Timestamp, Uuid};
 
-use crate::models::Point;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -42,7 +40,7 @@ pub async fn create_items_type(
     let company_id = claims_from_headers(&headers)?.company_id;
 
     let mut form: Option<CreateItemTypeForm> = None;
-    let mut image: Option<Bytes> = None;
+    let mut icon_name: Option<String> = None;
 
     while let Ok(Some(field)) = multipart.next_field().await {
         if let Some(field_name) = field.name() {
@@ -58,20 +56,27 @@ pub async fn create_items_type(
                     })?);
                 }
                 "icon" => {
-                    if field.content_type() != Some("image/svg")
-                        && field.content_type() != Some("image/svg+xml")
-                    {
-                        return Err(ProdError::ShitHappened(
-                            "Icon must be of type image/svg".to_string(),
-                        ));
-                    }
+                    if let Some(content_type) = field.content_type() {
+                        if content_type != "image/svg" && content_type != "image/svg+xml" {
+                            return Err(ProdError::ShitHappened(
+                                "Icon must be of type image/svg".to_string(),
+                            ));
+                        }
 
-                    image = Some(
-                        field
-                            .bytes()
-                            .await
-                            .map_err(|err| ProdError::ShitHappened(err.to_string()))?,
-                    );
+                        let image = Some(
+                            field
+                                .bytes()
+                                .await
+                                .map_err(|err| ProdError::ShitHappened(err.to_string()))?,
+                        );
+                        let item_id = Uuid::new_v7(Timestamp::now(NoContext));
+
+                        if let Some(image) = image {
+                            let name = format!("items/{item_id}/icon.svg");
+                            upload_file(&state, &name, "image/svg".to_string(), image).await?;
+                            icon_name = Some(name);
+                        }
+                    }
                 }
                 _ => warn!("Unknwon field: {}", field_name),
             }
@@ -83,38 +88,33 @@ pub async fn create_items_type(
             "Json body should be specified".to_string(),
         ));
     };
-
-    let item_id = Uuid::new_v7(Timestamp::now(NoContext));
-    let mut icon_name: Option<String> = None;
-
-    if let Some(image) = image {
-        let name = format!("items/{item_id}/icon.svg");
-        upload_file(&state, &name, "image/svg".to_string(), image).await?;
-        icon_name = Some(name);
+    if form.offsets.is_empty() {
+        return Err(ProdError::ShitHappened(
+            "Offsets should have at leat one value".to_string(),
+        ));
     }
 
-    let item = sqlx::query_as!(
-        ItemsModel,
-        r#"
+    let item = sqlx::query_as::<_, ItemsModel>(&format!(
+        r"
         INSERT INTO item_types(name, description, icon, offsets, bookable, company_id)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, ARRAY[{}]::point[], $4, $5)
         RETURNING id, name, description, icon,
-                  offsets as "offsets: _",
+                  offsets,
                   bookable, company_id
-        "#,
-        form.name,
-        form.description,
-        icon_name,
-        form.offsets as Vec<Point>, // FIXME: weird stuff
-        form.bookable,
-        company_id,
-    )
+        ",
+        form.offsets
+            .iter()
+            .map(|p| format!("point({}, {})", p.x, p.y))
+            .collect::<Vec<String>>()
+            .join(", ")
+    ))
+    .bind(&form.name)
+    .bind(&form.description)
+    .bind(&icon_name)
+    .bind(form.bookable)
+    .bind(company_id)
     .fetch_one(conn.as_mut())
-    .await
-    .map_err(|err| {
-        info!("LOOOOOOK AT ME - {:?}", err);
-        ProdError::DatabaseError(err)
-    })?;
+    .await?;
 
     Ok((StatusCode::CREATED, Json(item)))
 }

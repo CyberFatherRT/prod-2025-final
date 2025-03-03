@@ -262,19 +262,19 @@ pub async fn list_bookings(
         SELECT
             b.id,
             b.user_id,
-            b.company_id,
             b.coworking_space_id,
             b.coworking_item_id,
             b.time_start,
             b.time_end,
-            c.name as company_name,
             bu.address as building_address,
-            i.name as booking_item_name,
-            i.description as booking_item_description
+            i.name as coworking_item_name,
+            i.description as coworking_item_description,
+            s.address as coworking_space_name
         FROM bookings b
         JOIN companies c ON c.id = b.company_id
-        JOIN buildings bu ON bu.company_id = b.company_id
-        JOIN coworking_items i ON i.coworking_id = b.coworking_space_id
+        JOIN coworking_spaces s ON s.id = b.coworking_space_id
+        JOIN buildings bu ON bu.id = s.building_id
+        JOIN coworking_items i ON i.id = b.coworking_item_id
         WHERE b.user_id = $1 AND b.time_end > NOW()
         "#,
         claim.user_id,
@@ -335,12 +335,9 @@ pub async fn get_booking_qr(
 
 /// Verify booking qr
 #[utoipa::path(
-    get,
+    post,
     tag = "Bookings",
     path = "/booking/verify",
-    params(
-        ("booking_id" = Uuid, Path)
-    ),
     responses(
         (status = 200, body = Verdict, description = "Booking QR validation data"),
         (status = 400, description = "Wrong request"),

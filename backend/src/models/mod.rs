@@ -1,6 +1,8 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Type};
+use sqlx::error::BoxDynError;
+use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
+use sqlx::{prelude::FromRow, Decode, Encode, Postgres, Type};
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
@@ -54,11 +56,48 @@ pub struct CoworkingSpacesModel {
     pub company_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, ToSchema, Type, FromRow, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, FromRow, Debug, Clone, PartialEq, Eq)]
 #[sqlx(type_name = "POINT")]
 pub struct Point {
-    pub x: i32,
-    pub y: i32,
+    pub x: i64,
+    pub y: i64,
+}
+
+impl Type<Postgres> for Point {
+    fn type_info() -> PgTypeInfo {
+        PgTypeInfo::with_name("point")
+    }
+}
+
+impl Encode<'_, Postgres> for Point {
+    fn encode_by_ref(
+        &self,
+        buf: &mut PgArgumentBuffer,
+    ) -> Result<sqlx::encode::IsNull, Box<(dyn std::error::Error + Send + Sync + 'static)>> {
+        let point_str = format!("({}, {})", self.x, self.y); // Строковое представление UDT
+        buf.extend_from_slice(point_str.as_bytes());
+        Ok(sqlx::encode::IsNull::No)
+    }
+}
+
+impl<'r> Decode<'r, Postgres> for Point {
+    fn decode(value: PgValueRef<'r>) -> Result<Self, BoxDynError> {
+        let (part1, part2) = value.as_bytes()?.split_at(8);
+        let x = decode_f64_from_bytes(part1);
+        let y = decode_f64_from_bytes(part2);
+        Ok(Self { x, y })
+    }
+}
+
+fn decode_f64_from_bytes(bytes: &[u8]) -> i64 {
+    let bits = u64::from_be_bytes(bytes.try_into().expect("Byte slice has wrong length"));
+    f64::from_bits(bits).round() as i64
+}
+
+impl PgHasArrayType for Point {
+    fn array_type_info() -> PgTypeInfo {
+        PgTypeInfo::with_name("_point") // В PostgreSQL массивы UDT обозначаются как `_typename`
+    }
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate, ToSchema)]
@@ -99,16 +138,15 @@ pub struct PublicBookingModel {
 
     pub coworking_space_id: Uuid,
     pub coworking_item_id: Uuid,
-    pub company_id: Uuid,
 
     pub time_start: NaiveDateTime,
     pub time_end: NaiveDateTime,
 
-    pub company_name: String,
     pub building_address: String,
 
-    pub booking_item_name: String,
-    pub booking_item_description: Option<String>,
+    pub coworking_item_name: String,
+    pub coworking_item_description: Option<String>,
+    pub coworking_space_name: String,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Validate)]

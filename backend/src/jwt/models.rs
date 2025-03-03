@@ -23,7 +23,7 @@ pub struct QrClaims {
 }
 
 impl QrClaims {
-    pub fn new(booking: &BookingModel) -> Self {
+    pub const fn new(booking: &BookingModel) -> Self {
         Self {
             booking_id: booking.id,
         }
