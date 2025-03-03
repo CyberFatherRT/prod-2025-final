@@ -29,7 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -57,11 +56,12 @@ fun HomeBookingCard(
             .clip(
                 shape = RoundedCornerShape(32.dp)
             )
-            .clickable { onBookingClick }
+            .clickable { onBookingClick() }
             .background(
                 color = MaterialTheme.colorScheme.onBackground,
                 shape = RoundedCornerShape(32.dp)
             )
+
     ) {
         val (nameEl, lightEl, labelEl, infoEl, qrButtonEl, editButtonEl) = createRefs()
 
@@ -102,6 +102,7 @@ fun HomeBookingCard(
                 },
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
+                color = Color.Black,
                 fontSize = 32.sp
             ),
             maxLines = 1,
@@ -120,6 +121,7 @@ fun HomeBookingCard(
                     width = Dimension.fillToConstraints
                 },
             style = MaterialTheme.typography.labelMedium.copy(
+                color = Color.Black,
                 fontSize = 20.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Normal
@@ -173,14 +175,15 @@ fun HomeBookingCard(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
+                .clickable { onBookingEditClick() }
                 .size(42.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { onBookingEditClick }
                 .background(color = Color.Green, shape = RoundedCornerShape(12.dp))
                 .constrainAs(editButtonEl) {
                     end.linkTo(parent.end, margin = 22.dp)
                     top.linkTo(infoEl.bottom, margin = 22.dp)
                 }
+
         ) {
             Icon(
                 modifier = Modifier
@@ -194,11 +197,11 @@ fun HomeBookingCard(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
+                .clickable { onQRClick() }
                 .padding(bottom = 16.dp)
                 .clip(
                     RoundedCornerShape(12.dp)
                 )
-                .clickable { onQRClick }
                 .fillMaxWidth()
                 .height(42.dp)
                 .background(color = MaterialTheme.colorScheme.primary)
@@ -210,6 +213,7 @@ fun HomeBookingCard(
                 }
         ) {
             Text(
+                color = Color.Black,
                 text = "Показать QR",
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontSize = 16.sp,

@@ -38,6 +38,7 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val BOOKING_LIST_ENDPOINT = "$BASE_DOMAIN/booking/list"
         const val VERIFY_BOOKING_QR_ENDPOINT = "$BASE_DOMAIN/booking/verify"
         const val LIST_PLACES_ENDPOINT = "$BASE_DOMAIN/place/list"
+        const val BOOKING_QR_ENDPOINT = "$BASE_DOMAIN/booking/{booking_id}/qr"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -97,7 +98,6 @@ class ApiRemote(private val httpClient: HttpClient) {
     suspend fun getBookingList() =
         httpClient.get(BOOKING_LIST_ENDPOINT) {
             contentType(ContentType.Application.Json)
-            attributes.put(InsertAuthAttrs.DontInsert, true)
         }.body<List<BookingDto>>()
 
 
@@ -109,4 +109,9 @@ class ApiRemote(private val httpClient: HttpClient) {
     suspend fun listPlaces() = httpClient.get(LIST_PLACES_ENDPOINT) {
 //        attributes.put(InsertAuthAttrs.DontInsert, true)
     }.body<PlacesDto>()
+
+    suspend fun getQr(bookingId: String) =
+        httpClient.get(BOOKING_QR_ENDPOINT.replace("{booking_id}", bookingId)) {
+            contentType(ContentType.Application.Json)
+        }.body<TokenDto>()
 }

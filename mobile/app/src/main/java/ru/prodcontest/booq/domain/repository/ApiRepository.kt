@@ -11,6 +11,7 @@ import ru.prodcontest.booq.domain.model.QrVerificationModel
 import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.util.ResultFlow
+import ru.prodcontest.booq.domain.util.ResultStateFlow
 import ru.prodcontest.booq.domain.util.UploadProgress
 
 interface ApiRepository {
@@ -23,4 +24,5 @@ interface ApiRepository {
     suspend fun getBookingList(): ResultFlow<List<BookingModel>>
     suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>
     suspend fun listPlaces(): ResultFlow<PlacesDto>
+    suspend fun getQr(bookingId: String): ResultFlow<TokenDto>
 }

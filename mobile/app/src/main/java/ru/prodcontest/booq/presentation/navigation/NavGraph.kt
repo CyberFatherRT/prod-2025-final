@@ -12,6 +12,8 @@ import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreen
 import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreen
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
+import ru.prodcontest.booq.presentation.home.HomeScreen
+import ru.prodcontest.booq.presentation.home.HomeScreenDestination
 import ru.prodcontest.booq.presentation.map.MapScreen
 import ru.prodcontest.booq.presentation.map.MapScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreen
@@ -27,13 +29,16 @@ import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestina
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = SelectBuildingScreenDestination
+        startDestination = HomeScreenDestination
     ) {
         composable<LoginScreenDestination> {
             LoginScreen(navController)
         }
         composable<RegisterScreenDestination> {
             RegisterScreen(navController)
+        }
+        composable<HomeScreenDestination> {
+            HomeScreen(navController)
         }
         composable<RegisterCompanyScreenDestination> {
             RegisterCompanyScreen(navController)

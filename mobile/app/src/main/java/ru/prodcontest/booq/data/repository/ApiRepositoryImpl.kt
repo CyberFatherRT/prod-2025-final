@@ -1,5 +1,7 @@
 package ru.prodcontest.booq.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import ru.prodcontest.booq.data.remote.ApiRemote
@@ -18,11 +20,13 @@ import ru.prodcontest.booq.domain.util.UploadProgress
 import ru.prodcontest.booq.domain.util.wrapToResult
 
 class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
-    override suspend fun login(creds: LoginDto): ResultFlow<TokenDto> =
-        wrapToResult { apiRemote.login(creds) }
+    override suspend fun login(creds: LoginDto): ResultFlow<TokenDto> = wrapToResult {
+        apiRemote.login(creds)
+    }
 
-    override suspend fun register(creds: RegisterDto): ResultFlow<TokenDto> =
-        wrapToResult { apiRemote.register(creds) }
+    override suspend fun register(creds: RegisterDto): ResultFlow<TokenDto> = wrapToResult {
+        apiRemote.register(creds)
+    }
 
     override suspend fun getProfile(): ResultFlow<UserModel> = wrapToResult {
         apiRemote.getProfile().toModel()
@@ -32,14 +36,16 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
         apiRemote.verifications().map { it.toModel() }
     }
 
-    override suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto> =
-        wrapToResult { apiRemote.registerCompany(creds) }
+    override suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto> = wrapToResult {
+        apiRemote.registerCompany(creds)
+    }
 
 
     override suspend fun uploadDocument(document: ByteArray): Flow<UploadProgress> = channelFlow {
         apiRemote.uploadDocument(document, this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getBookingList(): ResultFlow<List<BookingModel>> =
         wrapToResult { apiRemote.getBookingList().map { it.toModel() } }
 
@@ -49,6 +55,10 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
 
     override suspend fun listPlaces(): ResultFlow<PlacesDto> = wrapToResult {
         apiRemote.listPlaces()
+    }
+
+    override suspend fun getQr(bookingId: String): ResultFlow<TokenDto> = wrapToResult {
+        apiRemote.getQr(bookingId)
     }
 }
 

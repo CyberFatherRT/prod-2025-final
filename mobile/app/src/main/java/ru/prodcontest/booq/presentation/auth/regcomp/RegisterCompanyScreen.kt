@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.auth.regcomp.components.RegisterCompanyElement
+import ru.prodcontest.booq.presentation.home.HomeScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 
 @Serializable
@@ -42,7 +43,7 @@ fun RegisterCompanyScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is RegisterCompanyAction.NavigateToHomeScreen -> {
-                        navController.navigate(ProfileScreenDestination)
+                        navController.navigate(HomeScreenDestination)
                     }
                 }
             }

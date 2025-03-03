@@ -20,7 +20,7 @@ data class BookingIdData(
     val companyId: String,
     val itemId: String,
     val spaceId: String,
-    val userId: String
+    val userId: String? = null
 )
 
 data class BookingTextModel(

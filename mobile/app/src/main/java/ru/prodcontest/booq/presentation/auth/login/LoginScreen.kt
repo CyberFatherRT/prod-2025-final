@@ -34,10 +34,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import ru.prodcontest.booq.domain.usecase.GetTokenUseCase
 import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.components.LoginElement
 import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
+import ru.prodcontest.booq.presentation.home.HomeScreenDestination
 import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDestination
 
 @Serializable
@@ -46,7 +48,7 @@ object LoginScreenDestination
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -56,7 +58,7 @@ fun LoginScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is LoginScreenAction.NavigateToHomeScreen -> {
-                        navController.navigate(SelectBuildingScreenDestination)
+                        navController.navigate(HomeScreenDestination)
                     }
                     is LoginScreenAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)

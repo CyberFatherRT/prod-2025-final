@@ -39,6 +39,7 @@ import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.components.RegisterElement
+import ru.prodcontest.booq.presentation.home.HomeScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.theme.BooqTheme
 
@@ -60,7 +61,7 @@ fun RegisterScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is RegisterAction.NavigateToHomeScreen -> {
-                        navController.navigate(ProfileScreenDestination)
+                        navController.navigate(HomeScreenDestination)
                     }
                     is RegisterAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)
@@ -192,9 +193,8 @@ fun RegisterScreen(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF2A2E37)
 @Composable
-fun DemoRegisterScreen() {
+fun DemoRegisterScreenPreview() {
 
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
