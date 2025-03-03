@@ -34,27 +34,18 @@ function DraggableItem({ itemType }: DraggableItemProps) {
         e.dataTransfer.setData(
             "application/json",
             JSON.stringify({
-                typeId: itemType.id,
+                item_id: itemType.id,
                 name: itemType.name,
                 color: itemType.color,
-                shape: itemType.shape,
                 offsets: itemType.offsets,
             }),
         );
     };
 
     return (
-        <div
-            className="border rounded-md p-3 bg-background cursor-grab hover:border-primary
-                transition-colors"
-            draggable
-            onDragStart={handleDragStart}
-        >
+        <div className="border rounded-md p-3 bg-background cursor-grab hover:border-primary transition-colors" draggable onDragStart={handleDragStart}>
             <div className="flex items-center gap-2">
-                <div
-                    className="w-6 h-6 rounded-sm flex-shrink-0"
-                    style={{ backgroundColor: itemType.color }}
-                />
+                <div className="w-6 h-6 rounded-sm flex-shrink-0" style={{ backgroundColor: itemType.color }} />
                 <span className="font-medium">{itemType.name}</span>
             </div>
             <div className="mt-2">

@@ -4,7 +4,7 @@ use axum::{
     Json,
 };
 use sqlx::{Acquire, Error};
-use tracing::warn;
+use tracing::{info, warn};
 use uuid::{NoContext, Timestamp, Uuid};
 
 use crate::{
@@ -88,6 +88,7 @@ pub async fn create_items_type(
             "Json body should be specified".to_string(),
         ));
     };
+
     if form.offsets.is_empty() {
         return Err(ProdError::ShitHappened(
             "Offsets should have at leat one value".to_string(),
@@ -96,9 +97,9 @@ pub async fn create_items_type(
 
     let item = sqlx::query_as::<_, ItemsModel>(&format!(
         r"
-        INSERT INTO item_types(id, name, description, icon, offsets, bookable, company_id)
-        VALUES ($1, $2, $3, $4, ARRAY[{}]::point[], $5, $6)
-        RETURNING id, name, description, icon,
+        INSERT INTO item_types(id, name, description, color, icon, offsets, bookable, company_id)
+        VALUES ($1, $2, $3, $4, $5, ARRAY[{}]::point[], $6, $7)
+        RETURNING id, name, description, color, icon,
                   offsets,
                   bookable, company_id
         ",
@@ -111,6 +112,7 @@ pub async fn create_items_type(
     .bind(item_id)
     .bind(&form.name)
     .bind(&form.description)
+    .bind(&form.color)
     .bind(&icon_name)
     .bind(form.bookable)
     .bind(company_id)

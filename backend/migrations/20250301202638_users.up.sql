@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS pending_verifications
 (
     user_id    UUID PRIMARY KEY,
     company_id UUID,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (company_id) REFERENCES companies (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS pending_verifications_company_id_idx ON pending_verifications (company_id);

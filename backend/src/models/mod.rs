@@ -117,6 +117,7 @@ pub struct ItemsModel {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
+    pub color: String,
     pub icon: Option<String>,
     pub offsets: Vec<Point>,
     pub bookable: bool,

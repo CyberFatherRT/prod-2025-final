@@ -24,7 +24,7 @@ use crate::routes::{
         },
         items::{
             __path_add_item_to_coworking, __path_delete_item_from_coworking,
-            __path_get_items_by_coworking,
+            __path_get_items_by_coworking, __path_put_items_in_coworking,
         },
     },
     users::{
@@ -60,7 +60,7 @@ impl Modify for SecurityAddon {
         create_booking, delete_booking, patch_booking, list_bookings, get_booking_qr, verify_booking_qr,
         create_coworking, create_building, list_buildings, get_building, patch_building, patch_coworking, get_coworking_by_id, delete_building,
         delete_coworking, get_coworking_bookings, list_coworkings_by_building, list_coworkings,
-        create_items_type, delete_item_type, get_items_by_coworking, list_items_by_company, add_item_to_coworking, delete_item_from_coworking,
+        create_items_type, delete_item_type, get_items_by_coworking, list_items_by_company, add_item_to_coworking, delete_item_from_coworking, put_items_in_coworking,
         company_register,
     ),
     tags(

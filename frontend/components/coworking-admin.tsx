@@ -13,9 +13,8 @@ import GridSizeControls from "./grid-size-controls";
 import ItemTypeCreator from "./item-type-creator";
 import Login from "./login";
 import { useAuth } from "@/lib/auth";
-import * as actions from "@/app/items";
 import PlacesManager from "./places-manager";
-import { getItems, getItemTypes } from "@/app/items";
+import { addItemType, getItems, getItemTypes, setCoworkingItems } from "@/app/items";
 import { getBuildings } from "@/app/buildings";
 import { getCoworkingsByBuilding, updateCoworking } from "@/app/coworkings";
 
@@ -33,16 +32,7 @@ export default function CoworkingAdmin() {
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [localChanges, setLocalChanges] = useState<{
         gridSize?: { height: number; width: number };
-        addedItems: CoworkingItem[];
-        updatedItems: CoworkingItem[];
-        removedItemIds: string[];
-        addedItemTypes: ItemType[];
-    }>({
-        addedItems: [],
-        updatedItems: [],
-        removedItemIds: [],
-        addedItemTypes: [],
-    });
+    }>({});
 
     useEffect(() => {
         if (token) {
@@ -67,10 +57,13 @@ export default function CoworkingAdmin() {
     const fetchInitialData = async () => {
         setIsLoading(true);
         try {
-            const [buildingsData, itemTypesData] = await Promise.all([getBuildings(token as string), getItemTypes()]);
+            const [buildingsData, itemTypesData] = await Promise.all([getBuildings(token as string), getItemTypes(token)]);
+
             setBuildings(buildingsData);
             setItemTypes(itemTypesData);
+
             if (buildingsData.length > 0) {
+                console.log(buildingsData);
                 setSelectedBuilding(buildingsData[0]);
             }
         } catch (error) {
@@ -100,7 +93,8 @@ export default function CoworkingAdmin() {
     const fetchItems = async (coworkingId: string) => {
         setIsLoading(true);
         try {
-            const data = await actions.getItems(coworkingId);
+            let building_id = buildings.filter((b) => (b.id = selectedCoworking!.building_id))[0].id;
+            const data = await getItems(building_id, coworkingId, token);
             setItems(data);
         } catch (error) {
             console.error("Error fetching items:", error);
@@ -141,37 +135,22 @@ export default function CoworkingAdmin() {
     };
 
     const handleAddItem = (item: CoworkingItem) => {
-        setLocalChanges((prev) => ({
-            ...prev,
-            addedItems: [...prev.addedItems, item],
-        }));
         setItems((prev) => [...prev, item]);
         setHasUnsavedChanges(true);
     };
 
     const handleUpdateItem = (updatedItem: CoworkingItem) => {
-        setLocalChanges((prev) => ({
-            ...prev,
-            updatedItems: [...prev.updatedItems.filter((item) => item.id !== updatedItem.id), updatedItem],
-        }));
         setItems((prev) => prev.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
         setHasUnsavedChanges(true);
     };
 
     const handleRemoveItem = (itemId: string) => {
-        setLocalChanges((prev) => ({
-            ...prev,
-            removedItemIds: [...prev.removedItemIds, itemId],
-        }));
         setItems((prev) => prev.filter((item) => item.id !== itemId));
         setHasUnsavedChanges(true);
     };
 
-    const handleAddItemType = (newItemType: ItemType) => {
-        setLocalChanges((prev) => ({
-            ...prev,
-            addedItemTypes: [...prev.addedItemTypes, newItemType],
-        }));
+    const handleAddItemType = async (newItemType: ItemType) => {
+        await addItemType(newItemType, token);
         setItemTypes((prev) => [...prev, newItemType]);
         setHasUnsavedChanges(true);
     };
@@ -194,58 +173,36 @@ export default function CoworkingAdmin() {
         }
     };
 
-    const loadItemTypes = async () => {
-        setItemTypes(await getItemTypes());
-    };
-
-    const loadItems = async (coworkingId: string) => {
-        setItems(await getItems(coworkingId));
-    };
-
     const handleSaveChanges = async () => {
         setIsLoading(true);
         try {
+            let building_id = buildings.filter((b) => (b.id = selectedCoworking!.building_id)).map((b) => b.id);
             if (localChanges.gridSize && selectedCoworking) {
-                await updateCoworking(selectedCoworking.id, localChanges.gridSize);
+                await updateCoworking(
+                    building_id[0],
+                    selectedCoworking.id,
+                    {
+                        address: selectedCoworking.address,
+                        height: localChanges.gridSize.height,
+                        width: localChanges.gridSize.width,
+                    },
+                    token,
+                );
                 setSelectedCoworking((prev) => (prev ? { ...prev, ...localChanges.gridSize } : null));
             }
 
-            for (const item of localChanges.addedItems) {
-                if (selectedCoworking) {
-                    await actions.addItem({
-                        ...item,
-                        coworkingId: selectedCoworking.id,
-                    });
-                }
-            }
+            const translatedItems: CoworkingItem[] = items.map((item) => ({
+                ...item,
+                position: {
+                    x: item.base_point.x,
+                    y: localChanges.gridSize?.height! - item.base_point.y - 1,
+                },
+            }));
 
-            let promises = [];
+            await setCoworkingItems(building_id[0], selectedCoworking!.id, translatedItems, token);
 
-            for (const item of localChanges.updatedItems) {
-                promises.push(actions.updateItem(item));
-                await actions.updateItem(item);
-            }
-
-            for (const itemId of localChanges.removedItemIds) {
-                promises.push(actions.removeItem(itemId));
-            }
-
-            for (const itemType of localChanges.addedItemTypes) {
-                promises.push(actions.addItemType(itemType));
-            }
-
-            await Promise.all(promises);
-
-            // Reset local changes
-            setLocalChanges({
-                addedItems: [],
-                updatedItems: [],
-                removedItemIds: [],
-                addedItemTypes: [],
-            });
             setHasUnsavedChanges(false);
 
-            // Refresh data
             if (selectedCoworking) {
                 await fetchItems(selectedCoworking.id);
             }
@@ -273,16 +230,8 @@ export default function CoworkingAdmin() {
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Coworking Admin</h1>
                     <div className="flex gap-4 items-center">
-                        <BuildingSelector
-                            buildings={buildings}
-                            selectedBuilding={selectedBuilding}
-                            onSelectBuilding={handleBuildingChange}
-                        />
-                        <CoworkingSelector
-                            coworkings={coworkings}
-                            selectedCoworking={selectedCoworking}
-                            onSelectCoworking={handleCoworkingChange}
-                        />
+                        <BuildingSelector buildings={buildings} selectedBuilding={selectedBuilding} onSelectBuilding={handleBuildingChange} />
+                        <CoworkingSelector coworkings={coworkings} selectedCoworking={selectedCoworking} onSelectCoworking={handleCoworkingChange} />
                         <Button onClick={handleLogout} variant="outline">
                             Logout
                         </Button>
@@ -299,10 +248,7 @@ export default function CoworkingAdmin() {
                     </TabsList>
                 </div>
 
-                <TabsContent
-                    value="editor"
-                    className={activeTab === "editor" ? "flex-1 flex overflow-hidden" : "flex overflow-hidden"}
-                >
+                <TabsContent value="editor" className={activeTab === "editor" ? "flex-1 flex overflow-hidden" : "flex overflow-hidden"}>
                     <ItemSidebar itemTypes={itemTypes} />
 
                     <div className="flex-1 flex flex-col">
@@ -341,11 +287,7 @@ export default function CoworkingAdmin() {
                 </TabsContent>
 
                 <TabsContent value="places" className="flex-1 p-4">
-                    <PlacesManager
-                        token={token}
-                        onUpdateBuildings={loadBuildings}
-                        onUpdateCoworkings={() => loadCoworkings(selectedBuilding?.id || "")}
-                    />
+                    <PlacesManager token={token} onUpdateBuildings={loadBuildings} onUpdateCoworkings={() => loadCoworkings(selectedBuilding?.id || "")} />
                 </TabsContent>
             </Tabs>
 

@@ -13,11 +13,7 @@ interface GridSizeControlsProps {
     onSizeChange: (rows: number, cols: number) => void;
 }
 
-export default function GridSizeControls({
-    rows,
-    cols,
-    onSizeChange,
-}: GridSizeControlsProps) {
+export default function GridSizeControls({ rows, cols, onSizeChange }: GridSizeControlsProps) {
     const [localRows, setLocalRows] = useState(rows);
     const [localCols, setLocalCols] = useState(cols);
 
@@ -51,28 +47,18 @@ export default function GridSizeControls({
             <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Rows:</span>
                 <div className="flex items-center">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 rounded-r-none"
-                        onClick={decrementRows}
-                    >
+                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-r-none" onClick={decrementRows}>
                         <Minus className="h-4 w-4" />
                     </Button>
                     <Input
                         type="number"
                         value={localRows}
                         onChange={handleRowsChange}
-                        className="h-8 w-16 rounded-none text-center"
+                        className="h-8 w-16 rounded-none text-center appearance-none"
                         min="1"
                         max="100"
                     />
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 rounded-l-none"
-                        onClick={incrementRows}
-                    >
+                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-l-none" onClick={incrementRows}>
                         <Plus className="h-4 w-4" />
                     </Button>
                 </div>
@@ -81,28 +67,18 @@ export default function GridSizeControls({
             <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Columns:</span>
                 <div className="flex items-center">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 rounded-r-none"
-                        onClick={decrementCols}
-                    >
+                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-r-none" onClick={decrementCols}>
                         <Minus className="h-4 w-4" />
                     </Button>
                     <Input
                         type="number"
                         value={localCols}
                         onChange={handleColsChange}
-                        className="h-8 w-16 rounded-none text-center"
+                        className="h-8 w-16 rounded-none text-center appearance-none"
                         min="1"
                         max="100"
                     />
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 rounded-l-none"
-                        onClick={incrementCols}
-                    >
+                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-l-none" onClick={incrementCols}>
                         <Plus className="h-4 w-4" />
                     </Button>
                 </div>

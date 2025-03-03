@@ -6,15 +6,17 @@ export interface Position {
 export interface ItemType {
     id: string;
     name: string;
+    description: string | null;
     color: string;
-    shape: string;
-    offsets: [number, number][]; // Array of [x, y] offsets from base position
+    bookable: boolean;
+    offsets: [number, number][];
 }
 
 export interface CoworkingItem {
     id: string;
-    typeId: string;
-    position: Position;
+    name: string;
+    item_id: string;
+    base_point: Position;
 }
 
 export interface Coworking {

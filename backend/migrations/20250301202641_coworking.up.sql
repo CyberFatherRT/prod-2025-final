@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS item_types
     name        VARCHAR               NOT NULL,
     description VARCHAR,
     icon        VARCHAR,
+    color       VARCHAR               NOT NULL,
     offsets     point[]               NOT NULL,
     bookable    BOOLEAN DEFAULT FALSE NOT NULL,
     company_id  UUID                  NOT NULL,

@@ -18,15 +18,7 @@ interface CoworkingGridProps {
     onRemoveItem: (itemId: string) => void;
 }
 
-export default function CoworkingGrid({
-    rows,
-    cols,
-    items,
-    itemTypes,
-    onAddItem,
-    onUpdateItem,
-    onRemoveItem,
-}: CoworkingGridProps) {
+export default function CoworkingGrid({ rows, cols, items, itemTypes, onAddItem, onUpdateItem, onRemoveItem }: CoworkingGridProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +28,7 @@ export default function CoworkingGrid({
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
     const [draggedItem, setDraggedItem] = useState<{
-        typeId: string;
+        item_id: string;
         position: Position;
         isNew: boolean;
         itemId?: string;
@@ -45,9 +37,7 @@ export default function CoworkingGrid({
     const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
     const [cellSize, setCellSize] = useState(50);
 
-    const [selectedItem, setSelectedItem] = useState<CoworkingItem | null>(
-        null,
-    );
+    const [selectedItem, setSelectedItem] = useState<CoworkingItem | null>(null);
     const [contextMenuPosition, setContextMenuPosition] = useState<{
         x: number;
         y: number;
@@ -98,22 +88,15 @@ export default function CoworkingGrid({
 
         // Draw placed items
         items.forEach((item) => {
-            const itemType = itemTypes.find((type) => type.id === item.typeId);
+            const itemType = itemTypes.find((type) => type.id === item.item_id);
             if (!itemType) return;
 
-            drawItem(
-                ctx,
-                item.position,
-                itemType,
-                item.id === draggedItem?.itemId ? 0.5 : 1,
-            );
+            drawItem(ctx, item.base_point, itemType, item.id === draggedItem?.itemId ? 0.5 : 1);
         });
 
         // Draw currently dragged item if any
         if (draggedItem && hoveredCell) {
-            const itemType = itemTypes.find(
-                (type) => type.id === draggedItem.typeId,
-            );
+            const itemType = itemTypes.find((type) => type.id === draggedItem.item_id);
             if (itemType) {
                 drawItem(ctx, hoveredCell, itemType, 0.7);
             }
@@ -121,13 +104,11 @@ export default function CoworkingGrid({
 
         // Highlight selected item
         if (selectedItem) {
-            const itemType = itemTypes.find(
-                (type) => type.id === selectedItem.typeId,
-            );
+            const itemType = itemTypes.find((type) => type.id === selectedItem.item_id);
             if (itemType) {
                 ctx.strokeStyle = "red";
                 ctx.lineWidth = 2 / scale;
-                const { x, y } = selectedItem.position;
+                const { x, y } = selectedItem.base_point;
                 itemType.offsets.forEach(([offsetX, offsetY]) => {
                     const cellX = (x + offsetX) * cellSize;
                     const cellY = (y + offsetY) * cellSize;
@@ -137,28 +118,10 @@ export default function CoworkingGrid({
         }
 
         ctx.restore();
-    }, [
-        rows,
-        cols,
-        items,
-        itemTypes,
-        scale,
-        offset,
-        draggedItem,
-        hoveredCell,
-        cellSize,
-        gridWidth,
-        gridHeight,
-        selectedItem,
-    ]);
+    }, [rows, cols, items, itemTypes, scale, offset, draggedItem, hoveredCell, cellSize, gridWidth, gridHeight, selectedItem]);
 
     // Draw a single item
-    const drawItem = (
-        ctx: CanvasRenderingContext2D,
-        position: Position,
-        itemType: ItemType,
-        opacity = 1,
-    ) => {
+    const drawItem = (ctx: CanvasRenderingContext2D, position: Position, itemType: ItemType, opacity = 1) => {
         const { x, y } = position;
         const offsets = itemType.offsets || [[0, 0]];
 
@@ -170,12 +133,7 @@ export default function CoworkingGrid({
             const cellY = (y + offsetY) * cellSize;
 
             // Check if cell is within grid bounds
-            if (
-                x + offsetX >= 0 &&
-                x + offsetX < cols &&
-                y + offsetY >= 0 &&
-                y + offsetY < rows
-            ) {
+            if (x + offsetX >= 0 && x + offsetX < cols && y + offsetY >= 0 && y + offsetY < rows) {
                 ctx.fillRect(cellX, cellY, cellSize, cellSize);
 
                 // Draw cell border
@@ -189,12 +147,8 @@ export default function CoworkingGrid({
     };
 
     // Check if an item can be placed at a position
-    const canPlaceItem = (
-        position: Position,
-        typeId: string,
-        excludeItemId?: string,
-    ): boolean => {
-        const itemType = itemTypes.find((type) => type.id === typeId);
+    const canPlaceItem = (position: Position, item_id: string, excludeItemId?: string): boolean => {
+        const itemType = itemTypes.find((type) => type.id === item_id);
         if (!itemType) return false;
 
         const offsets = itemType.offsets || [[0, 0]];
@@ -215,16 +169,14 @@ export default function CoworkingGrid({
             // Skip the item being dragged if it's an existing item
             if (excludeItemId && item.id === excludeItemId) return;
 
-            const itemTypeForPlaced = itemTypes.find(
-                (type) => type.id === item.typeId,
-            );
+            const itemTypeForPlaced = itemTypes.find((type) => type.id === item.item_id);
             if (!itemTypeForPlaced) return;
 
             const offsetsForPlaced = itemTypeForPlaced.offsets || [[0, 0]];
 
             offsetsForPlaced.forEach(([offsetX, offsetY]) => {
-                const x = item.position.x + offsetX;
-                const y = item.position.y + offsetY;
+                const x = item.base_point.x + offsetX;
+                const y = item.base_point.y + offsetY;
                 occupiedCells.add(`${x},${y}`);
             });
         });
@@ -291,8 +243,8 @@ export default function CoworkingGrid({
             } else {
                 // Start dragging existing item
                 setDraggedItem({
-                    typeId: clickedItem.typeId,
-                    position: clickedItem.position,
+                    item_id: clickedItem.item_id,
+                    position: clickedItem.base_point,
                     isNew: false,
                     itemId: clickedItem.id,
                 });
@@ -307,16 +259,13 @@ export default function CoworkingGrid({
     // Find an item at a specific grid position
     const findItemAtPosition = (position: Position): CoworkingItem | null => {
         for (const item of items) {
-            const itemType = itemTypes.find((type) => type.id === item.typeId);
+            const itemType = itemTypes.find((type) => type.id === item.item_id);
             if (!itemType) continue;
 
             const offsets = itemType.offsets || [[0, 0]];
 
             for (const [offsetX, offsetY] of offsets) {
-                if (
-                    item.position.x + offsetX === position.x &&
-                    item.position.y + offsetY === position.y
-                ) {
+                if (item.base_point.x + offsetX === position.x && item.base_point.y + offsetY === position.y) {
                     return item;
                 }
             }
@@ -355,27 +304,27 @@ export default function CoworkingGrid({
 
         if (draggedItem && hoveredCell) {
             // Try to place the item
-            const canPlace = canPlaceItem(
-                hoveredCell,
-                draggedItem.typeId,
-                draggedItem.isNew ? undefined : draggedItem.itemId,
-            );
+            const canPlace = canPlaceItem(hoveredCell, draggedItem.item_id, draggedItem.isNew ? undefined : draggedItem.itemId);
+            const foo = itemTypes.filter((itemType) => itemType.id === draggedItem.item_id)[0];
 
             if (canPlace) {
                 if (draggedItem.isNew) {
                     // Add new item
-                    onAddItem({
+                    const bar = {
+                        name: foo.name,
                         id: uuidv4(),
-                        typeId: draggedItem.typeId,
+                        item_id: draggedItem.item_id,
                         position: hoveredCell,
-                    });
+                    };
+                    console.log(bar);
+                    onAddItem(bar);
                 } else if (draggedItem.itemId) {
                     // Update existing item position
                     const item = items.find((i) => i.id === draggedItem.itemId);
                     if (item) {
                         onUpdateItem({
                             ...item,
-                            position: hoveredCell,
+                            base_point: hoveredCell,
                         });
                     }
                 }
@@ -411,7 +360,7 @@ export default function CoworkingGrid({
 
         try {
             const data = JSON.parse(e.dataTransfer.getData("application/json"));
-            const { typeId } = data;
+            const { item_id } = data;
 
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
@@ -419,12 +368,15 @@ export default function CoworkingGrid({
 
             const gridPos = screenToGrid(mouseX, mouseY);
 
+            const name = itemTypes.filter((itemType) => itemType.id === item_id)[0].name;
+
             // Check if we can place the item
-            if (canPlaceItem(gridPos, typeId)) {
+            if (canPlaceItem(gridPos, item_id)) {
                 onAddItem({
                     id: uuidv4(),
-                    typeId,
-                    position: gridPos,
+                    item_id,
+                    name,
+                    base_point: gridPos,
                 });
             }
         } catch (error) {
@@ -440,11 +392,11 @@ export default function CoworkingGrid({
 
         try {
             const data = JSON.parse(e.dataTransfer.getData("application/json"));
-            const { typeId } = data;
+            const { item_id } = data;
 
             // Set dragged item for preview
             setDraggedItem({
-                typeId,
+                item_id,
                 position: { x: 0, y: 0 },
                 isNew: true,
             });
@@ -526,11 +478,7 @@ export default function CoworkingGrid({
     };
 
     return (
-        <div
-            ref={containerRef}
-            className="w-full h-full relative"
-            onContextMenu={handleContextMenu}
-        >
+        <div ref={containerRef} className="w-full h-full relative" onContextMenu={handleContextMenu}>
             <canvas
                 ref={canvasRef}
                 className="w-full h-full cursor-grab"
@@ -552,34 +500,17 @@ export default function CoworkingGrid({
                         top: contextMenuPosition.y,
                     }}
                 >
-                    <Button
-                        variant="ghost"
-                        className="w-full justify-start"
-                        onClick={handleRemoveItem}
-                    >
+                    <Button variant="ghost" className="w-full justify-start" onClick={handleRemoveItem}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         Remove Item
                     </Button>
                 </div>
             )}
-            <div
-                className="absolute bottom-4 right-4 bg-background border rounded-md p-2 shadow-sm flex
-                    gap-2"
-            >
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setScale((prev) => Math.min(3, prev * 1.2))}
-                >
+            <div className="absolute bottom-4 right-4 bg-background border rounded-md p-2 shadow-sm flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setScale((prev) => Math.min(3, prev * 1.2))}>
                     +
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                        setScale((prev) => Math.max(0.2, prev / 1.2))
-                    }
-                >
+                <Button variant="outline" size="sm" onClick={() => setScale((prev) => Math.max(0.2, prev / 1.2))}>
                     -
                 </Button>
                 <Button

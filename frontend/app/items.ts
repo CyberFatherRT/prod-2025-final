@@ -1,41 +1,65 @@
 "use server";
 
 import type { ItemType, CoworkingItem } from "@/lib/types";
-import { mockItemTypes, mockItems } from "@/lib/data-store";
+import { backendDomain } from "@/lib/utils";
 
-export async function getItemTypes(): Promise<ItemType[]> {
-    return mockItemTypes;
+type ItemTypeResponse = {
+    id: string;
+    name: string;
+    description: string | null;
+    icon: string | null;
+    color: string;
+    bookable: boolean;
+    offsets: { x: number; y: number }[];
+};
+
+export async function getItemTypes(token: string | null): Promise<ItemType[]> {
+    const response = await fetch(`${backendDomain}/items`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const itemTypes: ItemTypeResponse[] = await response.json();
+    return itemTypes.map((itemType) => ({ ...itemType, offsets: [...itemType.offsets.map(({ x, y }) => [x, y] as [number, number])] }));
 }
 
-export async function getItems(coworkingId: string): Promise<CoworkingItem[]> {
-    return mockItems[coworkingId] || [];
+export async function getItems(b_id: string, c_id: string, token: string | null): Promise<CoworkingItem[]> {
+    const response = await fetch(`${backendDomain}/place/${b_id}/coworking/${c_id}/items`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return await response.json();
 }
 
-export async function addItem(item: CoworkingItem & { coworkingId: string }): Promise<CoworkingItem> {
-    const { coworkingId, ...newItem } = item;
-    if (!mockItems[coworkingId]) mockItems[coworkingId] = [];
-    mockItems[coworkingId].push(newItem);
-    return newItem;
+export async function setCoworkingItems(b_id: string, c_id: string, items: CoworkingItem[], token: string | null): Promise<void> {
+    await fetch(`${backendDomain}/place/${b_id}/coworking/${c_id}/items/put`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(items),
+    });
 }
 
-export async function updateItem(item: CoworkingItem): Promise<CoworkingItem> {
-    for (const coworkingId in mockItems) {
-        const index = mockItems[coworkingId].findIndex((i) => i.id === item.id);
-        if (index !== -1) {
-            mockItems[coworkingId][index] = item;
-            return item;
-        }
-    }
-    throw new Error("Item not found");
-}
+export async function addItemType(itemType: ItemType, token: string | null) {
+    const foo = {
+        ...itemType,
+        id: undefined,
+        offsets: [...itemType.offsets.map(([x, y]) => ({ x, y }))],
+    };
 
-export async function removeItem(itemId: string): Promise<void> {
-    for (const coworkingId in mockItems) {
-        mockItems[coworkingId] = mockItems[coworkingId].filter((i) => i.id !== itemId);
-    }
-}
+    const requestBody = new FormData();
+    requestBody.append("json", JSON.stringify(foo));
 
-export async function addItemType(itemType: ItemType): Promise<ItemType> {
-    mockItemTypes.push(itemType);
-    return itemType;
+    await fetch(`${backendDomain}/items/new`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: requestBody,
+    });
 }

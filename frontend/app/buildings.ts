@@ -25,7 +25,18 @@ export async function addBuilding(address: string, token: string | null): Promis
     return await response.json();
 }
 
-export async function updateBuilding(building: Building) {}
+export async function updateBuilding(id: string, address: string, token: string | null): Promise<Building> {
+    const response = await fetch(`${backendDomain}/place/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ address }),
+    });
+
+    return await response.json();
+}
 
 export async function deleteBuilding(building_id: string, token: string | null) {
     await fetch(`${backendDomain}/place/${building_id}`, {

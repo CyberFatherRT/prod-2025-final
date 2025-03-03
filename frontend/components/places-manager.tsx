@@ -22,7 +22,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
     const [coworkings, setCoworkings] = useState<Coworking[]>([]);
     const [newBuildingAddress, setNewBuildingName] = useState("");
     const [editBuildingId, setEditBuildingId] = useState<string | null>(null);
-    const [editBuildingAddress, setEditBuildingName] = useState("");
+    const [editBuildingAddress, setEditBuildingAddress] = useState("");
     const [newCoworkingName, setNewCoworkingName] = useState("");
     const [newCoworkingRows, setNewCoworkingRows] = useState(10);
     const [newCoworkingCols, setNewCoworkingCols] = useState(10);
@@ -52,30 +52,27 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
         setBuildings(buildingList);
     };
 
-    const handleCreateBuilding = () => {
+    const handleCreateBuilding = async () => {
         if (newBuildingAddress.trim()) {
-            addBuilding(newBuildingAddress.trim(), token);
+            await addBuilding(newBuildingAddress.trim(), token);
             setNewBuildingName("");
             updateBuildings();
             onUpdateBuildings();
         }
     };
 
-    const handleUpdateBuilding = () => {
+    const handleUpdateBuilding = async () => {
         if (editBuildingId && editBuildingAddress.trim()) {
-            updateBuilding({
-                id: editBuildingId,
-                address: editBuildingAddress.trim(),
-            });
+            await updateBuilding(editBuildingId, editBuildingAddress.trim(), token);
             setEditBuildingId(null);
-            setEditBuildingName("");
+            setEditBuildingAddress("");
             onUpdateBuildings();
         }
     };
 
-    const handleDeleteBuilding = (building_id: string) => {
+    const handleDeleteBuilding = async (building_id: string) => {
         if (confirm("Are you sure you want to delete this building and all its coworkings?")) {
-            deleteBuilding(building_id, token);
+            await deleteBuilding(building_id, token);
             onUpdateBuildings();
             onUpdateCoworkings();
         }
@@ -124,10 +121,10 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
         }
     };
 
-    const handleDeleteCoworking = (coworkingId: string) => {
+    const handleDeleteCoworking = async (coworkingId: string) => {
         if (confirm("Are you sure you want to delete this coworking?")) {
             const building_id = coworkings.filter((coworking) => coworking.id === coworkingId).map((coworking) => coworking.building_id);
-            deleteCoworking(building_id[0], coworkingId, token);
+            await deleteCoworking(building_id[0], coworkingId, token);
             updateCoworkings();
             onUpdateCoworkings();
         }
@@ -179,7 +176,14 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                 <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <Button variant="outline" size="icon">
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => {
+                                                    setEditBuildingId(building.id);
+                                                    setEditBuildingAddress(building.address);
+                                                }}
+                                            >
                                                 <Edit className="h-4 w-4" />
                                             </Button>
                                         </DialogTrigger>
@@ -196,7 +200,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                                     <Input
                                                         id="edit-building-name"
                                                         value={editBuildingAddress}
-                                                        onChange={(e) => setEditBuildingName(e.target.value)}
+                                                        onChange={(e) => setEditBuildingAddress(e.target.value)}
                                                         className="col-span-3"
                                                     />
                                                 </div>
@@ -205,7 +209,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                                 <Button
                                                     onClick={() => {
                                                         setEditBuildingId(building.id);
-                                                        setEditBuildingName(building.address);
+                                                        setEditBuildingAddress(building.address);
                                                         handleUpdateBuilding();
                                                     }}
                                                 >

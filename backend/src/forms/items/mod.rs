@@ -10,6 +10,7 @@ pub struct CreateItemTypeForm {
     #[validate(length(min = 1, max = 10))]
     pub name: String,
     pub description: Option<String>,
+    pub color: String,
     pub offsets: Vec<Point>,
     pub bookable: bool,
 }

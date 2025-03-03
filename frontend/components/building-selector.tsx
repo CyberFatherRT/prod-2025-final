@@ -10,7 +10,7 @@ interface BuildingSelectorProps {
 }
 
 export default function BuildingSelector({ buildings, selectedBuilding, onSelectBuilding }: BuildingSelectorProps) {
-    console.log(buildings);
+    console.log(selectedBuilding, buildings);
     return (
         <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Building:</span>
