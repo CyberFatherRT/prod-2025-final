@@ -69,7 +69,7 @@ pub async fn create_coworking(
     Ok((StatusCode::CREATED, Json(coworking)))
 }
 
-/// List coworkings (everybody can use)
+/// List coworkings by building (everybody can use)
 #[utoipa::path(
     get,
     tag = "Coworkings",
@@ -115,6 +115,23 @@ pub async fn list_coworkings_by_building(
     Ok(Json(coworkings))
 }
 
+/// List coworkings (everybody can use)
+#[utoipa::path(
+    get,
+    tag = "Coworkings",
+    path = "/place/coworking/list",
+    params(
+        ("building_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 200, body = Vec<CoworkingSpacesModel>, description = "List of coworkings"),
+        (status = 403, description = "No auth"),
+        (status = 404, description = "No such buliding found")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
 pub async fn list_coworkings(
     headers: HeaderMap,
     State(state): State<AppState>,
