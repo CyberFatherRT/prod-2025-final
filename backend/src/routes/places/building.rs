@@ -166,3 +166,47 @@ pub async fn patch_building(
 
     Ok(Json(building))
 }
+
+/// Delete building
+#[utoipa::path(
+    delete,
+    tag = "Coworkings",
+    path = "/place/{building_id}",
+    params(
+        ("building_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 204, description = "Coworking successfully deleted"),
+        (status = 403, description = "Not admin"),
+        (status = 404, description = "No such building"),
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn delete_building(
+    headers: HeaderMap,
+    Path(building_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> Result<StatusCode, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let Claims { company_id, .. } = claims_from_headers(&headers)?;
+
+    let _ = sqlx::query_as!(
+        BuildingModel,
+        r#"
+        DELETE FROM buildings
+        WHERE company_id = $1 AND id = $2
+        RETURNING id, address, company_id"#,
+        company_id,
+        building_id
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No such building".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    Ok(StatusCode::NO_CONTENT)
+}

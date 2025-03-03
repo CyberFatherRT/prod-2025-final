@@ -30,7 +30,8 @@ use crate::{
         (status = 201, body = BookingModel, description = "Successully create booking"),
         (status = 400, description = "Wrong request"),
         (status = 403, description = "Unverified guest can not create booking"),
-        (status = 404, description = "Coworking or coworking_item not found")
+        (status = 404, description = "Coworking or coworking_item not found"),
+        (status = 409, description = "Your booking conflicts with existing bookings")
     ),
     security(
         ("bearerAuth" = [])
@@ -109,7 +110,9 @@ pub async fn create_booking(
             if e.is_foreign_key_violation() {
                 return ProdError::ShitHappened("Coworking or coworking_item not found".to_string())
             } else if e.is_check_violation() {
-                return ProdError::ShitHappened("Booking time should be divided by 15 minutes. You can book only in future.".to_string())
+                return ProdError::ShitHappened("Booking time should be divided by 15 minutes. You can book only in future. Start time should be less than end time.".to_string())
+            } else if e.constraint() == Some("bookings_coworking_item_id_tsrange_excl") {
+                return ProdError::Conflict("Your booking conflicts with existing bookings".to_string())
             }
             ProdError::DatabaseError(err)
         },

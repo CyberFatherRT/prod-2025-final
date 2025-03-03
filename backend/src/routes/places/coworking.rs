@@ -6,6 +6,7 @@ use axum::{
 use uuid::Uuid;
 
 use crate::forms::places::coworking::UpdateCoworkingForm;
+use crate::models::BookingModel;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -28,6 +29,7 @@ use crate::{
         (status = 201, body = CoworkingSpacesModel, description = "Successully create coworking"),
         (status = 400, description = "Wrong request"),
         (status = 403, description = "You are not an admin"),
+        (status = 404, description = "No such building")
     ),
     security(
         ("bearerAuth" = [])
@@ -56,7 +58,13 @@ pub async fn create_coworking(
         company_id
     )
     .fetch_one(conn.as_mut())
-    .await?;
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::Database(e) if e.is_foreign_key_violation() => {
+            ProdError::NotFound("No such building".to_string())
+        }
+        _ => ProdError::DatabaseError(err),
+    })?;
 
     Ok((StatusCode::CREATED, Json(coworking)))
 }
@@ -71,7 +79,8 @@ pub async fn create_coworking(
     ),
     responses(
         (status = 200, body = Vec<CoworkingSpacesModel>, description = "List of coworkings"),
-        (status = 403, description = "You are not an admin"),
+        (status = 403, description = "No auth"),
+        (status = 404, description = "No such buliding found")
     ),
     security(
         ("bearerAuth" = [])
@@ -97,7 +106,11 @@ pub async fn list_coworkings(
         company_id
     )
     .fetch_all(conn.as_mut())
-    .await?;
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No such buliding found".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
 
     Ok(Json(coworkings))
 }
@@ -113,7 +126,8 @@ pub async fn list_coworkings(
     ),
     responses(
         (status = 200, body = CoworkingSpacesModel, description = "Coworking model"),
-        (status = 403, description = "You are not an admin"),
+        (status = 403, description = "No auth"),
+        (status = 404, description = "No such coworking or building found")
     ),
     security(
         ("bearerAuth" = [])
@@ -163,6 +177,7 @@ pub async fn get_coworking_by_id(
     responses(
         (status = 200, body = CoworkingSpacesModel, description = "Updated coworking model"),
         (status = 403, description = "You are not an admin"),
+        (status = 404, description = "No such coworking or building found")
     ),
     security(
         ("bearerAuth" = [])
@@ -177,7 +192,7 @@ pub async fn patch_coworking(
     let mut conn = state.pool.conn().await?;
     let Claims { company_id, .. } = claims_from_headers(&headers)?;
 
-    let building = sqlx::query_as!(
+    let coworking = sqlx::query_as!(
         CoworkingSpacesModel,
         r#"UPDATE coworking_spaces SET address = $1
         WHERE
@@ -195,5 +210,109 @@ pub async fn patch_coworking(
         _ => ProdError::DatabaseError(err),
     })?;
 
-    Ok(Json(building))
+    Ok(Json(coworking))
+}
+
+/// Delete coworking
+#[utoipa::path(
+    delete,
+    tag = "Coworkings",
+    path = "/place/{building_id}/coworking/{coworking_id}",
+    params(
+        ("building_id" = Uuid, Path),
+        ("coworking_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 204, description = "Coworking successfully deleted"),
+        (status = 403, description = "You are not an admin"),
+        (status = 404, description = "No such coworking or building found")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn delete_coworking(
+    headers: HeaderMap,
+    Path((building_id, coworking_id)): Path<(Uuid, Uuid)>,
+    State(state): State<AppState>,
+) -> Result<StatusCode, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let Claims { company_id, .. } = claims_from_headers(&headers)?;
+
+    let _ = sqlx::query_as!(
+        CoworkingSpacesModel,
+        r#"DELETE FROM coworking_spaces
+        WHERE company_id = $1 AND building_id = $2 AND id = $3
+        RETURNING id, address, company_id, building_id, height, width"#,
+        company_id,
+        building_id,
+        coworking_id
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No such coworking".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Get coworking bookings by id (everybody can use)
+#[utoipa::path(
+    get,
+    tag = "Coworkings",
+    path = "/place/{building_id}/coworking/{coworking_id}/bookings",
+    params(
+        ("building_id" = Uuid, Path),
+        ("coworking_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 200, body = Vec<BookingModel>, description = "List of bookings"),
+        (status = 403, description = "no auth"),
+        (status = 404, description = "No such building or coworking found")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn get_coworking_bookings(
+    headers: HeaderMap,
+    Path((building_id, coworking_id)): Path<(Uuid, Uuid)>,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<BookingModel>>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let Claims { company_id, .. } = claims_from_headers(&headers)?;
+
+    let _ = sqlx::query!(
+        r#"SELECT id FROM coworking_spaces WHERE building_id = $1 AND id = $2 AND company_id = $3"#,
+        building_id,
+        coworking_id,
+        company_id,
+    )
+    .fetch_one(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => {
+            ProdError::NotFound("No such coworking or building".to_string())
+        }
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    let bookings = sqlx::query_as!(
+        BookingModel,
+        r#"
+        SELECT id, user_id, coworking_space_id, coworking_item_id, company_id, time_start, time_end
+        FROM bookings
+        WHERE company_id = $1
+        AND coworking_space_id = $2
+        AND time_end > NOW()
+        "#,
+        company_id,
+        coworking_id
+    )
+    .fetch_all(conn.as_mut())
+    .await?;
+
+    Ok(Json(bookings))
 }

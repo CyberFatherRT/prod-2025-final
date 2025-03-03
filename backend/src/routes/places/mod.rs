@@ -1,11 +1,15 @@
-use crate::routes::places::building::{get_building, list_buildings, patch_building};
-use crate::routes::places::coworking::{get_coworking_by_id, list_coworkings, patch_coworking};
+use crate::routes::places::building::{
+    delete_building, get_building, list_buildings, patch_building,
+};
+use crate::routes::places::coworking::{
+    delete_coworking, get_coworking_bookings, get_coworking_by_id, list_coworkings, patch_coworking,
+};
 use crate::routes::places::items::{
     add_item_to_coworking, delete_item_from_coworking, get_items_by_coworking,
 };
 use crate::{middlewares::auth_admin, AppState};
-use axum::routing::{delete, get, patch};
-use axum::{middleware::from_fn, routing::post, Router};
+use axum::routing::{delete, get, patch, post};
+use axum::{middleware::from_fn, Router};
 use building::create_building;
 use coworking::create_coworking;
 
@@ -17,10 +21,15 @@ pub fn get_routes(state: AppState) -> Router {
     let admin_routes = Router::new()
         .route("/new", post(create_building))
         .route("/{building_id}", patch(patch_building))
+        .route("/{building_id}", delete(delete_building))
         .route("/{building_id}/coworking/new", post(create_coworking))
         .route(
             "/{building_id}/coworking/{coworking_id}",
             patch(patch_coworking),
+        )
+        .route(
+            "/{building_id}/coworking/{coworking_id}",
+            delete(delete_coworking),
         )
         .route(
             "/{building_id}/coworking/{coworking_id}/items/new",
@@ -44,6 +53,10 @@ pub fn get_routes(state: AppState) -> Router {
         .route(
             "/{building_id}/coworking/{coworking_id}/items",
             get(get_items_by_coworking),
+        )
+        .route(
+            "/{building_id}/coworking/{coworking_id}/bookings",
+            get(get_coworking_bookings),
         )
         .merge(admin_routes)
         .with_state(state)
