@@ -6,9 +6,10 @@ use crate::routes::places::coworking::{
 };
 use crate::routes::places::items::{
     add_item_to_coworking, delete_item_from_coworking, get_items_by_coworking,
+    put_items_in_coworking,
 };
 use crate::{middlewares::auth_admin, AppState};
-use axum::routing::{delete, get, patch, post};
+use axum::routing::{delete, get, patch, post, put};
 use axum::{middleware::from_fn, Router};
 use building::create_building;
 use coworking::{create_coworking, list_coworkings_by_building};
@@ -34,6 +35,10 @@ pub fn get_routes(state: AppState) -> Router {
         .route(
             "/{building_id}/coworking/{coworking_id}/items/new",
             post(add_item_to_coworking),
+        )
+        .route(
+            "/{building_id}/coworking/{coworking_id}/items/put",
+            put(put_items_in_coworking),
         )
         .route(
             "/{building_id}/coworking/{coworking_id}/items/{item_id}",

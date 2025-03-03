@@ -57,7 +57,7 @@ pub struct CoworkingSpacesModel {
     pub company_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, ToSchema, FromRow, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, ToSchema, FromRow, Debug, Clone, PartialEq, Eq, Hash)]
 #[sqlx(type_name = "POINT")]
 pub struct Point {
     pub x: i64,
