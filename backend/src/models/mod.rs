@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::error::BoxDynError;
 use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
 use sqlx::{prelude::FromRow, Decode, Encode, Postgres, Type};
+use std::ops::Add;
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
@@ -50,8 +51,8 @@ pub struct UserModel {
 pub struct CoworkingSpacesModel {
     pub id: Uuid,
     pub address: String,
-    pub height: i32,
-    pub width: i32,
+    pub height: i64,
+    pub width: i64,
     pub building_id: Uuid,
     pub company_id: Uuid,
 }
@@ -61,6 +62,17 @@ pub struct CoworkingSpacesModel {
 pub struct Point {
     pub x: i64,
     pub y: i64,
+}
+
+impl Add for Point {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Point {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
 }
 
 impl Type<Postgres> for Point {
@@ -74,7 +86,7 @@ impl Encode<'_, Postgres> for Point {
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, Box<(dyn std::error::Error + Send + Sync + 'static)>> {
-        let point_str = format!("({}, {})", self.x, self.y); // Строковое представление UDT
+        let point_str = format!("({}, {})", self.x, self.y);
         buf.extend_from_slice(point_str.as_bytes());
         Ok(sqlx::encode::IsNull::No)
     }
@@ -96,7 +108,7 @@ fn decode_f64_from_bytes(bytes: &[u8]) -> i64 {
 
 impl PgHasArrayType for Point {
     fn array_type_info() -> PgTypeInfo {
-        PgTypeInfo::with_name("_point") // В PostgreSQL массивы UDT обозначаются как `_typename`
+        PgTypeInfo::with_name("_point")
     }
 }
 
@@ -167,4 +179,15 @@ pub struct BuildingModel {
     pub id: Uuid,
     pub address: String,
     pub company_id: Uuid,
+}
+
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema, Clone)]
+pub struct Coordinates {
+    pub base_point: Point,
+    pub offsets: Vec<Point>,
+}
+
+#[derive(Serialize, Deserialize, FromRow, Validate, ToSchema, Clone)]
+pub struct Offsets {
+    pub offsets: Vec<Point>,
 }
