@@ -18,6 +18,7 @@ import kotlinx.coroutines.channels.ProducerScope
 import ru.prodcontest.booq.data.remote.dto.BookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
+import ru.prodcontest.booq.data.remote.dto.QrVerificationDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
@@ -34,6 +35,7 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val REGISTER_COMPANY_ENDPOINT = "$BASE_DOMAIN/company/register"
         const val UPLOAD_DOCUMENT_ENDPOINT = "$BASE_DOMAIN/user/upload_document"
         const val BOOKING_LIST_ENDPOINT = "$BASE_DOMAIN/booking/list"
+        const val VERIFY_BOOKING_QR_ENDPOINT = "$BASE_DOMAIN/booking/verify"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -97,4 +99,8 @@ class ApiRemote(private val httpClient: HttpClient) {
         }.body<List<BookingDto>>()
 
 
+    suspend fun verifyBookingQr(token: String) = httpClient.post(VERIFY_BOOKING_QR_ENDPOINT) {
+        contentType(ContentType.Application.Json)
+        setBody(mapOf("token" to token))
+    }.body<QrVerificationDto>()
 }

@@ -6,6 +6,7 @@ import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
 import ru.prodcontest.booq.domain.model.BookingModel
+import ru.prodcontest.booq.domain.model.QrVerificationModel
 import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.util.ResultFlow
@@ -19,4 +20,5 @@ interface ApiRepository {
     suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto>
     suspend fun uploadDocument(document: ByteArray): Flow<UploadProgress>
     suspend fun getBookingList(): ResultFlow<List<BookingModel>>
+    suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>
 }

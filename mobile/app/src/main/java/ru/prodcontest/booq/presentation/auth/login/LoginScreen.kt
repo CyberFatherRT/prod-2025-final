@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -40,7 +38,7 @@ import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.components.LoginElement
 import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
-import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
+import ru.prodcontest.booq.presentation.qrScanner.QrScannerScreenDestination
 
 @Serializable
 object LoginScreenDestination
@@ -58,7 +56,7 @@ fun LoginScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is LoginScreenAction.NavigateToHomeScreen -> {
-                        navController.navigate(ProfileScreenDestination)
+                        navController.navigate(QrScannerScreenDestination)
                     }
                     is LoginScreenAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)
