@@ -1,7 +1,7 @@
 from requests.sessions import Session
 from .user import UserApi
 from .config import BASE_URL
-from .util import extract_data
+from .util import extract_data, extract_json
 
 
 class AdminApi(UserApi):
@@ -11,17 +11,29 @@ class AdminApi(UserApi):
             self.token = token
             self.s.headers["authorization"] = f"Bearer {self.token}"
 
+    # /admin paths
+
+    def get_document(self, user_id):
+        r = self.s.get(BASE_URL + f"/admin/documents/{user_id}")
+        data = extract_data(r)
+        return r.status_code, data
+
+    def list_requests(self):
+        r = self.s.get(BASE_URL + "/admin/list_requests")
+        data = extract_json(r)
+        return r.status_code, data
+
     def list_users(self):
         r = self.s.get(BASE_URL + "/admin/user/list")
 
-        data = extract_data(r)
+        data = extract_json(r)
 
         return r.status_code, data
 
     def get_user(self, user_id):
         r = self.s.get(BASE_URL + f"/admin/user/{user_id}")
 
-        data = extract_data(r)
+        data = extract_json(r)
 
         return r.status_code, data
 
@@ -39,7 +51,7 @@ class AdminApi(UserApi):
 
         r = self.s.patch(BASE_URL + f"/admin/user/{user_id}", files=files)
 
-        data = extract_data(r)
+        data = extract_json(r)
 
         return r.status_code, data
 
@@ -47,3 +59,8 @@ class AdminApi(UserApi):
         r = self.s.post(BASE_URL + f"/admin/user/{user_id}/verify")
 
         return r.status_code, None
+
+    # /place admin paths
+
+    def new_place(self, address):
+        ...
