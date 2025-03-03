@@ -20,6 +20,7 @@ constraintLayout = "1.0.1"
 accompanistPermissions = "0.37.2"
 camera = "1.4.1"
 barcodeScanner = "17.1.0"
+qrkit = "1.0.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -64,6 +65,7 @@ camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = 
 camera-view = { module = "androidx.camera:camera-view", version.ref = "camera" }
 mlkit-barcode = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanner" }
 camera-vision = { module = "androidx.camera:camera-mlkit-vision", version.ref = "camera" }
+qrkit = { module = "network.chaintech:qr-kit", version.ref = "qrkit" }
 
 shimmer = { group = "com.valentinilk.shimmer", name = "compose-shimmer", version.ref = "shimmer" }
 

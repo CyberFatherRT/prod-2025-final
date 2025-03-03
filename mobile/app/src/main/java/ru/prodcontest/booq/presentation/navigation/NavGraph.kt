@@ -16,7 +16,7 @@ import ru.prodcontest.booq.presentation.map.MapScreen
 import ru.prodcontest.booq.presentation.map.MapScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreen
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
-import ru.prodcontest.booq.presentation.qrScanner.QrScannerScreen
+import ru.prodcontest.booq.presentation.showQR.ShowQrScreen
 import ru.prodcontest.booq.presentation.verifications.VerificationsScreen
 import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestination
 import ru.prodcontest.booq.presentation.verifications.VerificationsScreen

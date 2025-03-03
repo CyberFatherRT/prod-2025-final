@@ -102,4 +102,5 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.mlkit.barcode)
     implementation(libs.camera.vision)
+    implementation(libs.qrkit)
 }
