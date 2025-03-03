@@ -18,6 +18,8 @@ def test_create_company():
 
     status_code, data = create_company(domain, name)
     assert status_code == 200
+    assert data is not None
+
     api = AdminApi(token=data["jwt"])
 
     status_code, data = create_company(domain, name)

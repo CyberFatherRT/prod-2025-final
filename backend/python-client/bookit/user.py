@@ -67,3 +67,7 @@ class UserApi:
         data = extract_data(r)
 
         return r.status_code, data
+
+    def get_avatar(self, user_id):
+        r = self.s.get(BASE_URL + f"/user/{user_id}/avatar")
+        return r.status_code, r.text
