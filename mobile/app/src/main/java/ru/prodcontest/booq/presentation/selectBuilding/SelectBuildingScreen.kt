@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.data.remote.dto.PlaceDto
+import ru.prodcontest.booq.presentation.map.MapScreenDestination
 import java.util.UUID
 
 @Serializable
@@ -64,7 +65,7 @@ fun SelectBuildingScreen(
                 LazyColumn {
                     items(buildings) {
                         PlaceCard(it, {
-
+                            navController.navigate(MapScreenDestination(it.id))
                         })
                     }
                 }

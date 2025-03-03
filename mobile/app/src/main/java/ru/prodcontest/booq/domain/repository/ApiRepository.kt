@@ -1,6 +1,9 @@
 package ru.prodcontest.booq.domain.repository
 
 import kotlinx.coroutines.flow.Flow
+import ru.prodcontest.booq.data.remote.dto.CompanyItemDto
+import ru.prodcontest.booq.data.remote.dto.CoworkingDto
+import ru.prodcontest.booq.data.remote.dto.CoworkingItemDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
@@ -11,7 +14,6 @@ import ru.prodcontest.booq.domain.model.QrVerificationModel
 import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.util.ResultFlow
-import ru.prodcontest.booq.domain.util.ResultStateFlow
 import ru.prodcontest.booq.domain.util.UploadProgress
 
 interface ApiRepository {
@@ -25,4 +27,7 @@ interface ApiRepository {
     suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>
     suspend fun listPlaces(): ResultFlow<PlacesDto>
     suspend fun getQr(bookingId: String): ResultFlow<TokenDto>
+    suspend fun getCoworkingsOfBuilding(buildingId: String): ResultFlow<List<CoworkingDto>>
+    suspend fun getItemsOfCompany(): ResultFlow<List<CompanyItemDto>>
+    suspend fun getItemsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<CoworkingItemDto>>
 }

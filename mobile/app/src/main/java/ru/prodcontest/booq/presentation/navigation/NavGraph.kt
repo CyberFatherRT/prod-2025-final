@@ -29,7 +29,7 @@ import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestina
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = HomeScreenDestination
+        startDestination = SelectBuildingScreenDestination
     ) {
         composable<LoginScreenDestination> {
             LoginScreen(navController)
