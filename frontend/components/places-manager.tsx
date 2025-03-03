@@ -6,15 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Trash2, Edit, Plus } from "lucide-react";
 import { addCoworking, deleteCoworking, getCoworking, getCoworkings, updateCoworking } from "@/app/coworkings";
 import { addBuilding, deleteBuilding, getBuildings, updateBuilding } from "@/app/buildings";
@@ -35,7 +27,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
     const [newCoworkingRows, setNewCoworkingRows] = useState(10);
     const [newCoworkingCols, setNewCoworkingCols] = useState(10);
     const [editCoworkingId, setEditCoworkingId] = useState<string | null>(null);
-    const [editCoworkingName, setEditCoworkingName] = useState("");
+    const [editCoworkingName, setEditCoworkingAddress] = useState("");
     const [editCoworkingRows, setEditCoworkingRows] = useState(10);
     const [editCoworkingCols, setEditCoworkingCols] = useState(10);
 
@@ -110,15 +102,21 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
 
     const handleUpdateCoworking = async () => {
         if (editCoworkingId && editCoworkingName.trim()) {
-            const coworking = await getCoworking(editCoworkingId);
+            const building_id = coworkings.filter((coworking) => coworking.id === editCoworkingId).map((coworking) => coworking.building_id);
+            const coworking = await getCoworking(building_id[0], editCoworkingId, token);
             if (coworking) {
-                updateCoworking(coworking.id, {
-                    address: editCoworkingName.trim(),
-                    height: editCoworkingRows,
-                    width: editCoworkingCols,
-                });
+                await updateCoworking(
+                    building_id[0],
+                    coworking.id,
+                    {
+                        address: editCoworkingName.trim(),
+                        height: editCoworkingRows,
+                        width: editCoworkingCols,
+                    },
+                    token,
+                );
                 setEditCoworkingId(null);
-                setEditCoworkingName("");
+                setEditCoworkingAddress("");
                 setEditCoworkingRows(10);
                 setEditCoworkingCols(10);
                 onUpdateCoworkings();
@@ -128,9 +126,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
 
     const handleDeleteCoworking = (coworkingId: string) => {
         if (confirm("Are you sure you want to delete this coworking?")) {
-            const building_id = coworkings
-                .filter((coworking) => coworking.id === coworkingId)
-                .map((coworking) => coworking.building_id);
+            const building_id = coworkings.filter((coworking) => coworking.id === coworkingId).map((coworking) => coworking.building_id);
             deleteCoworking(building_id[0], coworkingId, token);
             updateCoworkings();
             onUpdateCoworkings();
@@ -218,11 +214,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleDeleteBuilding(building.id)}
-                                    >
+                                    <Button variant="outline" size="icon" onClick={() => handleDeleteBuilding(building.id)}>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -240,9 +232,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                             <DialogContent>
                                                 <DialogHeader>
                                                     <DialogTitle>Add New Coworking</DialogTitle>
-                                                    <DialogDescription>
-                                                        Enter the details for the new coworking space.
-                                                    </DialogDescription>
+                                                    <DialogDescription>Enter the details for the new coworking space.</DialogDescription>
                                                 </DialogHeader>
                                                 <div className="grid gap-4 py-4">
                                                     <div className="grid grid-cols-4 items-center gap-4">
@@ -264,9 +254,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                                             id="new-coworking-rows"
                                                             type="number"
                                                             value={newCoworkingRows}
-                                                            onChange={(e) =>
-                                                                setNewCoworkingRows(Number.parseInt(e.target.value))
-                                                            }
+                                                            onChange={(e) => setNewCoworkingRows(Number.parseInt(e.target.value))}
                                                             className="col-span-3"
                                                         />
                                                     </div>
@@ -278,17 +266,13 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                                             id="new-coworking-cols"
                                                             type="number"
                                                             value={newCoworkingCols}
-                                                            onChange={(e) =>
-                                                                setNewCoworkingCols(Number.parseInt(e.target.value))
-                                                            }
+                                                            onChange={(e) => setNewCoworkingCols(Number.parseInt(e.target.value))}
                                                             className="col-span-3"
                                                         />
                                                     </div>
                                                 </div>
                                                 <DialogFooter>
-                                                    <Button onClick={() => handleCreateCoworking(building.id)}>
-                                                        Create Coworking
-                                                    </Button>
+                                                    <Button onClick={() => handleCreateCoworking(building.id)}>Create Coworking</Button>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
@@ -300,77 +284,62 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                             {coworkings
                                                 .filter((c) => c.building_id === building.id)
                                                 .map((coworking) => (
-                                                    <li
-                                                        key={coworking.id}
-                                                        className="flex justify-between items-center"
-                                                    >
+                                                    <li key={coworking.id} className="flex justify-between items-center">
                                                         <span>{coworking.address}</span>
                                                         <div className="flex items-center space-x-2">
                                                             <Dialog>
                                                                 <DialogTrigger asChild>
-                                                                    <Button variant="outline" size="sm">
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => {
+                                                                            setEditCoworkingId(coworking.id);
+                                                                            setEditCoworkingAddress(coworking.address);
+                                                                            setEditCoworkingRows(coworking.height);
+                                                                            setEditCoworkingCols(coworking.width);
+                                                                        }}
+                                                                    >
                                                                         <Edit className="mr-2 h-4 w-4" /> Edit
                                                                     </Button>
                                                                 </DialogTrigger>
                                                                 <DialogContent>
                                                                     <DialogHeader>
                                                                         <DialogTitle>Edit Coworking</DialogTitle>
-                                                                        <DialogDescription>
-                                                                            Update the coworking details.
-                                                                        </DialogDescription>
+                                                                        <DialogDescription>Update the coworking details.</DialogDescription>
                                                                     </DialogHeader>
                                                                     <div className="grid gap-4 py-4">
                                                                         <div className="grid grid-cols-4 items-center gap-4">
-                                                                            <Label
-                                                                                htmlFor="edit-coworking-name"
-                                                                                className="text-right"
-                                                                            >
+                                                                            <Label htmlFor="edit-coworking-name" className="text-right">
                                                                                 Name
                                                                             </Label>
                                                                             <Input
                                                                                 id="edit-coworking-name"
                                                                                 value={editCoworkingName}
-                                                                                onChange={(e) =>
-                                                                                    setEditCoworkingName(e.target.value)
-                                                                                }
+                                                                                onChange={(e) => setEditCoworkingAddress(e.target.value)}
                                                                                 className="col-span-3"
                                                                             />
                                                                         </div>
                                                                         <div className="grid grid-cols-4 items-center gap-4">
-                                                                            <Label
-                                                                                htmlFor="edit-coworking-rows"
-                                                                                className="text-right"
-                                                                            >
+                                                                            <Label htmlFor="edit-coworking-rows" className="text-right">
                                                                                 Rows
                                                                             </Label>
                                                                             <Input
                                                                                 id="edit-coworking-rows"
                                                                                 type="number"
                                                                                 value={editCoworkingRows}
-                                                                                onChange={(e) =>
-                                                                                    setEditCoworkingRows(
-                                                                                        Number.parseInt(e.target.value),
-                                                                                    )
-                                                                                }
+                                                                                onChange={(e) => setEditCoworkingRows(Number.parseInt(e.target.value))}
                                                                                 className="col-span-3"
                                                                             />
                                                                         </div>
                                                                         <div className="grid grid-cols-4 items-center gap-4">
-                                                                            <Label
-                                                                                htmlFor="edit-coworking-cols"
-                                                                                className="text-right"
-                                                                            >
+                                                                            <Label htmlFor="edit-coworking-cols" className="text-right">
                                                                                 Columns
                                                                             </Label>
                                                                             <Input
                                                                                 id="edit-coworking-cols"
                                                                                 type="number"
                                                                                 value={editCoworkingCols}
-                                                                                onChange={(e) =>
-                                                                                    setEditCoworkingCols(
-                                                                                        Number.parseInt(e.target.value),
-                                                                                    )
-                                                                                }
+                                                                                onChange={(e) => setEditCoworkingCols(Number.parseInt(e.target.value))}
                                                                                 className="col-span-3"
                                                                             />
                                                                         </div>
@@ -379,7 +348,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                                                         <Button
                                                                             onClick={() => {
                                                                                 setEditCoworkingId(coworking.id);
-                                                                                setEditCoworkingName(coworking.address);
+                                                                                setEditCoworkingAddress(coworking.address);
                                                                                 setEditCoworkingRows(coworking.height);
                                                                                 setEditCoworkingCols(coworking.width);
                                                                                 handleUpdateCoworking();
@@ -390,11 +359,7 @@ export default function PlacesManager({ onUpdateBuildings, onUpdateCoworkings, t
                                                                     </DialogFooter>
                                                                 </DialogContent>
                                                             </Dialog>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => handleDeleteCoworking(coworking.id)}
-                                                            >
+                                                            <Button variant="outline" size="sm" onClick={() => handleDeleteCoworking(coworking.id)}>
                                                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                                                             </Button>
                                                         </div>
