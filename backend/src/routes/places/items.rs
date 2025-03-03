@@ -142,7 +142,7 @@ pub async fn add_item_to_coworking(
 
     if item_coords
         .iter()
-        .any(|p| p.x > space.width || p.y > space.height)
+        .any(|p| p.x >= space.width || p.y >= space.height)
     {
         return Err(ProdError::Conflict(
             "Item overlaps with borders".to_string(),

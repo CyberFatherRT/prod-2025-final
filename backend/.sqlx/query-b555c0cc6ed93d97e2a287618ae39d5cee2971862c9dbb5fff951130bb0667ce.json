@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE coworking_spaces SET address = $1\n        WHERE\n        company_id = $2 AND building_id = $3 AND id = $4\n        RETURNING id, address, company_id, building_id, height, width",
+  "query": "UPDATE coworking_spaces SET\n        address = COALESCE($1, address),\n        height = COALESCE($2, height),\n        width = COALESCE($3, width)\n        WHERE\n        company_id = $4 AND building_id = $5 AND id = $6\n        RETURNING id, address, company_id, building_id, height, width",
   "describe": {
     "columns": [
       {
@@ -37,6 +37,8 @@
     "parameters": {
       "Left": [
         "Varchar",
+        "Int4",
+        "Int4",
         "Uuid",
         "Uuid",
         "Uuid"
@@ -51,5 +53,5 @@
       false
     ]
   },
-  "hash": "2ea8fc24c8c9537a63e36e48cd94f050802a26706e72badd1d4d07dabfbdeaf9"
+  "hash": "b555c0cc6ed93d97e2a287618ae39d5cee2971862c9dbb5fff951130bb0667ce"
 }

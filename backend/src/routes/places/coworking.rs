@@ -1,12 +1,15 @@
+use crate::models::Point;
 use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     Json,
 };
+use sqlx::Acquire;
 use uuid::Uuid;
 
 use crate::forms::places::coworking::UpdateCoworkingForm;
-use crate::models::BookingModel;
+use crate::models::{BookingModel, Coordinates};
+use crate::util::ValidatedJson;
 use crate::{
     db::Db,
     errors::ProdError,
@@ -39,7 +42,7 @@ pub async fn create_coworking(
     headers: HeaderMap,
     Path(building_id): Path<Uuid>,
     State(state): State<AppState>,
-    Json(form): Json<CreateCoworkingForm>,
+    ValidatedJson(form): ValidatedJson<CreateCoworkingForm>,
 ) -> Result<(StatusCode, Json<CoworkingSpacesModel>), ProdError> {
     let mut conn = state.pool.conn().await?;
     let Claims { company_id, .. } = claims_from_headers(&headers)?;
@@ -220,7 +223,8 @@ pub async fn get_coworking_by_id(
     responses(
         (status = 200, body = CoworkingSpacesModel, description = "Updated coworking model"),
         (status = 403, description = "You are not an admin"),
-        (status = 404, description = "No such coworking or building found")
+        (status = 404, description = "No such coworking or building found"),
+        (status = 409, description = "New height or width makes some objects inaccessible")
     ),
     security(
         ("bearerAuth" = [])
@@ -230,28 +234,89 @@ pub async fn patch_coworking(
     headers: HeaderMap,
     Path((building_id, coworking_id)): Path<(Uuid, Uuid)>,
     State(state): State<AppState>,
-    Json(form): Json<UpdateCoworkingForm>,
+    ValidatedJson(form): ValidatedJson<UpdateCoworkingForm>,
 ) -> Result<Json<CoworkingSpacesModel>, ProdError> {
     let mut conn = state.pool.conn().await?;
     let Claims { company_id, .. } = claims_from_headers(&headers)?;
+    let mut tx = conn.begin().await?;
+
+    let _ = sqlx::query_as!(
+        CoworkingSpacesModel,
+        r#"
+        SELECT id, address, height, width, building_id, company_id
+        FROM coworking_spaces
+        WHERE building_id = $1 AND id = $2 AND company_id = $3
+        "#,
+        building_id,
+        coworking_id,
+        company_id
+    )
+    .fetch_one(tx.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => {
+            ProdError::NotFound("No such coworking or building exists".to_string())
+        }
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    let coordinates = sqlx::query_as!(
+        Coordinates,
+        r#"
+        SELECT c.base_point as "base_point: Point", i.offsets as "offsets: Vec<Point>"
+        FROM coworking_items c
+        JOIN item_types i ON i.id = c.item_id
+        WHERE c.coworking_id = $1
+        "#,
+        coworking_id
+    )
+    .fetch_all(tx.as_mut())
+    .await?;
+
+    let mut abs_coords: Vec<Point> = Vec::new();
+    for coord in coordinates {
+        for offset in coord.offsets {
+            abs_coords.push(coord.base_point.clone() + offset);
+        }
+    }
+    if let Some(height) = form.height {
+        if abs_coords.iter().any(|p| p.y >= height as i64) {
+            return Err(ProdError::Conflict(
+                "New height makes some items inaccessible. Delete those objects first.".to_string(),
+            ));
+        }
+    }
+    if let Some(width) = form.width {
+        if abs_coords.iter().any(|p| p.x >= width as i64) {
+            return Err(ProdError::Conflict(
+                "New width makes some items inaccessible. Delete those objects first.".to_string(),
+            ));
+        }
+    }
 
     let coworking = sqlx::query_as!(
         CoworkingSpacesModel,
-        r#"UPDATE coworking_spaces SET address = $1
+        r#"UPDATE coworking_spaces SET
+        address = COALESCE($1, address),
+        height = COALESCE($2, height),
+        width = COALESCE($3, width)
         WHERE
-        company_id = $2 AND building_id = $3 AND id = $4
+        company_id = $4 AND building_id = $5 AND id = $6
         RETURNING id, address, company_id, building_id, height, width"#,
         form.address,
+        form.height,
+        form.width,
         company_id,
         building_id,
         coworking_id
     )
-    .fetch_one(conn.as_mut())
+    .fetch_one(tx.as_mut())
     .await
     .map_err(|err| match err {
         sqlx::Error::RowNotFound => ProdError::NotFound("No such coworking".to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
+    tx.commit().await?;
 
     Ok(Json(coworking))
 }
