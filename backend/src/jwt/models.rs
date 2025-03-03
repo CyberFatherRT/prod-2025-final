@@ -17,15 +17,22 @@ pub struct Claims {
     pub exp: i64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct QrClaims {
     pub booking_id: Uuid,
+    pub iat: i64,
+    pub exp: i64,
 }
 
 impl QrClaims {
-    pub const fn new(booking: &BookingModel) -> Self {
+    pub fn new(booking: &BookingModel) -> Self {
+        let iat = Utc::now();
+        let exp = booking.time_end.and_utc();
+
         Self {
             booking_id: booking.id,
+            iat: iat.timestamp(),
+            exp: exp.timestamp(),
         }
     }
 }

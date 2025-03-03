@@ -4,6 +4,7 @@ use axum::{
     Json,
 };
 use sqlx::Acquire;
+use tracing::info;
 use uuid::Uuid;
 
 use crate::forms::bookings::{BookingDisplayData, QrToken, Verdict};
@@ -104,7 +105,14 @@ pub async fn create_booking(
     .fetch_one(tx.as_mut())
     .await
     .map_err(|err| match err {
-        sqlx::Error::Database(e) if e.is_foreign_key_violation() => ProdError::ShitHappened("Coworking or coworking_item not found".to_string()),
+        sqlx::Error::Database(ref e) => {
+            if e.is_foreign_key_violation() {
+                return ProdError::ShitHappened("Coworking or coworking_item not found".to_string())
+            } else if e.is_check_violation() {
+                return ProdError::ShitHappened("Booking time should be divided by 15 minutes. You can book only in future.".to_string())
+            }
+            ProdError::DatabaseError(err)
+        },
         _ => ProdError::DatabaseError(err)
     })?;
 
@@ -354,6 +362,7 @@ pub async fn verify_booking_qr(
 ) -> Result<Json<Verdict>, ProdError> {
     let mut conn = state.pool.conn().await?;
     let pre_claims = validate_qr_token(&form.token);
+    info!("here {:?}", pre_claims);
     if pre_claims.is_err() {
         return Ok(Json(Verdict {
             valid: false,
@@ -387,6 +396,7 @@ pub async fn verify_booking_qr(
         sqlx::Error::RowNotFound => ProdError::NotFound("No booking found".to_string()),
         _ => ProdError::DatabaseError(err),
     });
+    info!("booking is {}", booking.is_err());
 
     booking.map_or_else(
         |_| {

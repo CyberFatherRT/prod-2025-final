@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS bookings
         tsrange(time_start, time_end) WITH &&
         ),
     CHECK (bookings.time_start < bookings.time_end),
-    CHECK (EXTRACT(EPOCH FROM time_end - time_start)::integer % 900 = 0)
+    CHECK (EXTRACT(EPOCH FROM time_end - time_start)::integer % 900 = 0),
+    CHECK (bookings.time_start > NOW())
 );
 
 CREATE INDEX IF NOT EXISTS booking_user_id_idx ON bookings (user_id);

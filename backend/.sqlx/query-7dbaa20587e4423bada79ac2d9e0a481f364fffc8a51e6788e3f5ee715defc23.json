@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT c.base_point as \"base_point: Point\", i.offsets as \"offsets: Vec<Point>\"\n        FROM coworking_items c\n        JOIN item_types i ON i.id = c.item_id\n        WHERE c.coworking_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "base_point: Point",
+        "type_info": "Point"
+      },
+      {
+        "ordinal": 1,
+        "name": "offsets: Vec<Point>",
+        "type_info": "PointArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "7dbaa20587e4423bada79ac2d9e0a481f364fffc8a51e6788e3f5ee715defc23"
+}

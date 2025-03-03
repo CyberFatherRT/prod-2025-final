@@ -3,7 +3,7 @@ use axum::{
     http::{HeaderMap, StatusCode},
     Json,
 };
-use sqlx::Acquire;
+use sqlx::{Acquire, Error};
 use tracing::warn;
 use uuid::{NoContext, Timestamp, Uuid};
 
@@ -41,6 +41,7 @@ pub async fn create_items_type(
 
     let mut form: Option<CreateItemTypeForm> = None;
     let mut icon_name: Option<String> = None;
+    let item_id = Uuid::new_v7(Timestamp::now(NoContext));
 
     while let Ok(Some(field)) = multipart.next_field().await {
         if let Some(field_name) = field.name() {
@@ -69,7 +70,6 @@ pub async fn create_items_type(
                                 .await
                                 .map_err(|err| ProdError::ShitHappened(err.to_string()))?,
                         );
-                        let item_id = Uuid::new_v7(Timestamp::now(NoContext));
 
                         if let Some(image) = image {
                             let name = format!("items/{item_id}/icon.svg");
@@ -96,8 +96,8 @@ pub async fn create_items_type(
 
     let item = sqlx::query_as::<_, ItemsModel>(&format!(
         r"
-        INSERT INTO item_types(name, description, icon, offsets, bookable, company_id)
-        VALUES ($1, $2, $3, ARRAY[{}]::point[], $4, $5)
+        INSERT INTO item_types(id, name, description, icon, offsets, bookable, company_id)
+        VALUES ($1, $2, $3, $4, ARRAY[{}]::point[], $5, $6)
         RETURNING id, name, description, icon,
                   offsets,
                   bookable, company_id
@@ -108,6 +108,7 @@ pub async fn create_items_type(
             .collect::<Vec<String>>()
             .join(", ")
     ))
+    .bind(item_id)
     .bind(&form.name)
     .bind(&form.description)
     .bind(&icon_name)
@@ -155,7 +156,11 @@ pub async fn delete_item_type(
     )
     .fetch_one(tx.as_mut())
     .await
-    .map(|record| record.company_id)?;
+    .map(|record| record.company_id)
+    .map_err(|err| match err {
+        Error::RowNotFound => ProdError::NotFound("Item does not exist".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
 
     if claim.company_id != company_id {
         return Err(ProdError::Forbidden(

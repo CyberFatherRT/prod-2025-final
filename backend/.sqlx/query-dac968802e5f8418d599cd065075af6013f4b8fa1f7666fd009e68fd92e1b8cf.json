@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT i.offsets as \"offsets: Vec<Point>\"\n        FROM item_types i\n        WHERE i.id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "offsets: Vec<Point>",
+        "type_info": "PointArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "dac968802e5f8418d599cd065075af6013f4b8fa1f7666fd009e68fd92e1b8cf"
+}
