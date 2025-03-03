@@ -37,7 +37,7 @@ pub struct AppState {
     pub bucket_name: String,
 }
 
-pub const BASE_URL: &str = "https://prod-team-13-cltnksuj.final.prodcontest.ru";
+pub const BASE_URL: &str = "http://localhost:8000/";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

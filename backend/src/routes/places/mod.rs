@@ -11,7 +11,7 @@ use crate::{middlewares::auth_admin, AppState};
 use axum::routing::{delete, get, patch, post};
 use axum::{middleware::from_fn, Router};
 use building::create_building;
-use coworking::create_coworking;
+use coworking::{create_coworking, list_coworkings_by_building};
 
 pub mod building;
 pub mod coworking;
@@ -44,8 +44,12 @@ pub fn get_routes(state: AppState) -> Router {
 
     Router::new()
         .route("/list", get(list_buildings))
+        .route("/coworking/list", get(list_coworkings))
         .route("/{building_id}", get(get_building))
-        .route("/{building_id}/coworking/list", get(list_coworkings))
+        .route(
+            "/{building_id}/coworking/list",
+            get(list_coworkings_by_building),
+        )
         .route(
             "/{building_id}/coworking/{coworking_id}",
             get(get_coworking_by_id),

@@ -36,8 +36,10 @@ services:
       - POSTGRES_DB=prod
     ports:
       - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,8 +54,11 @@ services:
       - MINIO_ROOT_PASSWORD=ZZ9ko24AA4OBk9nJTCRmQChHHnkxLVQ3kec6EebA
       - MINIO_DEFAULT_BUCKETS=prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
       start_period: 30s
+
+volumes:
+  postgres_db:

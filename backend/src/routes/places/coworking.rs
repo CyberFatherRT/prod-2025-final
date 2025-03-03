@@ -86,7 +86,7 @@ pub async fn create_coworking(
         ("bearerAuth" = [])
     )
 )]
-pub async fn list_coworkings(
+pub async fn list_coworkings_by_building(
     headers: HeaderMap,
     Path(building_id): Path<Uuid>,
     State(state): State<AppState>,
@@ -109,6 +109,32 @@ pub async fn list_coworkings(
     .await
     .map_err(|err| match err {
         sqlx::Error::RowNotFound => ProdError::NotFound("No such buliding found".to_string()),
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    Ok(Json(coworkings))
+}
+
+pub async fn list_coworkings(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<CoworkingSpacesModel>>, ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let Claims { company_id, .. } = claims_from_headers(&headers)?;
+
+    let coworkings = sqlx::query_as!(
+        CoworkingSpacesModel,
+        r#"
+        SELECT id, address, height, width, building_id, company_id
+        FROM coworking_spaces
+        WHERE company_id = $1
+        "#,
+        company_id,
+    )
+    .fetch_all(conn.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => ProdError::NotFound("No such coworking".to_string()),
         _ => ProdError::DatabaseError(err),
     })?;
 
