@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/Central-University-IT-prod/PROD-yet-another-common">
-    <img src="files/logo.svg" alt="Logo" width="500" >
+    <img src="files/logo.svg" alt="Logo" width="1000" >
   </a>
 
   <h1 align="center">BooQ</h1>
