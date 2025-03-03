@@ -2,6 +2,7 @@ package ru.prodcontest.booq.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.prodcontest.booq.data.remote.dto.LoginDto
+import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
@@ -21,4 +22,5 @@ interface ApiRepository {
     suspend fun uploadDocument(document: ByteArray): Flow<UploadProgress>
     suspend fun getBookingList(): ResultFlow<List<BookingModel>>
     suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>
+    suspend fun listPlaces(): ResultFlow<PlacesDto>
 }

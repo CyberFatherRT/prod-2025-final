@@ -18,6 +18,8 @@ import ru.prodcontest.booq.presentation.profile.ProfileScreen
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.qrScanner.QrScannerScreen
 import ru.prodcontest.booq.presentation.qrScanner.QrScannerScreenDestination
+import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreen
+import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDestination
 import ru.prodcontest.booq.presentation.verifications.VerificationsScreen
 import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestination
 
@@ -25,7 +27,7 @@ import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestina
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = MapScreenDestination
+        startDestination = SelectBuildingScreenDestination
     ) {
         composable<LoginScreenDestination> {
             LoginScreen(navController)
@@ -47,6 +49,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable<QrScannerScreenDestination> {
             QrScannerScreen(navController)
+        }
+        composable<SelectBuildingScreenDestination> {
+            SelectBuildingScreen(navController)
         }
     }
 }

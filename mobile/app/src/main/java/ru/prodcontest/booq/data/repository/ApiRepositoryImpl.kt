@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import ru.prodcontest.booq.data.remote.ApiRemote
 import ru.prodcontest.booq.data.remote.dto.LoginDto
+import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
@@ -44,6 +45,10 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
 
     override suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>  = wrapToResult {
         apiRemote.verifyBookingQr(token).toModel()
+    }
+
+    override suspend fun listPlaces(): ResultFlow<PlacesDto> = wrapToResult {
+        apiRemote.listPlaces()
     }
 }
 

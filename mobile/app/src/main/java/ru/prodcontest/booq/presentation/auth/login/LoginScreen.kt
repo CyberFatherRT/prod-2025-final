@@ -38,7 +38,7 @@ import ru.prodcontest.booq.presentation.auth.components.AuthTextData
 import ru.prodcontest.booq.presentation.auth.login.components.LoginElement
 import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.RegisterScreenDestination
-import ru.prodcontest.booq.presentation.qrScanner.QrScannerScreenDestination
+import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDestination
 
 @Serializable
 object LoginScreenDestination
@@ -56,7 +56,7 @@ fun LoginScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is LoginScreenAction.NavigateToHomeScreen -> {
-                        navController.navigate(QrScannerScreenDestination)
+                        navController.navigate(SelectBuildingScreenDestination)
                     }
                     is LoginScreenAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)
