@@ -10,7 +10,7 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/admin/documents/{user_id}": {
+    "/backend_api/admin/documents/{user_id}": {
       "get": {
         "tags": [
           "Admin"
@@ -49,7 +49,7 @@
         ]
       }
     },
-    "/admin/list_requests": {
+    "/backend_api/admin/list_requests": {
       "get": {
         "tags": [
           "Admin"
@@ -81,7 +81,7 @@
         ]
       }
     },
-    "/admin/user/list": {
+    "/backend_api/admin/user/list": {
       "get": {
         "tags": [
           "Admin"
@@ -113,7 +113,7 @@
         ]
       }
     },
-    "/admin/user/{user_id}": {
+    "/backend_api/admin/user/{user_id}": {
       "get": {
         "tags": [
           "Admin"
@@ -248,7 +248,7 @@
         ]
       }
     },
-    "/admin/user/{user_id}/verify": {
+    "/backend_api/admin/user/{user_id}/verify": {
       "post": {
         "tags": [
           "Admin"
@@ -284,7 +284,7 @@
         ]
       }
     },
-    "/booking/create": {
+    "/backend_api/booking/create": {
       "post": {
         "tags": [
           "Bookings"
@@ -332,7 +332,7 @@
         ]
       }
     },
-    "/booking/list": {
+    "/backend_api/booking/list": {
       "get": {
         "tags": [
           "Bookings"
@@ -364,7 +364,7 @@
         ]
       }
     },
-    "/booking/verify": {
+    "/backend_api/booking/verify": {
       "post": {
         "tags": [
           "Bookings"
@@ -409,7 +409,7 @@
         ]
       }
     },
-    "/booking/{booking_id}": {
+    "/backend_api/booking/{booking_id}": {
       "delete": {
         "tags": [
           "Bookings"
@@ -499,7 +499,7 @@
         ]
       }
     },
-    "/booking/{booking_id}/qr": {
+    "/backend_api/booking/{booking_id}/qr": {
       "get": {
         "tags": [
           "Bookings"
@@ -545,7 +545,7 @@
         ]
       }
     },
-    "/company/register": {
+    "/backend_api/company/register": {
       "post": {
         "tags": [
           "Companies"
@@ -582,7 +582,7 @@
         }
       }
     },
-    "/items": {
+    "/backend_api/items": {
       "get": {
         "tags": [
           "Items"
@@ -611,7 +611,7 @@
         ]
       }
     },
-    "/items/new": {
+    "/backend_api/items/new": {
       "post": {
         "tags": [
           "Items"
@@ -650,7 +650,7 @@
         ]
       }
     },
-    "/items/{item_id}": {
+    "/backend_api/items/{item_id}": {
       "delete": {
         "tags": [
           "Items"
@@ -683,24 +683,13 @@
         ]
       }
     },
-    "/place/coworking/list": {
+    "/backend_api/place/coworking/list": {
       "get": {
         "tags": [
           "Coworkings"
         ],
         "summary": "List coworkings (everybody can use)",
         "operationId": "list_coworkings",
-        "parameters": [
-          {
-            "name": "building_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "List of coworkings",
@@ -729,7 +718,7 @@
         ]
       }
     },
-    "/place/list": {
+    "/backend_api/place/list": {
       "get": {
         "tags": [
           "Coworkings"
@@ -761,7 +750,7 @@
         ]
       }
     },
-    "/place/new": {
+    "/backend_api/place/new": {
       "post": {
         "tags": [
           "Coworkings"
@@ -800,7 +789,7 @@
         ]
       }
     },
-    "/place/{building_id}": {
+    "/backend_api/place/{building_id}": {
       "get": {
         "tags": [
           "Coworkings"
@@ -928,7 +917,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/list": {
+    "/backend_api/place/{building_id}/coworking/list": {
       "get": {
         "tags": [
           "Coworkings"
@@ -974,7 +963,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/new": {
+    "/backend_api/place/{building_id}/coworking/new": {
       "post": {
         "tags": [
           "Coworkings"
@@ -1030,7 +1019,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/{coworking_id}": {
+    "/backend_api/place/{building_id}/coworking/{coworking_id}": {
       "get": {
         "tags": [
           "Coworkings"
@@ -1188,7 +1177,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/{coworking_id}/bookings": {
+    "/backend_api/place/{building_id}/coworking/{coworking_id}/bookings": {
       "get": {
         "tags": [
           "Coworkings"
@@ -1243,7 +1232,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/{coworking_id}/items": {
+    "/backend_api/place/{building_id}/coworking/{coworking_id}/items": {
       "get": {
         "tags": [
           "Coworkings"
@@ -1298,7 +1287,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/{coworking_id}/items/new": {
+    "/backend_api/place/{building_id}/coworking/{coworking_id}/items/new": {
       "post": {
         "tags": [
           "Coworkings"
@@ -1363,7 +1352,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/{coworking_id}/items/put": {
+    "/backend_api/place/{building_id}/coworking/{coworking_id}/items/put": {
       "put": {
         "tags": [
           "Coworkings"
@@ -1434,7 +1423,7 @@
         ]
       }
     },
-    "/place/{building_id}/coworking/{coworking_id}/items/{item_id}": {
+    "/backend_api/place/{building_id}/coworking/{coworking_id}/items/{item_id}": {
       "delete": {
         "tags": [
           "Coworkings"
@@ -1488,7 +1477,7 @@
         ]
       }
     },
-    "/user": {
+    "/backend_api/user": {
       "delete": {
         "tags": [
           "Users"
@@ -1507,7 +1496,7 @@
         ]
       }
     },
-    "/user/login": {
+    "/backend_api/user/login": {
       "post": {
         "tags": [
           "Users"
@@ -1541,7 +1530,7 @@
         }
       }
     },
-    "/user/profile": {
+    "/backend_api/user/profile": {
       "get": {
         "tags": [
           "Users"
@@ -1614,7 +1603,7 @@
         ]
       }
     },
-    "/user/register": {
+    "/backend_api/user/register": {
       "post": {
         "tags": [
           "Users"
@@ -1651,7 +1640,7 @@
         }
       }
     },
-    "/user/upload_document": {
+    "/backend_api/user/upload_document": {
       "post": {
         "tags": [
           "Users"
@@ -1683,7 +1672,7 @@
         ]
       }
     },
-    "/user/{user_id}/avatar": {
+    "/backend_api/user/{user_id}/avatar": {
       "get": {
         "tags": [
           "Users"
