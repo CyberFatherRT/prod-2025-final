@@ -20,7 +20,7 @@ use crate::{db::Db, errors::ProdError, AppState, BASE_URL};
 #[utoipa::path(
     get,
     tag = "Admin",
-    path = "/admin/user/{user_id}",
+    path = "/backend_api/admin/user/{user_id}",
     responses(
         (status = 200, body = PublicUserData),
         (status = 403, description = "not admin / no auth"),
@@ -61,7 +61,7 @@ pub async fn get_user(
 #[utoipa::path(
     post,
     tag = "Admin",
-    path = "/admin/user/{user_id}/verify",
+    path = "/backend_api/admin/user/{user_id}/verify",
     responses(
         (status = 200),
         (status = 403, description = "not admin / no auth"),
@@ -133,7 +133,7 @@ pub async fn verify_guest(
 #[utoipa::path(
     delete,
     tag = "Admin",
-    path = "/admin/user/{user_id}",
+    path = "/backend_api/admin/user/{user_id}",
     responses(
         (status = 200),
         (status = 403, description = "not admin / no auth"),
@@ -170,7 +170,7 @@ pub async fn admin_delete_user(
 #[utoipa::path(
     patch,
     tag = "Admin",
-    path = "/admin/user/{user_id}",
+    path = "/backend_api/admin/user/{user_id}",
     request_body = PatchProfileForm,
     responses(
         (status = 200, body = UserModel),
@@ -201,7 +201,7 @@ pub async fn patch_user(
 #[utoipa::path(
     get,
     tag = "Admin",
-    path = "/admin/user/list",
+    path = "/backend_api/admin/user/list",
     responses(
         (status = 200, body = Vec<PublicUserData>),
         (status = 403, description = "not admin / no auth"),
@@ -236,7 +236,7 @@ pub async fn list_users(
 #[utoipa::path(
     get,
     tag = "Admin",
-    path = "/admin/list_requests",
+    path = "/backend_api/admin/list_requests",
     responses(
         (status = 200, body = Vec<VerificationRequest>),
         (status = 403, description = "not admin / no auth"),
@@ -280,7 +280,7 @@ pub async fn get_verify_requests(
 #[utoipa::path(
     get,
     tag = "Admin",
-    path = "/admin/documents/{user_id}",
+    path = "/backend_api/admin/documents/{user_id}",
     responses(
         (status = 200, description = "user document", content_type = "application/pdf"),
         (status = 403, description = "not admin / no auth"),

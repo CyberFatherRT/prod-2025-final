@@ -21,7 +21,7 @@ use crate::{
 #[utoipa::path(
     post,
     tag = "Items",
-    path = "/items/new",
+    path = "/backend_api/items/new",
     request_body(content = CreateItemTypeFormData, content_type = "multipart/form-data"),
     responses(
         (status = 201, description = "Item type was successfully created", body = ItemsModel),
@@ -126,7 +126,7 @@ pub async fn create_items_type(
 #[utoipa::path(
     delete,
     tag = "Items",
-    path = "/items/{item_id}",
+    path = "/backend_api/items/{item_id}",
     params(
         ("item_id" = Uuid, Path),
     ),

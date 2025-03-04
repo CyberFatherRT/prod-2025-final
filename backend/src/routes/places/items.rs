@@ -18,7 +18,7 @@ use uuid::Uuid;
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}/items",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}/items",
     params(
         ("building_id" = Uuid, Path),
         ("coworking_id" = Uuid, Path)
@@ -64,7 +64,7 @@ pub async fn get_items_by_coworking(
 #[utoipa::path(
     put,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}/items/put",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}/items/put",
     request_body = Vec<CreateItemForm>,
     params(
         ("building_id" = Uuid, Path),
@@ -191,7 +191,7 @@ pub async fn put_items_in_coworking(
 #[utoipa::path(
     post,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}/items/new",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}/items/new",
     request_body = CreateItemForm,
     params(
         ("building_id" = Uuid, Path),
@@ -317,7 +317,7 @@ pub async fn add_item_to_coworking(
 #[utoipa::path(
     delete,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}/items/{item_id}",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}/items/{item_id}",
     params(
         ("building_id" = Uuid, Path),
         ("coworking_id" = Uuid, Path),

@@ -17,7 +17,7 @@ use crate::{
 #[utoipa::path(
     post,
     tag = "Users",
-    path = "/user/upload_document",
+    path = "/backend_api/user/upload_document",
     request_body(content = UploadedDocument, content_type = "multipart/form-data"),
     responses(
         (status = 200, description = "document successfully uploaded"),

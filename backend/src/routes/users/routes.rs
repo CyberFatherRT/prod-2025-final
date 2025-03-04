@@ -25,7 +25,7 @@ use uuid::Uuid;
 #[utoipa::path(
     post,
     tag = "Users",
-    path = "/user/login",
+    path = "/backend_api/user/login",
     request_body = LoginForm,
     responses(
         (status = 200, body = Token),
@@ -77,7 +77,7 @@ pub async fn login(
 #[utoipa::path(
     post,
     tag = "Users",
-    path = "/user/register",
+    path = "/backend_api/user/register",
     request_body = RegisterForm,
     responses(
         (status = 201, body = Token, description = "JWT for created user"),
@@ -99,7 +99,7 @@ pub async fn register(
 #[utoipa::path(
     get,
     tag = "Users",
-    path = "/user/profile",
+    path = "/backend_api/user/profile",
     responses(
         (status = 200, body = ProfileResponseForm),
         (status = 403, description = "no auth / invalid auth"),
@@ -145,7 +145,7 @@ pub async fn profile(
 #[utoipa::path(
     patch,
     tag = "Users",
-    path = "/user/profile",
+    path = "/backend_api/user/profile",
     responses(
         (status = 200, body = UserModel),
         (status = 400, description = "wrong data format"),
@@ -174,7 +174,7 @@ pub async fn patch_profile(
 #[utoipa::path(
     delete,
     tag = "Users",
-    path = "/user",
+    path = "/backend_api/user",
     responses(
         (status = 204, description = "User was successfully deleted")
     ),
@@ -206,7 +206,7 @@ pub async fn delete_user(
 #[utoipa::path(
     get,
     tag = "Users",
-    path = "/user/{user_id}/avatar",
+    path = "/backend_api/user/{user_id}/avatar",
     responses(
         (status = 200, description = "user avatar"),
         (status = 404, description = "user or avatar not found")

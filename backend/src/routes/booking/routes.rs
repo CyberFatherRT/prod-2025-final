@@ -23,7 +23,7 @@ use crate::{
 /// Create booking (only for verified users)
 #[utoipa::path(
     post,
-    path = "/booking/create",
+    path = "/backend_api/booking/create",
     tag = "Bookings",
     request_body = CreateBookingForm,
     responses(
@@ -128,7 +128,7 @@ pub async fn create_booking(
 #[utoipa::path(
     delete,
     tag = "Bookings",
-    path = "/booking/{booking_id}",
+    path = "/backend_api/booking/{booking_id}",
     params(
         ("booking_id" = Uuid, Path)
     ),
@@ -182,7 +182,7 @@ pub async fn delete_booking(
 #[utoipa::path(
     patch,
     tag = "Bookings",
-    path = "/booking/{booking_id}",
+    path = "/backend_api/booking/{booking_id}",
     request_body = PatchBookingForm,
     params(
         ("booking_id" = Uuid, Path)
@@ -251,7 +251,7 @@ pub async fn patch_booking(
 #[utoipa::path(
     get,
     tag = "Bookings",
-    path = "/booking/list",
+    path = "/backend_api/booking/list",
     responses(
         (status = 200, body = Vec<PublicBookingModel>, description = "List of user's bookings"),
         (status = 403, description = "No auth"),
@@ -300,7 +300,7 @@ pub async fn list_bookings(
 #[utoipa::path(
     get,
     tag = "Bookings",
-    path = "/booking/{booking_id}/qr",
+    path = "/backend_api/booking/{booking_id}/qr",
     params(
         ("booking_id" = Uuid, Path)
     ),
@@ -348,7 +348,7 @@ pub async fn get_booking_qr(
 #[utoipa::path(
     post,
     tag = "Bookings",
-    path = "/booking/verify",
+    path = "/backend_api/booking/verify",
     responses(
         (status = 200, body = Verdict, description = "Booking QR validation data"),
         (status = 400, description = "Wrong request"),

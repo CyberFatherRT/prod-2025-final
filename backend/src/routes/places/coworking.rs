@@ -23,7 +23,7 @@ use crate::{
 #[utoipa::path(
     post,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/new",
+    path = "/backend_api/place/{building_id}/coworking/new",
     params(
         ("building_id" = Uuid, Path)
     ),
@@ -76,7 +76,7 @@ pub async fn create_coworking(
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/list",
+    path = "/backend_api/place/{building_id}/coworking/list",
     params(
         ("building_id" = Uuid, Path)
     ),
@@ -122,7 +122,7 @@ pub async fn list_coworkings_by_building(
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/coworking/list",
+    path = "/backend_api/place/coworking/list",
     responses(
         (status = 200, body = Vec<CoworkingSpacesModel>, description = "List of coworkings"),
         (status = 403, description = "No auth"),
@@ -162,7 +162,7 @@ pub async fn list_coworkings(
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}",
     params(
         ("building_id" = Uuid, Path),
         ("coworking_id" = Uuid, Path)
@@ -211,7 +211,7 @@ pub async fn get_coworking_by_id(
 #[utoipa::path(
     patch,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}",
     params(
         ("building_id" = Uuid, Path),
         ("coworking_id" = Uuid, Path)
@@ -322,7 +322,7 @@ pub async fn patch_coworking(
 #[utoipa::path(
     delete,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}",
     params(
         ("building_id" = Uuid, Path),
         ("coworking_id" = Uuid, Path)
@@ -367,7 +367,7 @@ pub async fn delete_coworking(
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/{building_id}/coworking/{coworking_id}/bookings",
+    path = "/backend_api/place/{building_id}/coworking/{coworking_id}/bookings",
     params(
         ("building_id" = Uuid, Path),
         ("coworking_id" = Uuid, Path)
