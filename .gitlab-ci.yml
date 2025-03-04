@@ -14,9 +14,26 @@ include:
 
 stages:
   - build
-  - deploy
+  - backend
+  - frontend
 
-deploy:
+frontend:
+  only:
+    changes:
+      - compose.yml
+      - nginx/**/*
+      - nginx/*
+      - frontend/*
+      - frontend/**/*
+  needs: []
+  extends:
+    - .ssh
+    - .global-variables
+  stage: frontend
+  script:
+    - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker compose up -d --build frontend"
+
+backend:
   only:
     changes:
       - compose.yml
@@ -24,11 +41,11 @@ deploy:
       - nginx/*
       - backend/*
       - backend/**/*
-  needs: [ ]
+  needs: []
   extends:
     - .ssh
     - .global-variables
-  stage: deploy
+  stage: backend
   script:
     - ssh $SSH_ADDRESS "cd /home/ubuntu/prod && git pull && docker compose up -d --build backend"
 
