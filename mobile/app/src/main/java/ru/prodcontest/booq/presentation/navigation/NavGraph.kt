@@ -55,9 +55,9 @@ fun NavGraph(navController: NavHostController) {
         composable<ProfileScreenDestination> {
             ProfileScreen(navController)
         }
-//        composable<MapScreenDestination> {
-//            MapScreen(navController)
-//        }
+        composable<MapScreenDestination> {
+            MapScreen(navController)
+        }
         composable<VerificationsScreenDestination> {
             VerificationsScreen(navController)
         }

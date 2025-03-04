@@ -56,12 +56,11 @@ import ru.prodcontest.booq.presentation.home.components.HomeRegisterCompanyDialo
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialog
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialogUiModel
 import ru.prodcontest.booq.presentation.map.MapScreenDestination
-import ru.prodcontest.booq.presentation.map.MapScreenEditData
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDestination
-import ru.prodcontest.booq.presentation.theme.BooqTheme
 import java.time.format.DateTimeFormatter
 
+@Serializable
 object HomeScreenDestination {
     const val route = "home_screen"
     const val companyNameArg = "companyName"
@@ -216,11 +215,9 @@ fun HomeScreen(
                             navController.navigate(
                                 MapScreenDestination(
                                     buildingId = null,
-                                    editData = MapScreenEditData(
-                                        bookingId = booking.idData.id,
-                                        coworkingItemId = booking.idData.itemId,
-                                        coworkingsSpaceId = booking.idData.spaceId
-                                    )
+                                    bookingId = booking.idData.id,
+                                    coworkingItemId = booking.idData.itemId,
+                                    coworkingsSpaceId = booking.idData.spaceId
                                 )
                             )
                         }
