@@ -74,13 +74,14 @@ async fn main() -> anyhow::Result<()> {
         .nest("/place", places::get_routes(app_state.clone()))
         .nest("/items", items::get_routes(app_state.clone()))
         .layer(from_fn(log_request))
-        .layer(CorsLayer::permissive())
-        .merge(
-            SwaggerUi::new("/backend_api/api/swagger-ui")
-                .url("/backend_api/api-doc/openapi.json", ApiDoc::openapi()),
-        );
+        .layer(CorsLayer::permissive());
+
+    let app = Router::new().nest("/backend_api", router).merge(
+        SwaggerUi::new("/backend_api/api/swagger-ui")
+            .url("/backend_api/api-doc/openapi.json", ApiDoc::openapi()),
+    );
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
-    axum::serve(listener, router).await?;
+    axum::serve(listener, app).await?;
     Ok(())
 }
