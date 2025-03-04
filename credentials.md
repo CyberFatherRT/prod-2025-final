@@ -7,8 +7,6 @@
 
 Формат: логин:пароль.
 
-- `login@email.com`:`password` - домен `DOMAIN` - роль `Администратор`
-
 - `TCS@nonexistentemail.com`:`password` - домен `TCS` - роль `Администратор`
 - `second_admin@tcs.ru`:`password123` - домен `TCS` - роль `Администратор`
 - `tcs_user1@tcs.ru`:`password123` - домен `TCS` - роль `Гость`
