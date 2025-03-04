@@ -7,12 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import ru.prodcontest.booq.domain.model.BookingCompanyModel
-import ru.prodcontest.booq.domain.model.BookingIdData
-import ru.prodcontest.booq.domain.model.BookingModel
-import ru.prodcontest.booq.domain.model.BookingTextModel
-import ru.prodcontest.booq.domain.model.BookingTime
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.usecase.GetTokenUseCase
 import ru.prodcontest.booq.domain.util.ResultWrapper

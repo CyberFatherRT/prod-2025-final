@@ -22,6 +22,7 @@ import ru.prodcontest.booq.data.remote.dto.CoworkingItemDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
+import ru.prodcontest.booq.data.remote.dto.QrTokenDto
 import ru.prodcontest.booq.data.remote.dto.QrVerificationDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
@@ -119,7 +120,7 @@ class ApiRemote(private val httpClient: HttpClient) {
     suspend fun getQr(bookingId: String) =
         httpClient.get(BOOKING_QR_ENDPOINT.replace("{booking_id}", bookingId)) {
             contentType(ContentType.Application.Json)
-        }.body<TokenDto>()
+        }.body<QrTokenDto>()
 
     suspend fun getCoworkingsOfBuilding(buildingId: String) =
         httpClient.get(LIST_COWORKINGS_OF_BUILDING_ENDPOINT.replace("{building_id}", buildingId))

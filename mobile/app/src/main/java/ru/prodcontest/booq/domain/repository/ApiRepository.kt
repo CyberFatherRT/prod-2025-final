@@ -27,7 +27,6 @@ interface ApiRepository {
     suspend fun getBookingList(): ResultFlow<List<BookingModel>>
     suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>
     suspend fun listPlaces(): ResultFlow<PlacesDto>
-    suspend fun getQr(bookingId: String): ResultFlow<TokenDto>
     suspend fun getCoworkingsOfBuilding(buildingId: String): ResultFlow<List<CoworkingDto>>
     suspend fun getItemsOfCompany(): ResultFlow<List<CompanyItemDto>>
     suspend fun getItemsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<CoworkingItemDto>>
