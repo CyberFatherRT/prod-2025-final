@@ -45,6 +45,7 @@ fun HomeBookingCard(
     data: BookingDataUi,
     onBookingClick: () -> Unit,
     onBookingEditClick: () -> Unit,
+    onDeleteClick:  () -> Unit,
     onQRClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -56,7 +57,7 @@ fun HomeBookingCard(
             .background(color = MaterialTheme.colorScheme.onBackground, shape = RoundedCornerShape(32.dp))
             .clickable { onBookingClick() }
     ) {
-        val (nameEl, lightEl, labelEl, infoEl, qrButtonEl, editButtonEl) = createRefs()
+        val (nameEl, lightEl, labelEl, infoEl, qrButtonEl, editButtonEl, deleteButtonEl) = createRefs()
 
         val sizeLight = 280.dp
         Box(
@@ -169,12 +170,33 @@ fun HomeBookingCard(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
+                .background(color = Color.Red, shape = RoundedCornerShape(12.dp))
+                .clickable { onDeleteClick() }
+                .size(42.dp)
+                .constrainAs(deleteButtonEl) {
+                    end.linkTo(parent.end, margin = 22.dp)
+                    top.linkTo(infoEl.bottom, margin = 22.dp)
+                }
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(23.dp),
+                painter = painterResource(R.drawable.delete_24),
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
                 .background(color = Color.Green, shape = RoundedCornerShape(12.dp))
                 .clickable { onBookingEditClick() }
                 .size(42.dp)
                 .constrainAs(editButtonEl) {
-                    end.linkTo(parent.end, margin = 22.dp)
-                    top.linkTo(infoEl.bottom, margin = 22.dp)
+                    end.linkTo(deleteButtonEl.start, margin = 4.dp)
+                    top.linkTo(deleteButtonEl.top)
                 }
         ) {
             Icon(
@@ -199,7 +221,7 @@ fun HomeBookingCard(
                 .background(color = MaterialTheme.colorScheme.primary)
                 .constrainAs(qrButtonEl) {
                     start.linkTo(parent.start, margin = 22.dp)
-                    end.linkTo(editButtonEl.start, margin = 12.dp)
+                    end.linkTo(editButtonEl.start, margin = 8.dp)
                     top.linkTo(editButtonEl.top)
                     width = Dimension.fillToConstraints
                 }
@@ -275,6 +297,7 @@ fun HomeBookingCardPreview() {
             onBookingClick = {  },
             onBookingEditClick = { },
             onQRClick = { },
+            onDeleteClick = { },
             modifier = Modifier
                 .padding(horizontal = 20.dp)
         )

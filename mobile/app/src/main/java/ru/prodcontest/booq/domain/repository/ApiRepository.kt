@@ -39,6 +39,7 @@ interface ApiRepository {
     suspend fun declineGuest(userId: String): ResultFlow<Int>
     suspend fun getBookingsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<ItemBookingDto>>
     suspend fun createBooking(createBookingDto: CreateBookingDto): ResultFlow<CreateBookingResponseDto>
+    suspend fun deleteBooking(bookingId: String): ResultFlow<Int>
     suspend fun updateBooking(bookingId: String, patchBookingDto: PatchBookingDto): ResultFlow<CreateBookingResponseDto>
     suspend fun listCoworkings(): ResultFlow<List<CoworkingDto>>
 }

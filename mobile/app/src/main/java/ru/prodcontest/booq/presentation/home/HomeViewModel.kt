@@ -56,6 +56,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun deleteBooking(bookingId: String) {
+        viewModelScope.launch {
+            apiRepository.deleteBooking(bookingId).collect {
+                when (it) {
+                    is ResultWrapper.Ok -> {
+                        getBookings()
+                    }
+
+                    is ResultWrapper.Loading -> {
+                        setState { copy(isLoading = true) }
+                    }
+
+                    is ResultWrapper.Error -> {
+                        setState { copy(isLoading = false, error = it.message) }
+                    }
+                }
+            }
+        }
+    }
+
     fun getQr(bookingId: String) {
 
 //        setState { copy(qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading)) }

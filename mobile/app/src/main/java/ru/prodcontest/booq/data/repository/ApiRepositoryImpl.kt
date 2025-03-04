@@ -109,4 +109,8 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
     override suspend fun listCoworkings(): ResultFlow<List<CoworkingDto>> = wrapToResult {
         apiRemote.listCoworkings()
     }
+
+    override suspend fun deleteBooking(bookingId: String): ResultFlow<Int> = wrapToResult {
+        apiRemote.deleteBooking(bookingId)
+    }
 }

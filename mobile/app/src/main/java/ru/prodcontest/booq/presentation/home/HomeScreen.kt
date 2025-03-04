@@ -228,14 +228,26 @@ fun HomeScreen(
                     onQRClick = { index ->
                         selectedBookingIndex.value = index
 
-                        val data = bookings.getOrNull(selectedBookingIndex.value)?.idData?.id
+                        val bookingId = bookings.getOrNull(selectedBookingIndex.value)?.idData?.id
 
-                        if (data != null) {
-                            viewModel.getQr(data)
+                        if (bookingId != null) {
+                            viewModel.getQr(bookingId)
                         } else {
                             Log.e("HomeScreen", "Error while getting QR code: booking data is null")
                         }
                         showDialog = true
+
+                    },
+                    onDeleteClick = { index ->
+                        selectedBookingIndex.value
+
+                        val bookingId = bookings.getOrNull(selectedBookingIndex.value)?.idData?.id
+
+                        if (bookingId != null) {
+                            viewModel.deleteBooking(bookingId)
+                        } else {
+                            Log.e("HomeScreen", "Error click delete")
+                        }
 
                     }
                 )

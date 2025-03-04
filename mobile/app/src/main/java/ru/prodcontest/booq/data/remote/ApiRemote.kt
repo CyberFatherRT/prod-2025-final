@@ -58,6 +58,7 @@ class ApiRemote(private val httpClient: HttpClient) {
             "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/bookings"
         const val CREATE_BOOKING_ENDPOINT = "$BASE_DOMAIN/booking/create"
         const val UPDATE_BOOKING_ENDPOINT = "$BASE_DOMAIN/booking/{booking_id}"
+        const val DELETE_BOOKING_ENDPOINT = "$BASE_DOMAIN/booking/{booking_id}"
         const val VERIFY_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}/verify"
         const val DECLINE_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}"
         const val COWORKING_LIST_ENDPOINT = "$BASE_DOMAIN/place/coworking/list"
@@ -178,4 +179,9 @@ class ApiRemote(private val httpClient: HttpClient) {
             contentType(ContentType.Application.Json)
             setBody(dto)
         }.body<CreateBookingResponseDto>()
+
+    suspend fun deleteBooking(bookingId: String) =
+        httpClient.delete(DELETE_BOOKING_ENDPOINT.replace("{booking_id}", bookingId)) {
+            contentType(ContentType.Application.Json)
+        }.status.value
 }

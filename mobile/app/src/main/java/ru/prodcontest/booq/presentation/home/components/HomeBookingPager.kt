@@ -28,6 +28,7 @@ fun HomeBookingPager(
     onBookingClick: (Int) -> Unit,
     onBookingEditClick: (Int) -> Unit,
     onQRClick: (Int) -> Unit,
+    onDeleteClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val pagerState = rememberPagerState(
@@ -76,6 +77,7 @@ fun HomeBookingPager(
                 data = bookings[page],
                 onBookingClick = { onBookingClick(page) },
                 onBookingEditClick = { onBookingEditClick(page) },
+                onDeleteClick = { onDeleteClick(page) },
                 onQRClick = { onQRClick(page) }
             )
         }
@@ -128,6 +130,7 @@ fun HomeBookingPagerPreview() {
                 onBookingClick = {},
                 onBookingEditClick = {},
                 onQRClick = {},
+                onDeleteClick = {},
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 

@@ -83,7 +83,8 @@ import kotlin.math.roundToLong
 @Serializable
 data class MapScreenDestination(
     val buildingId: String?,
-    val editData: MapScreenEditData? = null
+    val editData: MapScreenEditData? = null,
+
 )
 
 @Serializable
