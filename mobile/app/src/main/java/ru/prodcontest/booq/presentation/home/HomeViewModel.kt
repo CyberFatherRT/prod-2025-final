@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.usecase.GetTokenUseCase
 import ru.prodcontest.booq.domain.usecase.IsAdminUseCase
+import ru.prodcontest.booq.domain.usecase.IsUnverifiedUseCase
 import ru.prodcontest.booq.domain.util.ResultWrapper
 import ru.prodcontest.booq.presentation.BaseViewModel
 import javax.inject.Inject
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     private val GetTokenUseCase: GetTokenUseCase,
-    private val isAdminUseCase: IsAdminUseCase
+    private val isAdminUseCase: IsAdminUseCase,
+    private val isUnverifiedUseCase: IsUnverifiedUseCase
 ): BaseViewModel<HomeState, HomeScreenEvent>() {
 
     override fun setInitialState() = HomeState(
@@ -26,16 +28,16 @@ class HomeViewModel @Inject constructor(
         isLoading = true,
         qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading),
         error = null,
-        isAdmin = false
+        isAdmin = false,
+        isUnverified = false
     )
 
     init {
-        setState { copy(isAdmin = isAdminUseCase()) }
+        setState { copy(isAdmin = isAdminUseCase(), isUnverified = isUnverifiedUseCase()) }
         checkToken()
         getBookings()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun getBookings() = viewModelScope.launch {
         apiRepository.getBookingList().collect {
             when (it) {

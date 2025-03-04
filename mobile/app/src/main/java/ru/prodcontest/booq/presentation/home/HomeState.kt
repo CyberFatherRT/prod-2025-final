@@ -7,7 +7,8 @@ data class HomeState(
     val isLoading: Boolean,
     val qrCode: QrCodeInfo,
     val error: String?,
-    val isAdmin: Boolean
+    val isAdmin: Boolean,
+    val isUnverified: Boolean
 )
 
 data class QrCodeInfo(
