@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, name, description, bookable, icon,\n               offsets as \"offsets: Vec<Point>\", company_id\n        FROM item_types\n        WHERE company_id = $1\n        ",
+  "query": "\n        SELECT id, name, description, color, bookable, icon,\n               offsets as \"offsets: Vec<Point>\", company_id\n        FROM item_types\n        WHERE company_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -20,21 +20,26 @@
       },
       {
         "ordinal": 3,
+        "name": "color",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
         "name": "bookable",
         "type_info": "Bool"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "icon",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "offsets: Vec<Point>",
         "type_info": "PointArray"
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "company_id",
         "type_info": "Uuid"
       }
@@ -49,10 +54,11 @@
       false,
       true,
       false,
+      false,
       true,
       false,
       false
     ]
   },
-  "hash": "0001a7342de907c14fbbcf2c2a123c0070c3b673e68d2fb85d3f8d42c1a370ba"
+  "hash": "5ab70b8b92c52699c101b83b94f358762a35a3a65b8a6fcdd99187dfe4ad6452"
 }

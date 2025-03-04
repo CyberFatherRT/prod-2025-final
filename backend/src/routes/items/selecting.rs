@@ -1,8 +1,4 @@
-use axum::{
-    extract::State,
-    http::HeaderMap,
-    Json,
-};
+use axum::{extract::State, http::HeaderMap, Json};
 
 use crate::{
     db::Db,
@@ -34,7 +30,7 @@ pub async fn list_items_by_company(
     let items = sqlx::query_as!(
         ItemsModel,
         r#"
-        SELECT id, name, description, bookable, icon,
+        SELECT id, name, description, color, bookable, icon,
                offsets as "offsets: Vec<Point>", company_id
         FROM item_types
         WHERE company_id = $1

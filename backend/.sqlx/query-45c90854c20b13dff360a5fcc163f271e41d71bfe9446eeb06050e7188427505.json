@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE\n        FROM coworking_items c\n        WHERE c.coworking_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "45c90854c20b13dff360a5fcc163f271e41d71bfe9446eeb06050e7188427505"
+}

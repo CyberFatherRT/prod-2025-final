@@ -1,0 +1,91 @@
+package ru.prodcontest.booq.presentation.map
+
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import ru.prodcontest.booq.data.remote.dto.CoworkingDto
+import ru.prodcontest.booq.domain.repository.ApiRepository
+import ru.prodcontest.booq.domain.usecase.GetCoworkingDataUseCase
+import ru.prodcontest.booq.domain.util.ResultWrapper
+import ru.prodcontest.booq.presentation.BaseViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class MapViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val apiRepository: ApiRepository,
+    private val getCoworkingDataUseCase: GetCoworkingDataUseCase
+) : BaseViewModel<MapScreenState, MapScreenAction>() {
+    override fun setInitialState() = MapScreenState(
+        isLoadingCoworkings = true,
+        coworkings = null,
+        selectedCoworking = null,
+        coworkingData = null,
+        isCoworkingDataLoading = false
+    )
+
+    val navArgs: MapScreenDestination
+        get() = savedStateHandle.toRoute()
+
+    init {
+        loadCoworkings()
+    }
+
+    fun loadCoworkings() = viewModelScope.launch {
+        apiRepository.getCoworkingsOfBuilding(navArgs.buildingId).onEach {
+            when (it) {
+                is ResultWrapper.Ok -> {
+                    setState {
+                        copy(
+                            isLoadingCoworkings = false,
+                            coworkings = it.data,
+                            selectedCoworking = it.data.first()
+                        )
+                    }
+                    updateCoworkingData()
+                }
+
+                is ResultWrapper.Error -> {
+                    setState { copy(isLoadingCoworkings = false, coworkings = null) }
+                    setAction { MapScreenAction.ShowLoadingCoworkingsError(it.message) }
+                }
+
+                ResultWrapper.Loading -> {
+                    setState { copy(isLoadingCoworkings = true, coworkings = null) }
+                }
+            }
+        }.collect()
+    }
+
+    fun selectCoworking(coworking: CoworkingDto) {
+        setState { copy(selectedCoworking = coworking) }
+        updateCoworkingData()
+    }
+
+    private fun updateCoworkingData() = viewModelScope.launch {
+        viewState.value.selectedCoworking?.let { selectedCoworking ->
+            getCoworkingDataUseCase(
+                selectedCoworking.buildingId,
+                coworkingId = selectedCoworking.id,
+                height = selectedCoworking.height
+            ).onEach {
+                when (it) {
+                    is ResultWrapper.Ok -> {
+                        setState { copy(coworkingData = it.data, isCoworkingDataLoading = false) }
+                    }
+                    is ResultWrapper.Error -> {
+                        setState { copy(coworkingData = null, isCoworkingDataLoading = false) }
+                        setAction { MapScreenAction.ShowLoadingCoworkingDataError(it.message) }
+                    }
+                    ResultWrapper.Loading -> {
+                        setState { copy(coworkingData = null, isCoworkingDataLoading = true) }
+                    }
+                }
+            }.collect()
+        }
+    }
+}

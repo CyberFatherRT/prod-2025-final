@@ -1,7 +1,7 @@
 from requests import get, post, Session
 from .config import BASE_URL
-from .util import extract_data
-
+from .util import extract_data, extract_json
+from json import dumps
 
 class User:
     def __init__(self, company_domain, email, name, surname, password):
@@ -45,29 +45,40 @@ class UserApi:
 
     def get_profile(self):
         r = self.s.get(BASE_URL + "/user/profile")
-        data = extract_data(r)
+        data = extract_json(r)
 
         return r.status_code, data
 
     def upload_document(self, document: bytes):
         r = self.s.post(
-            BASE_URL + "/user/upload_document", files={"document": document}
+            BASE_URL + "/user/upload_document", files={"document": ("lol", document, "application/pdf")}
         )
-        return r.status_code, None
+        return r.status_code, r.text
 
     def patch_profile(self, patch_dict=None, avatar=None):
         files = {}
         if patch_dict:
-            files["json"] = patch_dict
+            files["json"] = dumps(patch_dict).encode()
         if avatar:
-            files["avatar"] = avatar
+            files["avatar"] = ("lol", avatar, "image/png")
 
         r = self.s.patch(BASE_URL + "/user/profile", files=files)
 
-        data = extract_data(r)
+        data = extract_json(r)
 
         return r.status_code, data
 
     def get_avatar(self, user_id):
         r = self.s.get(BASE_URL + f"/user/{user_id}/avatar")
-        return r.status_code, r.text
+        return r.status_code, r.content
+
+    def get_items(self):
+        r = self.s.get(BASE_URL + f"/items")
+
+        data = extract_json(r)
+        return r.status_code, data
+
+    def delete(self):
+        r = self.s.delete(BASE_URL + "/user")
+        return r.status_code, r.content
+    #def create

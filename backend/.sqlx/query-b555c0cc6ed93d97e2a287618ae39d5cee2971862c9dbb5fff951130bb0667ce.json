@@ -1,0 +1,57 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE coworking_spaces SET\n        address = COALESCE($1, address),\n        height = COALESCE($2, height),\n        width = COALESCE($3, width)\n        WHERE\n        company_id = $4 AND building_id = $5 AND id = $6\n        RETURNING id, address, company_id, building_id, height, width",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "address",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "company_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "building_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "height",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "width",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b555c0cc6ed93d97e2a287618ae39d5cee2971862c9dbb5fff951130bb0667ce"
+}

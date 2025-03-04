@@ -10,6 +10,7 @@ use axum::extract::{Path, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::Json;
 use sqlx::Acquire;
+use std::collections::HashSet;
 use tracing::info;
 use uuid::Uuid;
 
@@ -47,7 +48,7 @@ pub async fn get_items_by_coworking(
         FROM coworking_items ci
         JOIN buildings b ON b.id = $1
         JOIN coworking_spaces c ON c.id = $2 AND c.building_id = b.id
-        WHERE c.company_id = $3
+        WHERE c.company_id = $3 AND ci.coworking_id = $2
         "#,
         building_id,
         coworking_id,
@@ -57,6 +58,133 @@ pub async fn get_items_by_coworking(
     .await?;
 
     Ok(Json(items))
+}
+
+/// Put new items' positions in coworking
+#[utoipa::path(
+    put,
+    tag = "Coworkings",
+    path = "/place/{building_id}/coworking/{coworking_id}/items/put",
+    request_body = Vec<CreateItemForm>,
+    params(
+        ("building_id" = Uuid, Path),
+        ("coworking_id" = Uuid, Path)
+    ),
+    responses(
+        (status = 201, body = Vec<CoworkingItemsModel>, description = "New items"),
+        (status = 403, description = "no auth / not admin"),
+        (status = 404, description = "No such coworking / building"),
+        (status = 409, description = "Items overlaps with borders / other items")
+    ),
+    security(
+        ("bearerAuth" = [])
+    )
+)]
+pub async fn put_items_in_coworking(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+    Path((building_id, coworking_id)): Path<(Uuid, Uuid)>,
+    ValidatedJson(form): ValidatedJson<Vec<CreateItemForm>>,
+) -> Result<(StatusCode, Json<Vec<CoworkingItemsModel>>), ProdError> {
+    let mut conn = state.pool.conn().await?;
+    let company_id = claims_from_headers(&headers)?.company_id;
+
+    let mut tx = conn.begin().await?;
+
+    let space = sqlx::query_as!(
+        CoworkingSpacesModel,
+        r#"
+        SELECT id, address, height, width, building_id, company_id
+        FROM coworking_spaces
+        WHERE building_id = $1 AND id = $2 AND company_id = $3
+        "#,
+        building_id,
+        coworking_id,
+        company_id
+    )
+    .fetch_one(tx.as_mut())
+    .await
+    .map_err(|err| match err {
+        sqlx::Error::RowNotFound => {
+            ProdError::NotFound("No such coworking or building exists".to_string())
+        }
+        _ => ProdError::DatabaseError(err),
+    })?;
+
+    let _ = sqlx::query!(
+        r#"
+        DELETE
+        FROM coworking_items c
+        WHERE c.coworking_id = $1
+        "#,
+        coworking_id
+    )
+    .execute(tx.as_mut())
+    .await?;
+
+    let mut created_items: Vec<CoworkingItemsModel> = Vec::new();
+    let mut abs_coords: Vec<Point> = Vec::new();
+    for item in form {
+        let item_offsets = sqlx::query_as!(
+            Offsets,
+            r#"
+        SELECT i.offsets as "offsets: Vec<Point>"
+        FROM item_types i
+        WHERE i.id = $1
+        "#,
+            item.item_id
+        )
+        .fetch_one(tx.as_mut())
+        .await?;
+
+        let mut item_coords: Vec<Point> = Vec::new();
+        for offset in item_offsets.offsets {
+            item_coords.push(item.base_point.clone() + offset);
+        }
+        abs_coords.extend(item_coords.clone());
+
+        if item_coords
+            .iter()
+            .any(|p| p.x >= space.width || p.y >= space.height)
+        {
+            return Err(ProdError::Conflict(
+                "Item overlaps with borders".to_string(),
+            ));
+        }
+
+        let item = sqlx::query_as::<_, CoworkingItemsModel>(&format!(
+            r"
+        INSERT INTO coworking_items
+        (name, description, item_id, base_point, coworking_id)
+        VALUES  ($1, $2, $3, {}::point, $4)
+        RETURNING id, item_id, name, description,
+                  base_point
+        ",
+            format!("point({}, {})", item.base_point.x, item.base_point.y)
+        ))
+        .bind(item.name)
+        .bind(item.description)
+        .bind(item.item_id)
+        .bind(coworking_id)
+        .fetch_one(tx.as_mut())
+        .await
+        .map_err(|err| {
+            info!("returned {:?}", err);
+            ProdError::DatabaseError(err)
+        })?;
+        created_items.push(item);
+    }
+
+    let unique_coords: HashSet<Point> = abs_coords.clone().into_iter().collect();
+    if abs_coords.len() != unique_coords.len() {
+        return Err(ProdError::Conflict(
+            "Item overlaps with other item".to_string(),
+        ));
+    }
+
+    tx.commit().await?;
+
+    Ok((StatusCode::CREATED, Json(created_items)))
 }
 
 /// Create new item in coworking
@@ -142,7 +270,7 @@ pub async fn add_item_to_coworking(
 
     if item_coords
         .iter()
-        .any(|p| p.x > space.width || p.y > space.height)
+        .any(|p| p.x >= space.width || p.y >= space.height)
     {
         return Err(ProdError::Conflict(
             "Item overlaps with borders".to_string(),

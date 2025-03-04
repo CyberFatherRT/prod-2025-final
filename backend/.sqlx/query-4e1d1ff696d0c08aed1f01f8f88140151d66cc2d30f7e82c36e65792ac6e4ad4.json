@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT ci.id, ci.item_id, ci.name, ci.description,\n               ci.base_point as \"base_point: Point\"\n        FROM coworking_items ci\n        JOIN buildings b ON b.id = $1\n        JOIN coworking_spaces c ON c.id = $2 AND c.building_id = b.id\n        WHERE c.company_id = $3\n        ",
+  "query": "\n        SELECT ci.id, ci.item_id, ci.name, ci.description,\n               ci.base_point as \"base_point: Point\"\n        FROM coworking_items ci\n        JOIN buildings b ON b.id = $1\n        JOIN coworking_spaces c ON c.id = $2 AND c.building_id = b.id\n        WHERE c.company_id = $3 AND ci.coworking_id = $2\n        ",
   "describe": {
     "columns": [
       {
@@ -44,5 +44,5 @@
       false
     ]
   },
-  "hash": "77fcaa821a6ce7f352409a3cb4232a3a48098fc73b1975016e4c8438765ade9a"
+  "hash": "4e1d1ff696d0c08aed1f01f8f88140151d66cc2d30f7e82c36e65792ac6e4ad4"
 }

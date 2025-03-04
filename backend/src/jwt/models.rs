@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use uuid::Uuid;
 
-const JWT_EXPIRY_HOURS: i64 = 1;
+const JWT_EXPIRY_HOURS: i64 = 24;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Claims {

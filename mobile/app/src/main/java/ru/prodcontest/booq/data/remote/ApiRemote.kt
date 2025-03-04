@@ -16,10 +16,12 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.channels.ProducerScope
 import ru.prodcontest.booq.data.remote.dto.BookingDto
+import ru.prodcontest.booq.data.remote.dto.CompanyItemDto
+import ru.prodcontest.booq.data.remote.dto.CoworkingDto
+import ru.prodcontest.booq.data.remote.dto.CoworkingItemDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
-import ru.prodcontest.booq.data.remote.dto.QrTokenDto
 import ru.prodcontest.booq.data.remote.dto.QrVerificationDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
@@ -40,6 +42,11 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val VERIFY_BOOKING_QR_ENDPOINT = "$BASE_DOMAIN/booking/verify"
         const val LIST_PLACES_ENDPOINT = "$BASE_DOMAIN/place/list"
         const val BOOKING_QR_ENDPOINT = "$BASE_DOMAIN/booking/{booking_id}/qr"
+        const val LIST_COWORKINGS_OF_BUILDING_ENDPOINT =
+            "$BASE_DOMAIN/place/{building_id}/coworking/list"
+        const val LIST_ITEMS_OF_COMPANY_ENDPOINT = "$BASE_DOMAIN/items"
+        const val LIST_ITEMS_OF_COWORKING_ENDPOINT =
+            "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/items"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -85,7 +92,7 @@ class ApiRemote(private val httpClient: HttpClient) {
                     }
                 }
             }
-            if(res.status.isSuccess()) {
+            if (res.status.isSuccess()) {
                 UploadProgress.Completed
             } else {
                 UploadProgress.Error(res.bodyAsText())
@@ -107,12 +114,23 @@ class ApiRemote(private val httpClient: HttpClient) {
         setBody(mapOf("token" to token))
     }.body<QrVerificationDto>()
 
-    suspend fun listPlaces() = httpClient.get(LIST_PLACES_ENDPOINT) {
-//        attributes.put(InsertAuthAttrs.DontInsert, true)
-    }.body<PlacesDto>()
+    suspend fun listPlaces() = httpClient.get(LIST_PLACES_ENDPOINT).body<PlacesDto>()
 
     suspend fun getQr(bookingId: String) =
         httpClient.get(BOOKING_QR_ENDPOINT.replace("{booking_id}", bookingId)) {
             contentType(ContentType.Application.Json)
-        }.body<QrTokenDto>()
+        }.body<TokenDto>()
+
+    suspend fun getCoworkingsOfBuilding(buildingId: String) =
+        httpClient.get(LIST_COWORKINGS_OF_BUILDING_ENDPOINT.replace("{building_id}", buildingId))
+            .body<List<CoworkingDto>>()
+
+    suspend fun getItemsOfCompany() =
+        httpClient.get(LIST_ITEMS_OF_COMPANY_ENDPOINT).body<List<CompanyItemDto>>()
+
+    suspend fun getItemsOfCoworking(buildingId: String, coworkingId: String) = httpClient.get(
+        LIST_ITEMS_OF_COWORKING_ENDPOINT
+            .replace("{building_id}", buildingId)
+            .replace("{coworking_id}", coworkingId)
+    ).body<List<CoworkingItemDto>>()
 }

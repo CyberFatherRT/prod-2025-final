@@ -57,7 +57,7 @@ pub struct CoworkingSpacesModel {
     pub company_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, ToSchema, FromRow, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, ToSchema, FromRow, Debug, Clone, PartialEq, Eq, Hash)]
 #[sqlx(type_name = "POINT")]
 pub struct Point {
     pub x: i64,
@@ -117,6 +117,7 @@ pub struct ItemsModel {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
+    pub color: String,
     pub icon: Option<String>,
     pub offsets: Vec<Point>,
     pub bookable: bool,
