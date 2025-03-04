@@ -18,7 +18,13 @@ pub mod s3;
 pub mod util;
 
 use crate::routes::{companies, items};
-use axum::{http::StatusCode, middleware::from_fn, routing::get, Router};
+use axum::{
+    http::{StatusCode, Uri},
+    middleware::from_fn,
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
 use middlewares::log_request;
 use openapi::ApiDoc;
 use routes::{admin, booking, places, users};
@@ -39,6 +45,11 @@ pub struct AppState {
 }
 
 pub const BASE_URL: &str = "https://https://prod-team-13-cltnksuj.final.prodcontest.ru/backend_api";
+
+async fn not_found_handler(uri: Uri) -> impl IntoResponse {
+    println!("404 - Requested path: {}", uri.path());
+    (StatusCode::NOT_FOUND, format!("No route found for {}", uri))
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -76,10 +87,13 @@ async fn main() -> anyhow::Result<()> {
         .layer(from_fn(log_request))
         .layer(CorsLayer::permissive());
 
-    let app = Router::new().nest("/backend_api", router).merge(
-        SwaggerUi::new("/backend_api/api/swagger-ui")
-            .url("/backend_api/api-doc/openapi.json", ApiDoc::openapi()),
-    );
+    let app = Router::new()
+        .nest("/backend_api", router)
+        .merge(
+            SwaggerUi::new("/backend_api/api/swagger-ui")
+                .url("/backend_api/api-doc/openapi.json", ApiDoc::openapi()),
+        )
+        .fallback(not_found_handler);
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;
     axum::serve(listener, app).await?;
