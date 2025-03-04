@@ -7,5 +7,5 @@
 
 Формат: логин:пароль.
 
-- `login@email.com`:`password`, домен `DOMAIN`
+- `login@email.com`:`password` - домен `DOMAIN` - роль `Администратор`
 - 

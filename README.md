@@ -1,6 +1,6 @@
 <br />
 <p align="center">
-  <a href="https://github.com/Central-University-IT-prod/PROD-yet-another-common">
+  <a>
     <img src="files/logo.svg" alt="Logo" width="1000" >
   </a>
 
@@ -9,7 +9,12 @@
 
 booq - продукт, предоставляющий Coworking as a Service (CaaS).
 
-\[TODO\] три экрана приложения на красивом сером фоне;
+<p align="center">
+  <a>
+    <img src="files/phones.png" alt="Phones" width="4500" >
+  </a>
+</p>
+
 
 BooQ - B2B продукт. Он ориентирован на владельцев и пользователей
 коворкингов, компьютерных клубов, и других мест, в которых можно бронировать места.
