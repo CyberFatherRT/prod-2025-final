@@ -10,8 +10,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -43,8 +46,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -89,11 +95,13 @@ fun QrScannerScreen(navController: NavController, viewModel: QrScannerViewModel 
             Text(
                 "Наведите камеру на QR код из приложения гостя",
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp, 32.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(0.dp, 32.dp)
             )
             ScanCode(
                 onQrCodeDetected = {
-                    if(!state.modalOpened) {
+                    if (!state.modalOpened) {
                         viewModel.checkQr(it)
                     }
                 },
@@ -130,54 +138,52 @@ fun QrScannerScreen(navController: NavController, viewModel: QrScannerViewModel 
                         state.errorVerdict?.let { error ->
                             Text("Ошибка при загрузке данных: $error")
                         }
+                        @Composable
+                        fun RowInfoComponent(
+                            icon: ImageVector,
+                            text: String,
+                            modifier: Modifier = Modifier
+                        ) {
+                            Row(
+                                modifier = modifier,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(25.dp),
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = Color.Gray,
+                                )
+                                Spacer(
+                                    modifier = Modifier.width(8.dp)
+                                )
+                                Text(
+                                    text = text,
+                                    color = Color.Black,
+                                    fontSize = 18.sp,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                            }
+                        }
                         verdict.bookingData?.let { data ->
                             Column {
-                                Row {
-                                    Icon(Icons.Default.Home, null)
-                                    Text("Здание: ")
-                                    Text(data.buildingName)
-                                }
-                                Row {
-                                    Icon(Icons.Default.LocationOn, null)
-                                    Text("Коворкинг: ")
-                                    Text(data.spaceName)
-                                }
-                                Row {
-                                    Icon(Icons.Default.LocationOn, null)
-                                    Text("Место: ")
-                                    Text(data.itemName)
-                                }
-                                Row {
-                                    Icon(Icons.Default.Email, null)
-                                    Text("Почта: ")
-                                    Text(data.userEmail)
-                                }
-                                Row {
-                                    Icon(Icons.Default.DateRange, null)
-                                    Text("Начало: ")
-                                    Text(
-                                        "${
-                                            data.timeStart.format(
-                                                DateTimeFormatter.ofLocalizedDateTime(
-                                                    FormatStyle.MEDIUM
-                                                )
-                                            )
-                                        }"
+                                RowInfoComponent(Icons.Default.Home, "Здание: ${data.buildingName}")
+                                RowInfoComponent(Icons.Default.LocationOn, "Коворкинг: ${data.spaceName}")
+                                RowInfoComponent(Icons.Default.LocationOn, "Место: ${data.itemName}")
+                                RowInfoComponent(Icons.Default.Email, "Почта: ${data.userEmail}")
+                                RowInfoComponent(Icons.Default.DateRange, "Начало: ${data.timeStart.format(
+                                    DateTimeFormatter.ofLocalizedDateTime(
+                                        FormatStyle.MEDIUM
                                     )
-                                }
-                                Row {
-                                    Icon(Icons.Default.DateRange, null)
-                                    Text("Конец: ")
-                                    Text(
-                                        "${
-                                            data.timeEnd.format(
-                                                DateTimeFormatter.ofLocalizedDateTime(
-                                                    FormatStyle.MEDIUM
-                                                )
-                                            )
-                                        }"
+                                )}")
+                                RowInfoComponent(Icons.Default.DateRange, "Конец: ${data.timeEnd.format(
+                                    DateTimeFormatter.ofLocalizedDateTime(
+                                        FormatStyle.MEDIUM
                                     )
-                                }
+                                )}")
                             }
                         }
                     }, confirmButton = {

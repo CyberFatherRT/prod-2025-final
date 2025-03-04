@@ -13,7 +13,8 @@ data class CompanyItemDto(
     val icon: String?,
     val id: String,
     val name: String,
-    val offsets: List<Point>
+    val offsets: List<Point>,
+    val color: String
 ) {
     fun withFixedOffsets() = this.copy(
         offsets = this.offsets.map { it.copy(y = -it.y) }

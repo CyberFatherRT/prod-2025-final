@@ -24,20 +24,40 @@ class GetCoworkingDataUseCase @Inject constructor(
                         .onEach { itemsOfCoworking ->
                             when (itemsOfCoworking) {
                                 is ResultWrapper.Ok -> {
-                                    val res = itemsOfCoworking.data.map { cowoItem ->
-                                        CoworkingItemModel(
-                                            description = cowoItem.description,
-                                            id = cowoItem.id,
-                                            item = itemsOfCompany.data
-                                                .first { it.id == cowoItem.itemId }
-                                                .withFixedOffsets(),
-                                            name = cowoItem.name,
-                                            basePoint = cowoItem.basePoint.rebaseFromBottomLeft(
-                                                height
-                                            )
-                                        )
-                                    }
-                                    emit(ResultWrapper.Ok(res))
+                                    apiRepository.getBookingsOfCoworking(buildingId, coworkingId)
+                                        .onEach { bookings ->
+                                            when (bookings) {
+                                                is ResultWrapper.Ok -> {
+                                                    val res =
+                                                        itemsOfCoworking.data.map { cowoItem ->
+                                                            CoworkingItemModel(
+                                                                description = cowoItem.description,
+                                                                id = cowoItem.id,
+                                                                item = itemsOfCompany.data
+                                                                    .first { it.id == cowoItem.itemId }
+                                                                    .withFixedOffsets(),
+                                                                name = cowoItem.name,
+                                                                basePoint = cowoItem.basePoint.rebaseFromBottomLeft(
+                                                                    height
+                                                                ),
+                                                                occupied = bookings.data
+                                                                    .filter { it.coworkingItemId == cowoItem.id }
+                                                                    .map { it.toBookingSpan() }
+                                                            )
+                                                        }
+                                                    emit(ResultWrapper.Ok(res))
+                                                }
+
+                                                is ResultWrapper.Error -> emit(
+                                                    ResultWrapper.Error(
+                                                        bookings.message,
+                                                        bookings.cause
+                                                    )
+                                                )
+
+                                                ResultWrapper.Loading -> emit(ResultWrapper.Loading)
+                                            }
+                                        }.collect()
                                 }
 
                                 is ResultWrapper.Error -> emit(itemsOfCoworking)

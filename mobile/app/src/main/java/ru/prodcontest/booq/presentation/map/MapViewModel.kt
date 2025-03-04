@@ -8,10 +8,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.prodcontest.booq.data.remote.dto.CoworkingDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
+import ru.prodcontest.booq.domain.model.CoworkingItemModel
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.usecase.GetCoworkingDataUseCase
 import ru.prodcontest.booq.domain.util.ResultWrapper
 import ru.prodcontest.booq.presentation.BaseViewModel
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +28,10 @@ class MapViewModel @Inject constructor(
         coworkings = null,
         selectedCoworking = null,
         coworkingData = null,
-        isCoworkingDataLoading = false
+        isCoworkingDataLoading = false,
+        selectedItem = null,
+        bottomSheetOpened = false,
+        isCreatingBooking = false
     )
 
     val navArgs: MapScreenDestination
@@ -62,7 +68,7 @@ class MapViewModel @Inject constructor(
     }
 
     fun selectCoworking(coworking: CoworkingDto) {
-        setState { copy(selectedCoworking = coworking) }
+        setState { copy(selectedCoworking = coworking, bottomSheetOpened = false) }
         updateCoworkingData()
     }
 
@@ -87,5 +93,33 @@ class MapViewModel @Inject constructor(
                 }
             }.collect()
         }
+    }
+
+    fun selectItem(item: CoworkingItemModel) {
+        setState { copy(bottomSheetOpened = true, selectedItem = item) }
+    }
+    fun closeBottomSheet() = setState { copy(bottomSheetOpened = false) }
+
+    fun confirmBooking(item: CoworkingItemModel, startLDT: LocalDateTime, endLDT: LocalDateTime) = viewModelScope.launch {
+        apiRepository.createBooking(CreateBookingDto(
+            coworkingId = viewState.value.selectedCoworking!!.id,
+            coworkingItemId = item.id,
+            timeStart = startLDT.toString(),
+            timeEnd = endLDT.toString()
+        )).onEach {
+            when(it) {
+                is ResultWrapper.Ok -> {
+                    setState { copy(isCreatingBooking = false) }
+                    setAction { MapScreenAction.EndBooking }
+                }
+                is ResultWrapper.Error -> {
+                    setState { copy(isCreatingBooking = false) }
+                    setAction { MapScreenAction.ShowBookingCreationError(it.message) }
+                }
+                ResultWrapper.Loading -> {
+                    setState { copy(isCreatingBooking = true) }
+                }
+            }
+        }.collect()
     }
 }

@@ -33,7 +33,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
+import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.launch
+import ru.prodcontest.booq.domain.model.BookingSpan
 import ru.prodcontest.booq.domain.model.CoworkingItemModel
 import ru.prodcontest.booq.domain.model.Point
 import ru.prodcontest.booq.presentation.map.components.Corner
@@ -65,7 +67,8 @@ fun CoworkingMap(
     width: Int,
     height: Int,
     items: List<CoworkingItemModel>,
-    onClickItem: (CoworkingItemModel) -> Unit
+    onClickItem: (CoworkingItemModel) -> Unit,
+    selectedSpan: BookingSpan
 ) {
     val camera = rememberSaveable(saver = AnimatableOffsetSaver) {
         Animatable(
@@ -133,8 +136,10 @@ fun CoworkingMap(
                         item.offsets.forEach { dot ->
                             val a = (dot + item.basePoint).toOffset(CELL)
                             if (point.x >= a.x && point.y >= a.y && point.x <= a.x + CELL && point.y <= a.y + CELL) {
-                                focusToItem(item, size)
-                                onClickItem(item)
+                                if (item.item.bookable) {
+                                    focusToItem(item, size)
+                                    onClickItem(item)
+                                }
                             }
                         }
                     }
@@ -209,6 +214,21 @@ fun CoworkingMap(
             }
 
             items.forEach { item ->
+                var c = item.item.color
+                if(!c.startsWith("#")) {
+                   c = "#$c"
+                }
+                val color = Color(c.toColorInt())
+                val color1 = if (item.item.bookable) {
+                    color
+                } else {
+                    Color(color.red / 5f, color.green / 5f, color.blue / 5f)
+                }
+                val color2 = if(item.isAvailable(selectedSpan)) {
+                    color1
+                } else {
+                    Color(color1.red / 5f, color1.green / 5f, color1.blue / 5f)
+                }
                 item.offsets.forEach { dot ->
                     val actualDot = item.basePoint + dot
                     val corners = mutableListOf<Corner>().apply {
@@ -226,14 +246,13 @@ fun CoworkingMap(
                         }
                     }
                     drawRoundRectWithCorners(
-                        Color.Green,
+                        color2,
                         Offset(actualDot.x * CELL - 2f, actualDot.y * CELL - 2f),
                         Size(CELL + 2f, CELL + 2f),
                         CELL / 4,
                         corners
                     )
                 }
-
 
                 val topLeftBoundX = item.offsets.minBy { it.x }.x
                 val topLeftBoundY = item.offsets.minBy { it.y }.y
@@ -264,7 +283,7 @@ fun CoworkingMap(
                             if (hasBottomLeft) cornersToRound.add(Corner.BottomLeft)
 
                             drawRectWithCustomCorners(
-                                color = Color.Green,
+                                color2,
                                 offset = rectOffset,
                                 size = rectSize,
                                 cornerRadius = CELL / 4,

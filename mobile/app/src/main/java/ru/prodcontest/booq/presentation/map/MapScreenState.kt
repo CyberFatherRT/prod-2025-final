@@ -10,4 +10,9 @@ data class MapScreenState(
 
     val coworkingData: List<CoworkingItemModel>?,
     val isCoworkingDataLoading: Boolean,
+
+    val selectedItem: CoworkingItemModel?,
+    val bottomSheetOpened: Boolean,
+
+    val isCreatingBooking: Boolean,
 )

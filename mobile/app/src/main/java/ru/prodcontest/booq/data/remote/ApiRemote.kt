@@ -20,6 +20,9 @@ import ru.prodcontest.booq.data.remote.dto.BookingDto
 import ru.prodcontest.booq.data.remote.dto.CompanyItemDto
 import ru.prodcontest.booq.data.remote.dto.CoworkingDto
 import ru.prodcontest.booq.data.remote.dto.CoworkingItemDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingResponseDto
+import ru.prodcontest.booq.data.remote.dto.ItemBookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
@@ -49,6 +52,8 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val LIST_ITEMS_OF_COMPANY_ENDPOINT = "$BASE_DOMAIN/items"
         const val LIST_ITEMS_OF_COWORKING_ENDPOINT =
             "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/items"
+        const val LIST_BOOKINGS_OF_COWORKING_ENDPOINT = "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/bookings"
+        const val CREATE_BOOKING_ENDPOINT = "$BASE_DOMAIN/booking/create"
         const val VERIFY_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}/verify"
         const val DECLINE_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}"
     }
@@ -147,4 +152,15 @@ class ApiRemote(private val httpClient: HttpClient) {
         DECLINE_GUEST_ENDPOINT
             .replace("{user_id", userId)
     ).status.value
+
+    suspend fun getBookingsOfCoworking(buildingId: String, coworkingId: String) = httpClient.get(
+        LIST_BOOKINGS_OF_COWORKING_ENDPOINT
+            .replace("{building_id}", buildingId)
+            .replace("{coworking_id}", coworkingId)
+    ).body<List<ItemBookingDto>>()
+
+    suspend fun createBooking(createBookingDto: CreateBookingDto) = httpClient.post(CREATE_BOOKING_ENDPOINT) {
+        contentType(ContentType.Application.Json)
+        setBody(createBookingDto)
+    }.body<CreateBookingResponseDto>()
 }

@@ -4,6 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import ru.prodcontest.booq.data.remote.dto.CompanyItemDto
 import ru.prodcontest.booq.data.remote.dto.CoworkingDto
 import ru.prodcontest.booq.data.remote.dto.CoworkingItemDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingResponseDto
+import ru.prodcontest.booq.data.remote.dto.ItemBookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.QrTokenDto
@@ -33,4 +36,6 @@ interface ApiRepository {
     suspend fun getQr(bookingId: String): ResultFlow<QrTokenDto>
     suspend fun verifyGuest(userId: String): ResultFlow<Int>
     suspend fun declineGuest(userId: String): ResultFlow<Int>
+    suspend fun getBookingsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<ItemBookingDto>>
+    suspend fun createBooking(createBookingDto: CreateBookingDto): ResultFlow<CreateBookingResponseDto>
 }

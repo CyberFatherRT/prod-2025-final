@@ -58,7 +58,9 @@ fun LoginScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is LoginScreenAction.NavigateToHomeScreen -> {
-                        navController.navigate(HomeScreenDestination)
+                        navController.navigate(HomeScreenDestination) {
+                            popUpTo(0)
+                        }
                     }
                     is LoginScreenAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)

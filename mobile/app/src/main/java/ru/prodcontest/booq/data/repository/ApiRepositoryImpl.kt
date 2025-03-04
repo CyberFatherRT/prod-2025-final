@@ -6,6 +6,9 @@ import ru.prodcontest.booq.data.remote.ApiRemote
 import ru.prodcontest.booq.data.remote.dto.CompanyItemDto
 import ru.prodcontest.booq.data.remote.dto.CoworkingDto
 import ru.prodcontest.booq.data.remote.dto.CoworkingItemDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
+import ru.prodcontest.booq.data.remote.dto.CreateBookingResponseDto
+import ru.prodcontest.booq.data.remote.dto.ItemBookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.QrTokenDto
@@ -38,9 +41,10 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
         apiRemote.verifications().map { it.toModel() }
     }
 
-    override suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto> = wrapToResult {
-        apiRemote.registerCompany(creds)
-    }
+    override suspend fun registerCompany(creds: RegisterCompanyDto): ResultFlow<TokenDto> =
+        wrapToResult {
+            apiRemote.registerCompany(creds)
+        }
 
     override suspend fun uploadDocument(document: ByteArray): Flow<UploadProgress> = channelFlow {
         apiRemote.uploadDocument(document, this)
@@ -49,9 +53,10 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
     override suspend fun getBookingList(): ResultFlow<List<BookingModel>> =
         wrapToResult { apiRemote.getBookingList().map { it.toModel() } }
 
-    override suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel>  = wrapToResult {
-        apiRemote.verifyBookingQr(token).toModel()
-    }
+    override suspend fun verifyBookingQr(token: String): ResultFlow<QrVerificationModel> =
+        wrapToResult {
+            apiRemote.verifyBookingQr(token).toModel()
+        }
 
     override suspend fun listPlaces(): ResultFlow<PlacesDto> = wrapToResult {
         apiRemote.listPlaces()
@@ -61,15 +66,19 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
         apiRemote.getQr(bookingId)
     }
 
-    override suspend fun getCoworkingsOfBuilding(buildingId: String): ResultFlow<List<CoworkingDto>> = wrapToResult {
-        apiRemote.getCoworkingsOfBuilding(buildingId)
-    }
+    override suspend fun getCoworkingsOfBuilding(buildingId: String): ResultFlow<List<CoworkingDto>> =
+        wrapToResult {
+            apiRemote.getCoworkingsOfBuilding(buildingId)
+        }
 
     override suspend fun getItemsOfCompany(): ResultFlow<List<CompanyItemDto>> = wrapToResult {
         apiRemote.getItemsOfCompany()
     }
 
-    override suspend fun getItemsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<CoworkingItemDto>> = wrapToResult {
+    override suspend fun getItemsOfCoworking(
+        buildingId: String,
+        coworkingId: String
+    ): ResultFlow<List<CoworkingItemDto>> = wrapToResult {
         apiRemote.getItemsOfCoworking(buildingId, coworkingId)
     }
 
@@ -79,5 +88,16 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
 
     override suspend fun declineGuest(userId: String): ResultFlow<Int> = wrapToResult {
         apiRemote.declineUserVerification(userId)
+    }
+
+    override suspend fun getBookingsOfCoworking(
+        buildingId: String,
+        coworkingId: String
+    ): ResultFlow<List<ItemBookingDto>> = wrapToResult {
+        apiRemote.getBookingsOfCoworking(buildingId, coworkingId)
+    }
+
+    override suspend fun createBooking(createBookingDto: CreateBookingDto): ResultFlow<CreateBookingResponseDto> = wrapToResult {
+        apiRemote.createBooking(createBookingDto)
     }
 }

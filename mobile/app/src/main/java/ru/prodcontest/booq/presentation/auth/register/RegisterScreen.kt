@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -40,7 +39,6 @@ import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.auth.regcomp.RegisterCompanyScreenDestination
 import ru.prodcontest.booq.presentation.auth.register.components.RegisterElement
 import ru.prodcontest.booq.presentation.home.HomeScreenDestination
-import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.theme.BooqTheme
 
 @Serializable
@@ -61,7 +59,9 @@ fun RegisterScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is RegisterAction.NavigateToHomeScreen -> {
-                        navController.navigate(HomeScreenDestination)
+                        navController.navigate(HomeScreenDestination) {
+                            popUpTo(0)
+                        }
                     }
                     is RegisterAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)

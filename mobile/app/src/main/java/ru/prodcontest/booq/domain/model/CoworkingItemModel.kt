@@ -8,7 +8,8 @@ data class CoworkingItemModel(
     val id: String,
     val item: CompanyItemDto,
     val name: String,
-    val basePoint: Point
+    val basePoint: Point,
+    val occupied: List<BookingSpan>
 ) {
     fun massCenter(cellSize: Float) =
         Offset(
@@ -17,4 +18,7 @@ data class CoworkingItemModel(
         )
     val offsets: List<Point>
         get() = item.offsets
+
+    fun isAvailable(span: BookingSpan) =
+        occupied.none { it.start.isAfter(span.start) && it.end.isBefore(span.end) }
 }
