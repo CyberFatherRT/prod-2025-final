@@ -1,9 +1,9 @@
-package ru.prodcontest.booq.presentation.verifications
+package ru.prodcontest.booq.presentation.users
 
-import android.content.Intent
+import ru.prodcontest.booq.presentation.profile.ProfileScreenAction
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,63 +22,64 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import coil3.ColorImage
+import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readBytes
-import kotlinx.coroutines.Dispatchers
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.domain.model.UserRole
 import ru.prodcontest.booq.domain.model.VerificationModel
 import ru.prodcontest.booq.domain.model.VerificationUserModel
-import java.io.File
-import java.io.FileOutputStream
-import java.util.UUID
 
 @Serializable
-object VerificationsScreenDestination
+object UsersScreenDestination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerificationsScreen(
-    navController: NavController, vm: VerificationsViewModel = hiltViewModel()
-) {
+fun UsersScreen(navController: NavController, vm: UsersScreenModel = hiltViewModel()) {
     val state = vm.viewState.value
 //    val state = ProfileScreenState(
 //        isLoading = false, error = null, profileInfo = UserModel(
@@ -94,66 +95,68 @@ fun VerificationsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val actionsScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        actionsScope.launch {
+//            vm.action.collect { action ->
+//                when (action) {
+//                    is ProfileScreenAction.ShowError -> {
+//                        snackbarHostState.showSnackbar(action.message)
+//                    }
+//                }
+//            }
+        }
+    }
 
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Активные верификации") }, navigationIcon = {
-            IconButton({
-                navController.navigateUp()
-            }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-            }
-        })
-    }, snackbarHost = {
-        SnackbarHost(snackbarHostState)
-    }) { innerPadding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Пользователи") },
+                navigationIcon = {
+                    IconButton({
+                        navController.navigateUp()
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                    }
+                },
+                scrollBehavior = null
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        }
+    ) { innerPadding ->
         if (state.isLoading) {
             Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
                 CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
             }
         }
 
-        state.verificationsInfo?.let { verifications ->
+        state.usersInfo?.let { users ->
             val sigma =
-                remember { mutableStateListOf<VerificationModel>(*verifications.toTypedArray()) }
+                remember { mutableStateListOf<VerificationUserModel>(*users.toTypedArray()) }
 
             LazyColumn(Modifier.padding(innerPadding)) {
 
-                items(items = sigma, key = { verification ->
+                items(items = sigma, key = { user ->
                     // Return a stable + unique key for the item
-                    verification.user.id
-                }) { verification ->
-                    VerificationRow(verification,
-                        {
-//                            LaunchedEffect(Unit) {
-//                                val pdfFile = downloadPdf(verification.document)
-//                                pdfFile?.let { openPdf(it) }
-//                            }
-                        },
-                        {
-                            vm.approveUser(verification.user.id.toString())
-                            sigma.remove(verification)
-                        }, {
-                            vm.declineUser(verification.user.id.toString())
-                            sigma.remove(verification)
+                    user.id
+                }) { user ->
+                    UserRow(user,
+                       {
+                            vm.deleteUser(user.id.toString())
+                            sigma.remove(user)
                         })
                 }
             }
         }
+
     }
 }
 
 @Composable
-fun debugPlaceholder(@DrawableRes debugPreview: Int) = if (LocalInspectionMode.current) {
-    painterResource(id = debugPreview)
-} else {
-    null
-}
-
-@Composable
-private fun VerificationRow(
-    verification: VerificationModel,
-    onOpenFile: () -> Unit,
-    onApprove: () -> Unit,
+private fun UserRow(
+    user: VerificationUserModel,
     onDecline: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -166,7 +169,7 @@ private fun VerificationRow(
     Card(modifier = modifier) {
         Row {
             AsyncImage(
-                model = verification.user.avatarUrl
+                model = user.avatarUrl
                     ?: "https://i.pinimg.com/736x/cb/45/72/cb4572f19ab7505d552206ed5dfb3739.jpg",
                 contentDescription = null,
                 modifier = Modifier
@@ -178,56 +181,24 @@ private fun VerificationRow(
 
             Column {
                 Text(
-                    text = "${verification.user.surname} ${verification.user.name}",
+                    text = "${user.surname} ${user.name}",
                     modifier = Modifier,
                     fontSize = 15.sp
                     //.align(Alignment.CenterVertically)
                 )
 
                 Text(
-                    text = verification.user.email, fontSize = 10.sp
+                    text = user.email, fontSize = 10.sp
                 )
             }
         }
         Row(Modifier.fillMaxWidth()) {
-            Button(
-                onClick = onOpenFile,
-                shape = RoundedCornerShape(30),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
-                modifier = Modifier
-                    .padding(start = 6.dp, top = 6.dp, bottom = 6.dp)
-                    .size(150.dp, 30.dp),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                    Text(
-                        text = "Просмотреть документ",
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-            }
+            Text(
+                text = "Role: ${user.role}",
+                fontSize = 10.sp
+            )
 
             Spacer(Modifier.weight(1f))
-
-            Button(
-                onClick = onApprove,
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-                modifier = bottomButtonModifier,
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                    Icon(Icons.Default.Check, null)
-//                    Text(
-//                        text = "",
-//                        color = Color.White,
-//                        fontSize = 10.sp,
-//                        modifier = Modifier.align(Alignment.CenterVertically)
-//                    )
-                }
-            }
 
             Button(
                 onClick = onDecline,
@@ -243,24 +214,4 @@ private fun VerificationRow(
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun VerificationRowPreview1() {
-    VerificationRow(onOpenFile = {},
-        onApprove = {},
-        onDecline = {},
-        verification = VerificationModel(
-            document = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            user = VerificationUserModel(
-                avatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png",
-                email = "s25e_zaborov@179.ru",
-                id = UUID.fromString("122cc42d-f38c-427f-9ef3-168e667681ff"),
-                name = "George",
-                role = UserRole.Guest,
-                surname = "Zaborov"
-            )
-        )
-    )
 }

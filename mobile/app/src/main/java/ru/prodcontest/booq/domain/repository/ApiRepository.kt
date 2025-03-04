@@ -18,6 +18,7 @@ import ru.prodcontest.booq.domain.model.BookingModel
 import ru.prodcontest.booq.domain.model.QrVerificationModel
 import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
+import ru.prodcontest.booq.domain.model.VerificationUserModel
 import ru.prodcontest.booq.domain.util.ResultFlow
 import ru.prodcontest.booq.domain.util.UploadProgress
 
@@ -41,4 +42,5 @@ interface ApiRepository {
     suspend fun createBooking(createBookingDto: CreateBookingDto): ResultFlow<CreateBookingResponseDto>
     suspend fun updateBooking(bookingId: String, patchBookingDto: PatchBookingDto): ResultFlow<CreateBookingResponseDto>
     suspend fun listCoworkings(): ResultFlow<List<CoworkingDto>>
+    suspend fun listUsers(): ResultFlow<List<VerificationUserModel>>
 }

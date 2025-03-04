@@ -34,6 +34,7 @@ import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
 import ru.prodcontest.booq.data.remote.dto.RegisterDto
 import ru.prodcontest.booq.data.remote.dto.TokenDto
 import ru.prodcontest.booq.data.remote.dto.VerificationDto
+import ru.prodcontest.booq.data.remote.dto.VerificationUserDto
 import ru.prodcontest.booq.domain.util.UploadProgress
 
 class ApiRemote(private val httpClient: HttpClient) {
@@ -61,6 +62,7 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val VERIFY_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}/verify"
         const val DECLINE_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}"
         const val COWORKING_LIST_ENDPOINT = "$BASE_DOMAIN/place/coworking/list"
+        const val LIST_USERS_ENDPOINT = "$BASE_DOMAIN/admin/user/list"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -178,4 +180,8 @@ class ApiRemote(private val httpClient: HttpClient) {
             contentType(ContentType.Application.Json)
             setBody(dto)
         }.body<CreateBookingResponseDto>()
+
+    suspend fun listUsers() = httpClient.get(
+        LIST_USERS_ENDPOINT
+    ).body<List<VerificationUserDto>>()
 }
