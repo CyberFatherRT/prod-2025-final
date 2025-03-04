@@ -5,6 +5,7 @@ import ru.prodcontest.booq.domain.model.BookingModel
 data class HomeState(
     val bookings: List<BookingModel>,
     val isLoading: Boolean,
+    val isProcessDelete: Boolean = true,
     val qrCode: QrCodeInfo,
     val error: String?,
     val isAdmin: Boolean,

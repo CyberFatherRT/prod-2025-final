@@ -185,11 +185,11 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    if (viewState.isLoading or (viewState.error != null) or viewState.isUnverified) null else navController.navigate(
+                    if ((viewState.isLoading and !viewState.isProcessDelete) or (viewState.error != null) or viewState.isUnverified) null else navController.navigate(
                         SelectBuildingScreenDestination
                     )
                 },
-                containerColor = if (viewState.isLoading or (viewState.error != null) or viewState.isUnverified) Color.Gray else MaterialTheme.colorScheme.primary
+                containerColor = if ((viewState.isLoading and !viewState.isProcessDelete) or (viewState.error != null) or viewState.isUnverified) Color.Gray else MaterialTheme.colorScheme.primary
             )
         }
     ) { paddingValues ->

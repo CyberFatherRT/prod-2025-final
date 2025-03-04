@@ -26,6 +26,7 @@ class HomeViewModel @Inject constructor(
     override fun setInitialState() = HomeState(
         bookings = emptyList(),
         isLoading = true,
+        isProcessDelete = false,
         qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading),
         error = null,
         isAdmin = false,
@@ -42,7 +43,7 @@ class HomeViewModel @Inject constructor(
         apiRepository.getBookingList().collect {
             when (it) {
                 is ResultWrapper.Ok -> {
-                    setState { copy(bookings = it.data, isLoading = false, error = null) }
+                    setState { copy(bookings = it.data, isLoading = false, error = null, isProcessDelete = false) }
 
                 }
 
@@ -69,7 +70,7 @@ class HomeViewModel @Inject constructor(
                     }
 
                     is ResultWrapper.Loading -> {
-                        setState { copy(isLoading = true) }
+                        setState { copy(isLoading = false, isProcessDelete = true) }
                     }
 
                     is ResultWrapper.Error -> {
@@ -82,8 +83,6 @@ class HomeViewModel @Inject constructor(
 
     fun getQr(bookingId: String) {
 
-//        setState { copy(qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading)) }
-//
         viewModelScope.launch {
             apiRepository.getQr(bookingId).collect {
                 when (it) {
