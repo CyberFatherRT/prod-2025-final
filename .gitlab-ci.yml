@@ -20,9 +20,6 @@ stages:
 frontend:
   only:
     changes:
-      - compose.yml
-      - nginx/**/*
-      - nginx/*
       - frontend/*
       - frontend/**/*
   needs: []
@@ -36,9 +33,6 @@ frontend:
 backend:
   only:
     changes:
-      - compose.yml
-      - nginx/**/*
-      - nginx/*
       - backend/*
       - backend/**/*
   needs: []
