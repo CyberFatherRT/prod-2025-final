@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,9 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -201,6 +205,7 @@ fun QrScannerScreen(navController: NavController, viewModel: QrScannerViewModel 
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ScanCode(
     onQrCodeDetected: (String) -> Unit,
@@ -217,6 +222,16 @@ fun ScanCode(
 
     val cameraController = remember {
         LifecycleCameraController(context)
+    }
+
+    val cameraPermissionState = rememberPermissionState(
+        android.Manifest.permission.CAMERA
+    )
+
+    SideEffect {
+        if(!cameraPermissionState.status.isGranted and !cameraPermissionState.status.shouldShowRationale) {
+            cameraPermissionState.launchPermissionRequest()
+        }
     }
 
     Box(modifier) {
