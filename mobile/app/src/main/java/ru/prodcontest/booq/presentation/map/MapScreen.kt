@@ -289,7 +289,7 @@ fun MapScreen(
                         Column(Modifier.padding(12.dp)) {
                             Text(item.name, style = MaterialTheme.typography.titleLarge)
                             Text(
-                                item.description,
+                                item.description ?: "",
                                 style = MaterialTheme.typography.labelMedium,
                                 modifier = Modifier.padding(4.dp)
                             )

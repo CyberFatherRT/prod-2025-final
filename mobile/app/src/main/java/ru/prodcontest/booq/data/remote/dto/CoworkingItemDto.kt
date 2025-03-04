@@ -8,7 +8,7 @@ import ru.prodcontest.booq.domain.model.Point
 data class CoworkingItemDto(
     @SerialName("base_point")
     val basePoint: Point,
-    val description: String,
+    val description: String?,
     val id: String,
     @SerialName("item_id")
     val itemId: String,

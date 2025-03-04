@@ -4,7 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import ru.prodcontest.booq.data.remote.dto.CompanyItemDto
 
 data class CoworkingItemModel(
-    val description: String,
+    val description: String?,
     val id: String,
     val item: CompanyItemDto,
     val name: String,

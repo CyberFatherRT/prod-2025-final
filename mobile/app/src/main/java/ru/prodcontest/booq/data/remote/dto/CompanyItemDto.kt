@@ -9,7 +9,7 @@ data class CompanyItemDto(
     val bookable: Boolean,
     @SerialName("company_id")
     val companyId: String,
-    val description: String,
+    val description: String?,
     val icon: String?,
     val id: String,
     val name: String,
