@@ -15,7 +15,7 @@ use axum::Json;
 #[utoipa::path(
     post,
     tag = "Companies",
-    path = "/company/register",
+    path = "/backend_api/company/register",
     request_body = CompanyRegisterData,
     responses(
         (status = 201, body = Token, description = "JWT token for admin of created company"),

@@ -12,7 +12,7 @@ use crate::{
 #[utoipa::path(
     get,
     tag = "Items",
-    path = "/items",
+    path = "/backend_api/items",
     responses(
         (status = 200, body = Vec<ItemsModel>, description = "List of items in coworking"),
     ),

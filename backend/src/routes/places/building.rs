@@ -16,7 +16,7 @@ use uuid::Uuid;
 #[utoipa::path(
     post,
     tag = "Coworkings",
-    path = "/place/new",
+    path = "/backend_api/place/new",
     request_body = CreateBuildingForm,
     responses(
         (status = 201, body = BuildingModel, description = "Created building"),
@@ -55,7 +55,7 @@ pub async fn create_building(
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/list",
+    path = "/backend_api/place/list",
     responses(
         (status = 200, body = Vec<BuildingModel>, description = "List of buildings"),
         (status = 403, description = "No auth"),
@@ -86,7 +86,7 @@ pub async fn list_buildings(
 #[utoipa::path(
     get,
     tag = "Coworkings",
-    path = "/place/{building_id}",
+    path = "/backend_api/place/{building_id}",
     params(
         ("building_id" = Uuid, Path)
     ),
@@ -127,7 +127,7 @@ pub async fn get_building(
 #[utoipa::path(
     patch,
     tag = "Coworkings",
-    path = "/place/{building_id}",
+    path = "/backend_api/place/{building_id}",
     request_body = CreateBuildingForm,
     params(
         ("building_id" = Uuid, Path)
@@ -171,7 +171,7 @@ pub async fn patch_building(
 #[utoipa::path(
     delete,
     tag = "Coworkings",
-    path = "/place/{building_id}",
+    path = "/backend_api/place/{building_id}",
     params(
         ("building_id" = Uuid, Path)
     ),
