@@ -25,6 +25,7 @@ use routes::{admin, booking, places, users};
 use s3::setup_s3;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
+use tower_http::cors::{Any, CorsLayer};
 use tracing::Level;
 use util::env;
 use utoipa::OpenApi;
@@ -73,6 +74,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/place", places::get_routes(app_state.clone()))
         .nest("/items", items::get_routes(app_state.clone()))
         .layer(from_fn(log_request))
+        .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any))
         .merge(SwaggerUi::new("/api/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()));
 
     let listener = TcpListener::bind(&format!("0.0.0.0:{port}")).await?;

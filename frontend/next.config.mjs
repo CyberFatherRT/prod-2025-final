@@ -7,6 +7,7 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: "standalone",
     eslint: {
         ignoreDuringBuilds: true,
     },
@@ -17,6 +18,7 @@ const nextConfig = {
         unoptimized: true,
     },
     experimental: {
+        reactCompiler: true,
         webpackBuildWorker: true,
         parallelServerBuildTraces: true,
         parallelServerCompiles: true,
@@ -31,10 +33,7 @@ function mergeConfig(nextConfig, userConfig) {
     }
 
     for (const key in userConfig) {
-        if (
-            typeof nextConfig[key] === "object" &&
-            !Array.isArray(nextConfig[key])
-        ) {
+        if (typeof nextConfig[key] === "object" && !Array.isArray(nextConfig[key])) {
             nextConfig[key] = {
                 ...nextConfig[key],
                 ...userConfig[key],

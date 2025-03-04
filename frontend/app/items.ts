@@ -35,6 +35,7 @@ export async function getItems(b_id: string, c_id: string, token: string | null)
 }
 
 export async function setCoworkingItems(b_id: string, c_id: string, items: CoworkingItem[], token: string | null): Promise<void> {
+    console.log(items);
     await fetch(`${backendDomain}/place/${b_id}/coworking/${c_id}/items/put`, {
         method: "PUT",
         headers: {

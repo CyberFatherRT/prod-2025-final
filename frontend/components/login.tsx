@@ -20,6 +20,7 @@ export default function Login({ onLogin }: LoginProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            console.log(`${backendDomain}/user/login`);
             const response = await fetch(`${backendDomain}/user/login`, {
                 method: "POST",
                 headers: {
@@ -45,9 +46,7 @@ export default function Login({ onLogin }: LoginProps) {
                 // Response is not JSON
                 const text = await response.text();
                 console.error("Unexpected response:", text);
-                alert(
-                    "Received an unexpected response from the server. Please try again later.",
-                );
+                alert("Received an unexpected response from the server. Please try again later.");
             }
         } catch (error) {
             console.error("Login error:", error);
@@ -59,28 +58,20 @@ export default function Login({ onLogin }: LoginProps) {
         <div className="flex items-center justify-center min-h-screen bg-background">
             <div className="w-full max-w-md space-y-8">
                 <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-bold tracking-tight">
-                        Sign in to your account
-                    </h2>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        Enter your credentials to access the Coworking Admin
-                    </p>
+                    <h2 className="mt-6 text-3xl font-bold tracking-tight">Sign in to your account</h2>
+                    <p className="mt-2 text-sm text-muted-foreground">Enter your credentials to access the Coworking Admin</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-4 rounded-md shadow-sm">
                         <div>
-                            <Label htmlFor="company-domain">
-                                Company Domain
-                            </Label>
+                            <Label htmlFor="company-domain">Company Domain</Label>
                             <Input
                                 id="company-domain"
                                 name="company-domain"
                                 type="text"
                                 required
                                 value={companyDomain}
-                                onChange={(e) =>
-                                    setCompanyDomain(e.target.value)
-                                }
+                                onChange={(e) => setCompanyDomain(e.target.value)}
                                 placeholder="Enter your company domain"
                             />
                         </div>

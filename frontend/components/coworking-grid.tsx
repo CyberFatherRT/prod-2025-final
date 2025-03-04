@@ -314,9 +314,8 @@ export default function CoworkingGrid({ rows, cols, items, itemTypes, onAddItem,
                         name: foo.name,
                         id: uuidv4(),
                         item_id: draggedItem.item_id,
-                        position: hoveredCell,
+                        base_point: hoveredCell,
                     };
-                    console.log(bar);
                     onAddItem(bar);
                 } else if (draggedItem.itemId) {
                     // Update existing item position

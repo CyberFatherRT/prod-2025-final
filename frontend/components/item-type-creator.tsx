@@ -91,7 +91,7 @@ export default function ItemTypeCreator({ onAddItemType }: ItemTypeCreatorProps)
                     <div className="space-y-4 pt-4">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Name</Label>
-                            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter item type name" />
+                            <Input id="name" maxLength={10} value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter item type name" />
                         </div>
 
                         <div className="grid gap-2">
@@ -228,8 +228,6 @@ interface ItemPreviewProps {
 }
 
 function ItemPreview({ color, offsets }: ItemPreviewProps) {
-    offsets = offsets.map(([x, y]) => [x, -y]);
-
     const xValues = offsets.map(([x]) => x);
     const yValues = offsets.map(([, y]) => y);
 
