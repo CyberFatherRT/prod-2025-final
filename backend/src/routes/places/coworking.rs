@@ -123,9 +123,6 @@ pub async fn list_coworkings_by_building(
     get,
     tag = "Coworkings",
     path = "/place/coworking/list",
-    params(
-        ("building_id" = Uuid, Path)
-    ),
     responses(
         (status = 200, body = Vec<CoworkingSpacesModel>, description = "List of coworkings"),
         (status = 403, description = "No auth"),
