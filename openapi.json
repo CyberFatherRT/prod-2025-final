@@ -1,0 +1,2506 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BooQ",
+    "description": "",
+    "license": {
+      "name": "BookIT case solution",
+      "identifier": "GPL-3.0-or-later"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/admin/documents/{user_id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get user document",
+        "operationId": "get_user_document",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user document",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "403": {
+            "description": "not admin / no auth"
+          },
+          "404": {
+            "description": "no such user"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/list_requests": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List active verification requests",
+        "operationId": "get_verify_requests",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VerificationRequest"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "not admin / no auth"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/user/list": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List users",
+        "operationId": "list_users",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicUserData"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "not admin / no auth"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/user/{user_id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get user by id",
+        "operationId": "get_user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicUserData"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "not admin / no auth"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete user",
+        "operationId": "admin_delete_user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "403": {
+            "description": "not admin / no auth"
+          },
+          "404": {
+            "description": "user not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Patch user",
+        "operationId": "patch_user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchProfileFormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong body",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "not admin / no auth"
+          },
+          "404": {
+            "description": "user not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/user/{user_id}/verify": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Verify guest user",
+        "operationId": "verify_guest",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "403": {
+            "description": "not admin / no auth"
+          },
+          "404": {
+            "description": "guest not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/booking/create": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Create booking (only for verified users)",
+        "operationId": "create_booking",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successully create booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong request"
+          },
+          "403": {
+            "description": "Unverified guest can not create booking"
+          },
+          "404": {
+            "description": "Coworking or coworking_item not found"
+          },
+          "409": {
+            "description": "Your booking conflicts with existing bookings"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/booking/list": {
+      "get": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "List active future bookings",
+        "operationId": "list_bookings",
+        "responses": {
+          "200": {
+            "description": "List of user's bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicBookingModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/booking/verify": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Verify booking qr",
+        "operationId": "verify_booking_qr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QrToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Booking QR validation data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verdict"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong request"
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "Coworking or coworking_item not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/booking/{booking_id}": {
+      "delete": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Delete booking",
+        "operationId": "delete_booking",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking was successully deleted"
+          },
+          "403": {
+            "description": "User doesn't own that booking"
+          },
+          "404": {
+            "description": "No booking was found with booking_id"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Update booking place and time",
+        "operationId": "patch_booking",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchBookingForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successully update booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong request"
+          },
+          "403": {
+            "description": "User doesn't own that booking"
+          },
+          "404": {
+            "description": "Coworking or coworking_item not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/booking/{booking_id}/qr": {
+      "get": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Generate QR for booking",
+        "operationId": "get_booking_qr",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking QR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong request"
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "Coworking or coworking_item not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/company/register": {
+      "post": {
+        "tags": [
+          "Companies"
+        ],
+        "summary": "Add new company",
+        "operationId": "company_register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRegisterData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "JWT token for admin of created company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "wrong data format"
+          },
+          "409": {
+            "description": "conflict"
+          }
+        }
+      }
+    },
+    "/items": {
+      "get": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "List all item types for company by id",
+        "operationId": "list_items_by_company",
+        "responses": {
+          "200": {
+            "description": "List of items in coworking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemsModel"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/items/new": {
+      "post": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Create new item type for company",
+        "operationId": "create_items_type",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemTypeFormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Item type was successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemsModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not an admin"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/items/{item_id}": {
+      "delete": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Delete item type by id",
+        "operationId": "delete_item_type",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item type was successfully deleted"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/coworking/list": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "List coworkings (everybody can use)",
+        "operationId": "list_coworkings",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of coworkings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoworkingSpacesModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "No such buliding found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/list": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "List buildings (everybody can use)",
+        "operationId": "list_buildings",
+        "responses": {
+          "200": {
+            "description": "List of buildings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BuildingModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/new": {
+      "post": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Create building (place)",
+        "operationId": "create_building",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBuildingForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created building",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth / not admin"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Get building by id (everybody can use)",
+        "operationId": "get_building",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Building",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "No such building"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Delete building",
+        "operationId": "delete_building",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Coworking successfully deleted"
+          },
+          "403": {
+            "description": "Not admin"
+          },
+          "404": {
+            "description": "No such building"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Update building",
+        "operationId": "patch_building",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBuildingForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Building",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "No such building"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/list": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "List coworkings by building (everybody can use)",
+        "operationId": "list_coworkings_by_building",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of coworkings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoworkingSpacesModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "No such buliding found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/new": {
+      "post": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Create coworking",
+        "operationId": "create_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCoworkingForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successully create coworking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoworkingSpacesModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong request"
+          },
+          "403": {
+            "description": "You are not an admin"
+          },
+          "404": {
+            "description": "No such building"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/{coworking_id}": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Get coworking by id (everybody can use)",
+        "operationId": "get_coworking_by_id",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coworking model",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoworkingSpacesModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No auth"
+          },
+          "404": {
+            "description": "No such coworking or building found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Delete coworking",
+        "operationId": "delete_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Coworking successfully deleted"
+          },
+          "403": {
+            "description": "You are not an admin"
+          },
+          "404": {
+            "description": "No such coworking or building found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Update coworking",
+        "operationId": "patch_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCoworkingForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated coworking model",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoworkingSpacesModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not an admin"
+          },
+          "404": {
+            "description": "No such coworking or building found"
+          },
+          "409": {
+            "description": "New height or width makes some objects inaccessible"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/{coworking_id}/bookings": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Get coworking bookings by id (everybody can use)",
+        "operationId": "get_coworking_bookings",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookingModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "no auth"
+          },
+          "404": {
+            "description": "No such building or coworking found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/{coworking_id}/items": {
+      "get": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "List all items from coworking by id (everybody can use)",
+        "operationId": "get_items_by_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of items in coworking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoworkingItemsModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "no auth"
+          },
+          "404": {
+            "description": "No such coworking / building"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/{coworking_id}/items/new": {
+      "post": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Create new item in coworking",
+        "operationId": "add_item_to_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoworkingItemsModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "no auth / not admin"
+          },
+          "404": {
+            "description": "No such coworking / building"
+          },
+          "409": {
+            "description": "Item overlaps with borders / other items"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/{coworking_id}/items/put": {
+      "put": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Put new items' positions in coworking",
+        "operationId": "put_items_in_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateItemForm"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "New items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoworkingItemsModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "no auth / not admin"
+          },
+          "404": {
+            "description": "No such coworking / building"
+          },
+          "409": {
+            "description": "Items overlaps with borders / other items"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/place/{building_id}/coworking/{coworking_id}/items/{item_id}": {
+      "delete": {
+        "tags": [
+          "Coworkings"
+        ],
+        "summary": "Delete item from coworking",
+        "operationId": "delete_item_from_coworking",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "coworking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item successfully deleted"
+          },
+          "403": {
+            "description": "no auth / not admin"
+          },
+          "404": {
+            "description": "No such coworking / building / item"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/user": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete user",
+        "operationId": "delete_user",
+        "responses": {
+          "204": {
+            "description": "User was successfully deleted"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/user/login": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Login user",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "wrong credentials"
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user profile",
+        "operationId": "profile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponseForm"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "no auth / invalid auth"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user profile with mutlipart body",
+        "operationId": "patch_profile",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchProfileFormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong body",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Register user",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "JWT for created user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "wrong data format"
+          },
+          "409": {
+            "description": "conflict"
+          }
+        }
+      }
+    },
+    "/user/upload_document": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Upload document for user verification",
+        "operationId": "upload_document",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadedDocument"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "document successfully uploaded"
+          },
+          "403": {
+            "description": "no auth / already verified"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/user/{user_id}/avatar": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user avatar",
+        "operationId": "get_avatar",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user avatar"
+          },
+          "404": {
+            "description": "user or avatar not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BookingDisplayData": {
+        "type": "object",
+        "required": [
+          "user_email",
+          "building_name",
+          "space_name",
+          "item_name",
+          "time_start",
+          "time_end"
+        ],
+        "properties": {
+          "building_name": {
+            "type": "string"
+          },
+          "item_name": {
+            "type": "string"
+          },
+          "space_name": {
+            "type": "string"
+          },
+          "time_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "time_start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_email": {
+            "type": "string"
+          }
+        }
+      },
+      "BookingModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "coworking_space_id",
+          "coworking_item_id",
+          "company_id",
+          "time_start",
+          "time_end"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coworking_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coworking_space_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "time_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "time_start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BuildingModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "address",
+          "company_id"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CompanyRegisterData": {
+        "type": "object",
+        "required": [
+          "name",
+          "domain"
+        ],
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CoworkingItemsModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "item_id",
+          "name",
+          "base_point"
+        ],
+        "properties": {
+          "base_point": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CoworkingSpacesModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "address",
+          "height",
+          "width",
+          "building_id",
+          "company_id"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "building_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreateBookingForm": {
+        "type": "object",
+        "required": [
+          "coworking_id",
+          "coworking_item_id",
+          "time_start",
+          "time_end"
+        ],
+        "properties": {
+          "coworking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coworking_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "time_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "time_start": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateBuildingForm": {
+        "type": "object",
+        "required": [
+          "address"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCoworkingForm": {
+        "type": "object",
+        "required": [
+          "address",
+          "height",
+          "width"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateItemForm": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "name",
+          "base_point"
+        ],
+        "properties": {
+          "base_point": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateItemTypeForm": {
+        "type": "object",
+        "required": [
+          "name",
+          "color",
+          "offsets",
+          "bookable"
+        ],
+        "properties": {
+          "bookable": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "offsets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Point"
+            }
+          }
+        }
+      },
+      "CreateItemTypeFormData": {
+        "type": "object",
+        "required": [
+          "json"
+        ],
+        "properties": {
+          "icon": {
+            "type": "string",
+            "format": "binary"
+          },
+          "json": {
+            "$ref": "#/components/schemas/CreateItemTypeForm"
+          }
+        }
+      },
+      "ItemsModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "offsets",
+          "bookable",
+          "company_id"
+        ],
+        "properties": {
+          "bookable": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "offsets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Point"
+            }
+          }
+        }
+      },
+      "LoginForm": {
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "domain"
+        ],
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "PatchBookingForm": {
+        "type": "object",
+        "properties": {
+          "coworking_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "coworking_item_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "time_end": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "time_start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "PatchProfileForm": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "password": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "surname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PatchProfileFormData": {
+        "type": "object",
+        "properties": {
+          "avatar": {
+            "type": "string",
+            "format": "binary"
+          },
+          "json": {
+            "$ref": "#/components/schemas/PatchProfileForm"
+          }
+        }
+      },
+      "Point": {
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "properties": {
+          "x": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "y": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ProfileResponseForm": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "email",
+          "role",
+          "company_id"
+        ],
+        "properties": {
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pending_verification": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleModel"
+          },
+          "surname": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicBookingModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "coworking_space_id",
+          "coworking_item_id",
+          "time_start",
+          "time_end",
+          "building_address",
+          "coworking_item_name",
+          "coworking_space_name"
+        ],
+        "properties": {
+          "building_address": {
+            "type": "string"
+          },
+          "coworking_item_description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "coworking_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coworking_item_name": {
+            "type": "string"
+          },
+          "coworking_space_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coworking_space_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "time_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "time_start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicUserData": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "surname",
+          "email",
+          "role"
+        ],
+        "properties": {
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleModel"
+          },
+          "surname": {
+            "type": "string"
+          }
+        }
+      },
+      "QrToken": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterForm": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "email",
+          "password",
+          "company_domain"
+        ],
+        "properties": {
+          "company_domain": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          }
+        }
+      },
+      "RoleModel": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "STUDENT",
+          "GUEST",
+          "VERIFIEDGUEST"
+        ]
+      },
+      "Token": {
+        "type": "object",
+        "required": [
+          "jwt"
+        ],
+        "properties": {
+          "jwt": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCoworkingForm": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "height": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "width": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "UploadedDocument": {
+        "type": "object",
+        "required": [
+          "document"
+        ],
+        "properties": {
+          "document": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "UserModel": {
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "email",
+          "company_domain",
+          "role"
+        ],
+        "properties": {
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "company_domain": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleModel"
+          },
+          "surname": {
+            "type": "string"
+          }
+        }
+      },
+      "Verdict": {
+        "type": "object",
+        "required": [
+          "valid"
+        ],
+        "properties": {
+          "booking_data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/BookingDisplayData"
+              }
+            ]
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "VerificationRequest": {
+        "type": "object",
+        "required": [
+          "user",
+          "document"
+        ],
+        "properties": {
+          "document": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/PublicUserData"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Users",
+      "description": "User management"
+    },
+    {
+      "name": "Admin",
+      "description": "Admin user related functionality"
+    },
+    {
+      "name": "Coworkings",
+      "description": "Coworking related functionality"
+    },
+    {
+      "name": "Items",
+      "description": "Items related functionality"
+    },
+    {
+      "name": "Bookings",
+      "description": "Booking related functionality"
+    },
+    {
+      "name": "Companies",
+      "description": "Company related functionality"
+    }
+  ]
+}
