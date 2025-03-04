@@ -4,7 +4,7 @@ use axum::{
     Json,
 };
 use sqlx::{Acquire, Error};
-use tracing::{info, warn};
+use tracing::warn;
 use uuid::{NoContext, Timestamp, Uuid};
 
 use crate::{
