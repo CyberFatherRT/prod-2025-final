@@ -11,27 +11,27 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.util.ResultWrapper
+import ru.prodcontest.booq.domain.util.UploadProgress
 import ru.prodcontest.booq.presentation.BaseViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class VerificationsScreenModel @Inject constructor(
+class VerificationsViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     @ApplicationContext private val context: Context
-) : BaseViewModel<VerificationsScreenState, Nothing>() {
+) : BaseViewModel<VerificationsScreenState, ProfileScreenAction>() {
     override fun setInitialState() = VerificationsScreenState(
         verificationsInfo = null,
         isLoading = true,
-        error = null
+        error = null,
     )
 
     init {
         getVerificationsInfo()
     }
 
-    fun getVerificationsInfo() = viewModelScope.launch {
+    private fun getVerificationsInfo() = viewModelScope.launch {
         apiRepository.getVerifications().onEach {
-            Log.d("Getting pending verifications", it.toString())
             when (it) {
                 is ResultWrapper.Ok -> {
                     setState { copy(verificationsInfo = it.data, isLoading = false, error = null) }
@@ -48,12 +48,35 @@ class VerificationsScreenModel @Inject constructor(
         }.collect()
     }
 
-//    fun uploadFile(fileUri: Uri) {
-//        Log.d("MEOW", fileUri.toString())
-//        val a = context.contentResolver.openInputStream(fileUri)!!
-//        val data = a.readBytes()
-//        a.close()
-//
-//        Log.d("MEOW", "${data.size}")
-//    }
+    fun approveUser(userId: String) {
+        Log.d("MEOW", userId)
+
+        viewModelScope.launch {
+            apiRepository.verifyGuest(userId).collect {
+                when(it) {
+                    is ResultWrapper.Error -> {}
+                    ResultWrapper.Loading -> {}
+                    is ResultWrapper.Ok -> {}
+                }
+            }
+        }
+    }
+
+    fun declineUser(userId: String) {
+        Log.d("MEOW", userId)
+
+        viewModelScope.launch {
+            apiRepository.declineGuest(userId).collect {
+                when(it) {
+                    is ResultWrapper.Error -> TODO()
+                    ResultWrapper.Loading -> TODO()
+                    is ResultWrapper.Ok -> TODO()
+                }
+            }
+        }
+    }
+}
+
+sealed class ProfileScreenAction {
+    data class ShowError(val message: String) : ProfileScreenAction()
 }

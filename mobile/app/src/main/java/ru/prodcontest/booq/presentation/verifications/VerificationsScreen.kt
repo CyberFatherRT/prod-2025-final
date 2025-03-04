@@ -37,6 +37,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -63,7 +64,7 @@ object VerificationsScreenDestination
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerificationsScreen(
-    navController: NavController, vm: VerificationsScreenModel = hiltViewModel()
+    navController: NavController, vm: VerificationsViewModel = hiltViewModel()
 ) {
     val state = vm.viewState.value
 //    val state = ProfileScreenState(
@@ -80,16 +81,6 @@ fun VerificationsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    val fileChooserLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
-            if (it == null) {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(message = "Файл не выбран")
-                }
-            } else {
-                //vm.uploadFile(it)
-            }
-        }
 
     Scaffold(topBar = {
         TopAppBar(title = { Text("Активные верификации") }, navigationIcon = {
@@ -98,10 +89,6 @@ fun VerificationsScreen(
             }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
             }
-        }, actions = {
-            IconButton({
-
-            }) { Icon(Icons.Default.Create, null) }
         })
     }, snackbarHost = {
         SnackbarHost(snackbarHostState)
@@ -113,9 +100,19 @@ fun VerificationsScreen(
         }
 
         state.verificationsInfo?.let { verifications ->
+            val sigma = remember {  mutableStateListOf<VerificationModel>(*verifications.toTypedArray()) }
+
             LazyColumn(Modifier.padding(innerPadding)) {
-                items(verifications) { verification ->
-                    VerificationRow(verification)
+
+                items(items = sigma, key = { verification ->
+                    // Return a stable + unique key for the item
+                    verification.user.id
+                }) { verification ->
+                    VerificationRow(verification, {
+                        vm.approveUser(verification.user.id.toString())
+                        sigma.remove(verification) }
+                    , { vm.declineUser(verification.user.id.toString())
+                        sigma.remove(verification)})
                 }
             }
         }
@@ -130,21 +127,27 @@ fun debugPlaceholder(@DrawableRes debugPreview: Int) = if (LocalInspectionMode.c
 }
 
 @Composable
-private fun VerificationRow(verification: VerificationModel, modifier: Modifier = Modifier) {
-    val bottomButtonModifier = Modifier
-        .padding(top = 6.dp, bottom = 6.dp, start = 6.dp, end = 6.dp)
-        .size(30.dp)
+private fun VerificationRow(
+    verification: VerificationModel,
+    onApprove: () -> Unit,
+    onDecline: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val bottomButtonModifier =
+        Modifier
+            .padding(top = 6.dp, bottom = 6.dp, start = 6.dp, end = 6.dp)
+            .size(30.dp)
     //.clip(CircleShape)
 
-    Card (modifier = modifier){
+    Card(modifier = modifier) {
         Row {
             AsyncImage(
                 model = verification.user.avatarUrl
                     ?: "https://i.pinimg.com/736x/cb/45/72/cb4572f19ab7505d552206ed5dfb3739.jpg",
                 contentDescription = null,
                 modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
+                    .width(60.dp)
+                    .height(60.dp)
                     .padding(5.dp)
                     .wrapContentWidth(Alignment.Start)
             )
@@ -168,7 +171,7 @@ private fun VerificationRow(verification: VerificationModel, modifier: Modifier 
                 shape = RoundedCornerShape(30),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
                 modifier = Modifier
-                    .padding(start = 6.dp, top = 6.dp, bottom = 6.dp,)
+                    .padding(start = 6.dp, top = 6.dp, bottom = 6.dp)
                     .size(150.dp, 30.dp),
                 contentPadding = PaddingValues(0.dp)
             ) {
@@ -185,7 +188,7 @@ private fun VerificationRow(verification: VerificationModel, modifier: Modifier 
             Spacer(Modifier.weight(1f))
 
             Button(
-                onClick = {},
+                onClick = onApprove,
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                 modifier = bottomButtonModifier,
@@ -221,17 +224,16 @@ private fun VerificationRow(verification: VerificationModel, modifier: Modifier 
 @Preview
 @Composable
 private fun VerificationRowPreview1() {
-    VerificationRow(
-        VerificationModel(
-            document = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            user = VerificationUserModel(
-                avatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png",
-                email = "s25e_zaborov@179.ru",
-                id = UUID.fromString("122cc42d-f38c-427f-9ef3-168e667681ff"),
-                name = "George",
-                role = UserRole.Guest,
-                surname = "Zaborov"
-            )
+    VerificationRow(onApprove = {}, onDecline = {}, verification = VerificationModel(
+        document = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        user = VerificationUserModel(
+            avatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png",
+            email = "s25e_zaborov@179.ru",
+            id = UUID.fromString("122cc42d-f38c-427f-9ef3-168e667681ff"),
+            name = "George",
+            role = UserRole.Guest,
+            surname = "Zaborov"
         )
+    )
     )
 }

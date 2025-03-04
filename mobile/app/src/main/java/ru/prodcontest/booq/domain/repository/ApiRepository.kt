@@ -31,4 +31,6 @@ interface ApiRepository {
     suspend fun getItemsOfCompany(): ResultFlow<List<CompanyItemDto>>
     suspend fun getItemsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<CoworkingItemDto>>
     suspend fun getQr(bookingId: String): ResultFlow<QrTokenDto>
+    suspend fun verifyGuest(userId: String): ResultFlow<Int>
+    suspend fun declineGuest(userId: String): ResultFlow<Int>
 }

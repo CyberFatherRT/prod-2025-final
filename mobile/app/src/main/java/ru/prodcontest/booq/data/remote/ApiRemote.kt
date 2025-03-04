@@ -3,6 +3,7 @@ package ru.prodcontest.booq.data.remote
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onUpload
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
@@ -48,6 +49,8 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val LIST_ITEMS_OF_COMPANY_ENDPOINT = "$BASE_DOMAIN/items"
         const val LIST_ITEMS_OF_COWORKING_ENDPOINT =
             "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/items"
+        const val VERIFY_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}/verify"
+        const val DECLINE_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -134,4 +137,14 @@ class ApiRemote(private val httpClient: HttpClient) {
             .replace("{building_id}", buildingId)
             .replace("{coworking_id}", coworkingId)
     ).body<List<CoworkingItemDto>>()
+
+    suspend fun approveUserVerification(userId: String) = httpClient.post(
+        VERIFY_GUEST_ENDPOINT
+            .replace("{user_id}", userId)
+    ).status.value
+
+    suspend fun declineUserVerification(userId: String) = httpClient.delete(
+        DECLINE_GUEST_ENDPOINT
+            .replace("{user_id", userId)
+    ).status.value
 }

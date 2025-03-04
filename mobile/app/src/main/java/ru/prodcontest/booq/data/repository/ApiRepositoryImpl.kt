@@ -72,4 +72,12 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
     override suspend fun getItemsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<CoworkingItemDto>> = wrapToResult {
         apiRemote.getItemsOfCoworking(buildingId, coworkingId)
     }
+
+    override suspend fun verifyGuest(userId: String): ResultFlow<Int> = wrapToResult {
+        apiRemote.approveUserVerification(userId)
+    }
+
+    override suspend fun declineGuest(userId: String): ResultFlow<Int> = wrapToResult {
+        apiRemote.declineUserVerification(userId)
+    }
 }
