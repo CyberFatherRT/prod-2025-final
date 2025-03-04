@@ -6,7 +6,8 @@ data class HomeState(
     val bookings: List<BookingModel>,
     val isLoading: Boolean,
     val qrCode: QrCodeInfo,
-    val error: String?
+    val error: String?,
+    val isAdmin: Boolean
 )
 
 data class QrCodeInfo(

@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -23,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -57,7 +61,9 @@ import ru.prodcontest.booq.presentation.home.components.QRCodeDialog
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialogUiModel
 import ru.prodcontest.booq.presentation.map.MapScreenDestination
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
+import ru.prodcontest.booq.presentation.qrScanner.QrScannerScreenDestination
 import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDestination
+import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestination
 import java.time.format.DateTimeFormatter
 
 @Serializable
@@ -109,11 +115,36 @@ fun HomeScreen(
     val viewState = viewModel.viewState.value
     val bookings = viewState.bookings
 
+    var adminDialogOpened by remember { mutableStateOf(false) }
+
+    if(adminDialogOpened) {
+        AlertDialog(
+            onDismissRequest = {adminDialogOpened = false},
+            title = {Text("Инструменты администратора")},
+            text = {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Button({ navController.navigate(QrScannerScreenDestination) }) { Text("Проверка QR кодов") }
+                    Button({ navController.navigate(VerificationsScreenDestination)}) { Text("Верификация пользователей") }
+                }
+            },
+            dismissButton = {
+                TextButton({adminDialogOpened = false}) {
+                    Text("Закрыть")
+                }
+            },
+            confirmButton = {}
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    Spacer(modifier = Modifier.size(48.dp))
+                    if(viewState.isAdmin) {
+                        IconButton({adminDialogOpened = true}) {
+                            Icon(Icons.Default.Build, null)
+                        }
+                    }
                 },
                 title = {
                     Box(

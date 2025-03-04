@@ -36,7 +36,6 @@ class ProfileViewModel @Inject constructor(
 
     private fun getProfileInfo() = viewModelScope.launch {
         apiRepository.getProfile().onEach {
-            Log.d("CHLEEEN", it.toString())
             when (it) {
                 is ResultWrapper.Ok -> {
                     setState { copy(profileInfo = it.data, isLoading = false, error = null) }

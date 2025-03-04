@@ -5,30 +5,32 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.usecase.GetTokenUseCase
+import ru.prodcontest.booq.domain.usecase.IsAdminUseCase
 import ru.prodcontest.booq.domain.util.ResultWrapper
 import ru.prodcontest.booq.presentation.BaseViewModel
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
-    private val GetTokenUseCase: GetTokenUseCase
+    private val GetTokenUseCase: GetTokenUseCase,
+    private val isAdminUseCase: IsAdminUseCase
 ): BaseViewModel<HomeState, HomeScreenEvent>() {
 
     override fun setInitialState() = HomeState(
         bookings = emptyList(),
         isLoading = true,
         qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading),
-        error = null
+        error = null,
+        isAdmin = false
     )
 
     init {
+        setState { copy(isAdmin = isAdminUseCase()) }
         checkToken()
         getBookings()
     }

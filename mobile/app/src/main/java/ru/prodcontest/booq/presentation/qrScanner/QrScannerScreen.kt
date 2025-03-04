@@ -145,7 +145,7 @@ fun QrScannerScreen(navController: NavController, viewModel: QrScannerViewModel 
                             modifier: Modifier = Modifier
                         ) {
                             Row(
-                                modifier = modifier,
+                                modifier = modifier.padding(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -160,8 +160,8 @@ fun QrScannerScreen(navController: NavController, viewModel: QrScannerViewModel 
                                 )
                                 Text(
                                     text = text,
-                                    color = Color.Black,
-                                    fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 14.sp,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis
                                 )

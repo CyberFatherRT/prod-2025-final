@@ -141,7 +141,7 @@ fun MapScreen(
                     }
                     MapScreenAction.EndBooking -> {
                         navController.navigate(HomeScreenDestination.route) {
-                            popUpTo<HomeScreenDestination>()
+                            popUpTo(0)
                         }
                     }
                     is MapScreenAction.ShowBookingCreationError -> {
