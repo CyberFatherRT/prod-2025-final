@@ -49,12 +49,16 @@ items = []
 for i in [TOILET, TABLE_HOR, TABLE_VERT, TABLE_SMALL]:
     status, item = api.new_item(None, i)
 
-    assert status == 200
+    print(status, item)
+    assert status == 201
     assert item
 
     items.append(item)
 
+print(place)
+
 for cw in cws:
+    print(cw)
     for cnt in range(random.randint(1, 5)):
         for item in items:
-            ...
+            api.place_item(place["id"], cw["id"], item["id"], randpoint(5, 5))

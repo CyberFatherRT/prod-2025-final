@@ -103,4 +103,12 @@ class AdminApi(UserApi):
         return r.status_code, None
 
     def place_item(self, building_id, coworking_id, item_id, basepoint):
-        ...
+        r = self.s.post(BASE_URL + f"/place/{building_id}/coworking/{coworking_id}/items/new", json={
+            "base_point": {
+                "x": basepoint.x,
+                "y": basepoint.y
+            },
+            "description": "lol",
+            "item_id": item_id,
+            "name": "Lol item"
+        })
