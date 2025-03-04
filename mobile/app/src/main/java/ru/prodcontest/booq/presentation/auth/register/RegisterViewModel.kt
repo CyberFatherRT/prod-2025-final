@@ -10,6 +10,7 @@ import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.usecase.SetTokenUseCase
 import ru.prodcontest.booq.domain.util.ResultWrapper
 import ru.prodcontest.booq.presentation.BaseViewModel
+import ru.prodcontest.booq.presentation.auth.login.LoginScreenAction
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,8 +33,16 @@ class RegisterViewModel @Inject constructor(
 
                     ResultWrapper.Loading -> setState { copy(isLoading = true) }
                     is ResultWrapper.Error ->  {
-                        setState { copy(isLoading = false) }
-                        setAction { RegisterAction.ShowError(it.message) }
+                        if ("No address associated with hostname" in it.message) {
+                            setState { copy(isLoading = false, error = "Отсутствует интернет") }
+                        } else if ("No such company" in it.message) {
+                            setState { copy(isLoading = false, error = "Компания отсутствует") }
+                        } else if ("Пользователь с таким e-mail уже существует" in it.message) {
+                            setState { copy(isLoading = false, error = "Почта занята") }
+                        } else {
+                            setState { copy(isLoading = false) }
+                            setAction { RegisterAction.ShowError(it.message) }
+                        }
                     }
                 }
             }.collect()

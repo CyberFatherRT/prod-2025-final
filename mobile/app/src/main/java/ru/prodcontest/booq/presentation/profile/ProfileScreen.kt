@@ -14,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil3.ColorImage
@@ -56,6 +57,7 @@ import coil3.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.domain.model.UserRole
+import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 
 @Serializable
 object ProfileScreenDestination
@@ -86,6 +88,12 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
                     is ProfileScreenAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)
                     }
+
+                    ProfileScreenAction.NavigateToLoginScreen -> {
+                        navController.navigate(LoginScreenDestination) {
+                            popUpTo(0)
+                        }
+                    }
                 }
             }
         }
@@ -115,8 +123,8 @@ fun ProfileScreen(navController: NavController, vm: ProfileViewModel = hiltViewM
                 },
                 actions = {
                     IconButton({
-
-                    }) { Icon(Icons.Default.Create, null) }
+                        vm.exit()
+                    }) { Icon(Icons.Default.ExitToApp, null) }
                 },
                 scrollBehavior = null
             )

@@ -38,7 +38,7 @@ import ru.prodcontest.booq.domain.util.UploadProgress
 
 class ApiRemote(private val httpClient: HttpClient) {
     companion object {
-        const val BASE_DOMAIN = "https://prod-team-13-cltnksuj.final.prodcontest.ru"
+        const val BASE_DOMAIN = "https://prod-team-13-cltnksuj.final.prodcontest.ru/backend_api"
         const val LOGIN_ENDPOINT = "$BASE_DOMAIN/user/login"
         const val REGISTER_ENDPOINT = "$BASE_DOMAIN/user/register"
         const val PROFILE_ENDPOINT = "$BASE_DOMAIN/user/profile"

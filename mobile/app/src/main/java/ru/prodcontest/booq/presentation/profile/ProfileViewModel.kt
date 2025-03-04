@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.prodcontest.booq.domain.repository.ApiRepository
+import ru.prodcontest.booq.domain.usecase.SetTokenUseCase
 import ru.prodcontest.booq.domain.util.ResultWrapper
 import ru.prodcontest.booq.domain.util.UploadProgress
 import ru.prodcontest.booq.presentation.BaseViewModel
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
+    private val setTokenUseCase: SetTokenUseCase,
     @ApplicationContext private val context: Context
 ) : BaseViewModel<ProfileScreenState, ProfileScreenAction>() {
     override fun setInitialState() = ProfileScreenState(
@@ -51,6 +53,13 @@ class ProfileViewModel @Inject constructor(
         }.collect()
     }
 
+    fun exit() {
+        viewModelScope.launch {
+            setTokenUseCase("")
+            setAction { ProfileScreenAction.NavigateToLoginScreen }
+        }
+    }
+
     fun uploadFile(fileUri: Uri) {
         Log.d("MEOW", fileUri.toString())
         val a = context.contentResolver.openInputStream(fileUri)!!
@@ -80,5 +89,6 @@ class ProfileViewModel @Inject constructor(
 }
 
 sealed class ProfileScreenAction {
+    data object NavigateToLoginScreen : ProfileScreenAction()
     data class ShowError(val message: String) : ProfileScreenAction()
 }

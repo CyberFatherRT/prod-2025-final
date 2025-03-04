@@ -67,7 +67,7 @@ class HomeViewModel @Inject constructor(
                         setState {
                             copy(
                                 qrCode = QrCodeInfo(
-                                    token = it.data.toString(),
+                                    token = it.data.token,
                                     state = QrCodeState.Ok
                                 )
                             )

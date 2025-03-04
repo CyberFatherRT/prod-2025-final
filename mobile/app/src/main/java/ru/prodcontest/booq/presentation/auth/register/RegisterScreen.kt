@@ -59,8 +59,11 @@ fun RegisterScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is RegisterAction.NavigateToHomeScreen -> {
-                        navController.navigate(HomeScreenDestination) {
-                            popUpTo(0)
+                        navController.navigate(HomeScreenDestination.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
                         }
                     }
                     is RegisterAction.ShowError -> {
@@ -144,7 +147,7 @@ fun RegisterScreen(
             isLockedRegister = isError or name.isEmpty() or surname.isEmpty() or email.isEmpty() or password.isEmpty() or companyDomain.isEmpty(),
             onRegisterClick = { viewModel.register(name, surname, email, password, companyDomain) },
             onLoginClick = { navController.navigate(LoginScreenDestination) },
-            error = "",
+            error = viewState.error,
             modifier = Modifier
                 .padding(horizontal = 22.dp)
                 .constrainAs(boxLogin) {

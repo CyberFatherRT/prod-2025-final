@@ -144,7 +144,7 @@ fun MapScreen(
                         snackbarHostState.showSnackbar(action.message)
                     }
                     MapScreenAction.EndBooking -> {
-                        navController.navigate(HomeScreenDestination) {
+                        navController.navigate(HomeScreenDestination.route) {
                             popUpTo<HomeScreenDestination>()
                         }
                     }

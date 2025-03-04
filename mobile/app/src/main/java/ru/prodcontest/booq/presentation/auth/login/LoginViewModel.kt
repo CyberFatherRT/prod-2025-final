@@ -35,8 +35,18 @@ class LoginViewModel @Inject constructor(
 
                 ResultWrapper.Loading -> setState { copy(isLoading = true) }
                 is ResultWrapper.Error ->  {
-                    setState { copy(isLoading = false) }
-                    setAction { LoginScreenAction.ShowError(it.message) }
+
+                    if ("No address associated with hostname" in it.message) {
+                        setState { copy(isLoading = false, error = "Отсутствует интернет") }
+                    } else if ("No such user" in it.message) {
+                        setState { copy(isLoading = false, error = "Некорректные данные") }
+                    } else if ("wrong password" in it.message) {
+                        setState { copy(isLoading = false, error = "Неверный пароль") }
+                    } else {
+                        setState { copy(isLoading = false) }
+                        setAction { LoginScreenAction.ShowError(it.message) }
+                    }
+
                     Log.d("MEOW", it.message)
                 }
             }

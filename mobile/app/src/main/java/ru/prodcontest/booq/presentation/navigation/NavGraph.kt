@@ -29,7 +29,7 @@ import ru.prodcontest.booq.presentation.verifications.VerificationsScreenDestina
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = HomeScreenDestination
+        startDestination = HomeScreenDestination.route
     ) {
         composable<LoginScreenDestination> {
             LoginScreen(navController)
@@ -37,8 +37,12 @@ fun NavGraph(navController: NavHostController) {
         composable<RegisterScreenDestination> {
             RegisterScreen(navController)
         }
-        composable<HomeScreenDestination> {
-            HomeScreen(navController)
+        composable(
+            route = HomeScreenDestination.routeWithArgs,
+            arguments = HomeScreenDestination.arguments
+        ) { backStackEntry ->
+            val companyName = backStackEntry.arguments?.getString(HomeScreenDestination.companyNameArg) ?: ""
+            HomeScreen(navController = navController, firstRegisterCompany = companyName)
         }
         composable<RegisterCompanyScreenDestination> {
             RegisterCompanyScreen(navController)
@@ -46,9 +50,9 @@ fun NavGraph(navController: NavHostController) {
         composable<ProfileScreenDestination> {
             ProfileScreen(navController)
         }
-        composable<MapScreenDestination> {
-            MapScreen(navController)
-        }
+//        composable<MapScreenDestination> {
+//            MapScreen(navController)
+//        }
         composable<VerificationsScreenDestination> {
             VerificationsScreen(navController)
         }

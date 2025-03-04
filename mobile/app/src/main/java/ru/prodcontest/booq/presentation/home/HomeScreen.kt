@@ -41,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.R
@@ -50,6 +52,7 @@ import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.home.components.BookingDataUi
 import ru.prodcontest.booq.presentation.home.components.HomeBookingCardShimmer
 import ru.prodcontest.booq.presentation.home.components.HomeBookingPager
+import ru.prodcontest.booq.presentation.home.components.HomeRegisterCompanyDialog
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialog
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialogUiModel
 import ru.prodcontest.booq.presentation.map.MapScreenDestination
@@ -59,13 +62,23 @@ import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDesti
 import ru.prodcontest.booq.presentation.theme.BooqTheme
 import java.time.format.DateTimeFormatter
 
-@Serializable
-object HomeScreenDestination
+object HomeScreenDestination {
+    const val route = "home_screen"
+    const val companyNameArg = "companyName"
+    const val routeWithArgs = "$route?companyName={$companyNameArg}"
+    val arguments = listOf(
+        navArgument(companyNameArg) {
+            type = NavType.StringType
+            defaultValue = ""
+        }
+    )
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    firstRegisterCompany: String = "",
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -73,6 +86,7 @@ fun HomeScreen(
 
     val actionsScope = rememberCoroutineScope()
 
+    var showCompanyDialog by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
     var selectedBookingIndex = remember { mutableIntStateOf(0) }
@@ -95,10 +109,6 @@ fun HomeScreen(
 
     val viewState = viewModel.viewState.value
     val bookings = viewState.bookings
-
-    BooqTheme {
-
-    }
 
     Scaffold(
         topBar = {
@@ -160,6 +170,23 @@ fun HomeScreen(
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
+
+            if (firstRegisterCompany.isNotEmpty()) {
+                showCompanyDialog = true
+                HomeRegisterCompanyDialog(
+                    onDismissRequest = {
+                        navController.navigate(HomeScreenDestination.route) {
+                            popUpTo(0) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    },
+                    comapnyId = firstRegisterCompany,
+                    modifier = Modifier
+                        .padding(12.dp),
+                )
+            }
 
             if (viewState.error != null && ("No address associated with hostname" in viewState.error)) {
                 Log.d("asd", viewState.error)

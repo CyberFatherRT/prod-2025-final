@@ -58,9 +58,7 @@ fun LoginScreen(
             viewModel.action.collect { action ->
                 when(action) {
                     is LoginScreenAction.NavigateToHomeScreen -> {
-                        navController.navigate(HomeScreenDestination) {
-                            popUpTo(0)
-                        }
+                        navController.navigate(HomeScreenDestination.route)
                     }
                     is LoginScreenAction.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)
@@ -78,7 +76,6 @@ fun LoginScreen(
     val emailValid by remember { derivedStateOf { Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}").matches(email) || email.isEmpty() } }
     val passwordValid by remember { derivedStateOf { Regex("[a-zA-Z0-9\$&+,:;=?@#|'<>.^*()%!-]{8,}").matches(password)  || password.isEmpty() } }
     val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z]{3,30}").matches(companyDomain)  || companyDomain.isEmpty() } }
-
 
     val isError = !(emailValid && passwordValid && companyDomainValid)
 
@@ -135,7 +132,7 @@ fun LoginScreen(
                     )
                 },
                 onCreateAccountClick = { navController.navigate(RegisterScreenDestination) },
-                error = "", // Сюда добавить обработку ошибки.
+                error = viewState.error,
                 modifier = Modifier
                     .padding(horizontal = 22.dp)
                     .constrainAs(boxLogin) {

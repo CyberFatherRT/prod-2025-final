@@ -3,6 +3,7 @@ package ru.prodcontest.booq.presentation.auth.regcomp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,10 +23,8 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.prodcontest.booq.presentation.auth.components.AuthTextData
-import ru.prodcontest.booq.presentation.auth.login.LoginScreenDestination
 import ru.prodcontest.booq.presentation.auth.regcomp.components.RegisterCompanyElement
 import ru.prodcontest.booq.presentation.home.HomeScreenDestination
-import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 
 @Serializable
 object RegisterCompanyScreenDestination
@@ -35,26 +34,41 @@ fun RegisterCompanyScreen(
     navController: NavController,
     viewModel: RegisterCompanyViewModel = hiltViewModel()
 ) {
+
     val viewState = viewModel.viewState.value
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val actionsScope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        actionsScope.launch {
-            viewModel.action.collect { action ->
-                when(action) {
-                    is RegisterCompanyAction.NavigateToHomeScreen -> {
-                        navController.navigate(HomeScreenDestination)
-                    }
-                }
-            }
-        }
-    }
 
     var companyDomain by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
 
     val nameValid by remember { derivedStateOf { (name.length > 1) and (name.length < 120) || name.isEmpty() } }
     val companyDomainValid by remember { derivedStateOf { Regex("[a-zA-Z]{3,30}").matches(companyDomain) || companyDomain.isEmpty() } }
+
+    LaunchedEffect(Unit) {
+        actionsScope.launch {
+            viewModel.action.collect { action ->
+                when(action) {
+                    is RegisterCompanyAction.NavigateToHomeScreen -> {
+                        val route = HomeScreenDestination.routeWithArgs.replace(
+                            "{${HomeScreenDestination.companyNameArg}}",
+                            companyDomain
+                        )
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                    is RegisterCompanyAction.ShowError -> {
+                        snackbarHostState.showSnackbar(action.message)
+                    }
+                }
+            }
+        }
+    }
 
     ConstraintLayout(
         modifier = Modifier
@@ -94,7 +108,7 @@ fun RegisterCompanyScreen(
             isLoading = viewState.isLoading,
             isLocked = !companyDomainValid or !nameValid or name.isEmpty() or companyDomain.isEmpty(),
             onRegisterCompanyClick = { viewModel.registerCompany(name, companyDomain) },
-            error = "",
+            error = viewState.error,
             onBackClick = { navController.navigateUp() },
             modifier = Modifier
                 .padding(horizontal = 22.dp)
