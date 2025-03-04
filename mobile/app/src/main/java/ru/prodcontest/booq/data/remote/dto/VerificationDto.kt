@@ -21,7 +21,22 @@ data class VerificationUserDto(
     val surname: String,
     @SerialName("role")
     val role: String
-)
+) {
+    fun toModel() = VerificationUserModel(
+        id = UUID.fromString(id),
+        name = name,
+        surname = surname,
+        avatarUrl = avatarUrl,
+        role = when (role) {
+            "ADMIN" -> UserRole.Admin
+            "STUDENT" -> UserRole.Student
+            "GUEST" -> UserRole.Guest
+            "VERIFIEDGUEST" -> UserRole.VerifiedGuest
+            else -> throw Exception("invalid role")
+        },
+        email = email
+    )
+}
 
 @Serializable
 data class  VerificationDto(
@@ -48,3 +63,4 @@ data class  VerificationDto(
         )
     )
 }
+

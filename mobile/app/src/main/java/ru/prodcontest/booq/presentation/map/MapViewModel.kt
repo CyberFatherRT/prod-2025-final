@@ -39,13 +39,13 @@ class MapViewModel @Inject constructor(
         get() = savedStateHandle.toRoute()
 
     init {
-        if (navArgs.editData != null) {
+        if (navArgs.bookingId != null) {
             viewModelScope.launch {
                 apiRepository.listCoworkings().onEach { coworkings ->
                     when (coworkings) {
                         is ResultWrapper.Ok -> {
                             val myCowo =
-                                coworkings.data.first { it.id == navArgs.editData!!.coworkingsSpaceId }
+                                coworkings.data.first { it.id == navArgs.coworkingsSpaceId!! }
                             loadCoworkings(myCowo.buildingId)
                         }
 
@@ -131,7 +131,7 @@ class MapViewModel @Inject constructor(
 
     fun confirmBooking(item: CoworkingItemModel, startLDT: LocalDateTime, endLDT: LocalDateTime) =
         viewModelScope.launch {
-            if (navArgs.editData == null) {
+            if (navArgs.bookingId == null) {
                 apiRepository.createBooking(
                     CreateBookingDto(
                         coworkingId = viewState.value.selectedCoworking!!.id,
@@ -158,7 +158,7 @@ class MapViewModel @Inject constructor(
                 }.collect()
             } else {
                 apiRepository.updateBooking(
-                    navArgs.editData!!.bookingId, PatchBookingDto(
+                    navArgs.bookingId!!, PatchBookingDto(
                         coworkingId = viewState.value.selectedCoworking!!.id,
                         coworkingItemId = item.id,
                         timeStart = startLDT.toString(),

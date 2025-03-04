@@ -82,17 +82,12 @@ import kotlin.math.roundToLong
 
 @Serializable
 data class MapScreenDestination(
-    val buildingId: String?,
-    val editData: MapScreenEditData? = null,
-
+    val buildingId: String? = null,
+    val bookingId: String? = null,
+    val coworkingItemId: String? = null,
+    val coworkingsSpaceId: String? = null
 )
 
-@Serializable
-data class MapScreenEditData(
-    val bookingId: String,
-    val coworkingItemId: String,
-    val coworkingsSpaceId: String
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -349,7 +344,7 @@ fun MapScreen(
                             }
                         }
                         fun firstOccupationFor(hour: Int) = item.occupied.firstOrNull {
-                            it.start.hour <= hour && it.end.hour >= hour && it.start.dayOfMonth == selectedDay.dayOfMonth
+                            it.start.hour <= hour && (it.end.hour > hour || it.start.dayOfMonth != it.end.dayOfMonth) && it.start.dayOfMonth == selectedDay.dayOfMonth
                         }
                         OutlinedCard(Modifier.padding(8.dp, 12.dp)) {
                             (0..23).forEach { hour ->
@@ -419,6 +414,8 @@ fun MapScreen(
                                                 } else {
                                                     0f
                                                 }
+//                                            val ySize1 = if(hour == occupation.end.hour)
+                                            Log.d("MEOW", "$hour $yPoint $ySize $occupation")
                                             drawRect(
                                                 Color(235, 61, 52),
                                                 Offset(0f, dpPx * yPoint),
@@ -466,13 +463,13 @@ fun MapScreen(
                         startSlot?.let { ss ->
                             endSlot?.let { es ->
                                 val startLDT = selectedDay.withHour(ss).withMinute(0).withSecond(0)
-                                val endLDT = if (es == 24) {
+                                val endLDT = if (es == 23) {
                                     selectedDay.withHour(0).withMinute(0).withSecond(0).plus(
                                         1,
                                         ChronoUnit.DAYS
                                     )
                                 } else {
-                                    selectedDay.withHour(es).withMinute(0).withSecond(0)
+                                    selectedDay.withHour(es + 1).withMinute(0).withSecond(0)
                                 }
                                 Text("Выбранное время: ${startLDT.hour.toString().padStart(2, '0')}:${startLDT.minute.toString().padStart(2, '0')} - ${endLDT.hour.toString().padStart(2, '0')}:${endLDT.minute.toString().padStart(2, '0')}", modifier = Modifier.padding(12.dp))
 

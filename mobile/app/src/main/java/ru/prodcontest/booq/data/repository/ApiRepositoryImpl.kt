@@ -20,6 +20,7 @@ import ru.prodcontest.booq.domain.model.BookingModel
 import ru.prodcontest.booq.domain.model.QrVerificationModel
 import ru.prodcontest.booq.domain.model.UserModel
 import ru.prodcontest.booq.domain.model.VerificationModel
+import ru.prodcontest.booq.domain.model.VerificationUserModel
 import ru.prodcontest.booq.domain.repository.ApiRepository
 import ru.prodcontest.booq.domain.util.ResultFlow
 import ru.prodcontest.booq.domain.util.UploadProgress
@@ -112,5 +113,9 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
 
     override suspend fun deleteBooking(bookingId: String): ResultFlow<Int> = wrapToResult {
         apiRemote.deleteBooking(bookingId)
+    }
+
+    override suspend fun listUsers(): ResultFlow<List<VerificationUserModel>> = wrapToResult {
+        apiRemote.listUsers() .map { it.toModel() }
     }
 }
