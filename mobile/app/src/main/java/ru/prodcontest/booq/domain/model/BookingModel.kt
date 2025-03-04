@@ -10,14 +10,11 @@ data class BookingModel(
 )
 
 data class BookingCompanyModel(
-    val id: String,
-    val name: String,
     val address: String
 )
 
 data class BookingIdData(
     val id: String,
-    val companyId: String,
     val itemId: String,
     val spaceId: String,
     val userId: String? = null
@@ -26,7 +23,6 @@ data class BookingIdData(
 data class BookingTextModel(
     val id: String,
     val label: String,
-    val company: String,
     val item: String,
     val space: String
 )

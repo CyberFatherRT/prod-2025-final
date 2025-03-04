@@ -30,6 +30,7 @@ class HomeViewModel @Inject constructor(
     override fun setInitialState() = HomeState(
         bookings = emptyList(),
         isLoading = true,
+        qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading),
         error = null
     )
 
@@ -41,42 +42,10 @@ class HomeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getBookings() = viewModelScope.launch {
         apiRepository.getBookingList().collect {
-            Log.d("SSS", it.toString())
             when (it) {
                 is ResultWrapper.Ok -> {
                     setState { copy(bookings = it.data, isLoading = false, error = null) }
 
-                    if (it.data.isEmpty()) {
-                        val bookingExample = BookingModel(
-                            idData = BookingIdData(
-                                id = "K-123",
-                                companyId = "company-456",
-                                itemId = "item-789",
-                                spaceId = "space-101",
-                                userId = "user-202"
-                            ),
-                            company = BookingCompanyModel(
-                                id = "D-456",
-                                name = "Tech Solutions Ltd.",
-                                address = "123 Main Street, Tech City"
-                            ),
-                            name = BookingTextModel(
-                                id = "A-123",
-                                label = "Conference Room Booking",
-                                company = "Tech Solutions Ltd.",
-                                item = "Projector",
-                                space = "Main Conference Room"
-                            ),
-                            time = BookingTime(
-                                start = LocalDateTime.of(2025, 3, 3, 10, 0),
-                                end = LocalDateTime.of(2025, 3, 3, 12, 0)
-                            )
-                        )
-                        setState {
-                            val bookings: List<BookingModel> = listOf(bookingExample, bookingExample, bookingExample)
-                            copy(bookings=bookings, isLoading = false, error = null)
-                        }
-                    }
                 }
 
                 is ResultWrapper.Loading -> {
@@ -93,6 +62,50 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun getQr(bookingId: String) {
+
+//        setState { copy(qrCode = QrCodeInfo(token = "", state = QrCodeState.Loading)) }
+//
+        viewModelScope.launch {
+            apiRepository.getQr(bookingId).collect {
+                when (it) {
+                    is ResultWrapper.Ok -> {
+                        setState {
+                            copy(
+                                qrCode = QrCodeInfo(
+                                    token = it.data.toString(),
+                                    state = QrCodeState.Ok
+                                )
+                            )
+                        }
+                    }
+
+                    is ResultWrapper.Loading -> {
+                        setState {
+                            copy(
+                                qrCode = QrCodeInfo(
+                                    token = "",
+                                    state = QrCodeState.Loading
+                                )
+                            )
+                        }
+                    }
+
+                    is ResultWrapper.Error -> {
+                        setState {
+                            copy(
+                                qrCode = QrCodeInfo(
+                                    token = "",
+                                    state = QrCodeState.Error(it.message)
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun checkToken() {
         if (GetTokenUseCase().isNullOrEmpty()) {
@@ -103,7 +116,6 @@ class HomeViewModel @Inject constructor(
 }
 
 sealed class HomeScreenEvent {
-    data class OpenQr(val bookingId: String): HomeScreenEvent()
     data object NavigateToLoginScreen: HomeScreenEvent()
     data class ShowError(val message: String) : HomeScreenEvent()
 }

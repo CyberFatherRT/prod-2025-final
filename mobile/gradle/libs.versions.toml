@@ -21,6 +21,7 @@ accompanistPermissions = "0.37.2"
 camera = "1.4.1"
 barcodeScanner = "17.1.0"
 qrkit = "1.0.8"
+qrcode = "1.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -66,6 +67,7 @@ camera-view = { module = "androidx.camera:camera-view", version.ref = "camera" }
 mlkit-barcode = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanner" }
 camera-vision = { module = "androidx.camera:camera-mlkit-vision", version.ref = "camera" }
 qrkit = { module = "network.chaintech:qr-kit", version.ref = "qrkit" }
+qrcode = { module = "com.lightspark:compose-qr-code", version.ref = "qrcode" }
 
 shimmer = { group = "com.valentinilk.shimmer", name = "compose-shimmer", version.ref = "shimmer" }
 

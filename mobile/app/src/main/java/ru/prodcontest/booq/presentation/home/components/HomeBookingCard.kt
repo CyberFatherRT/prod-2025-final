@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -53,15 +52,9 @@ fun HomeBookingCard(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clip(
-                shape = RoundedCornerShape(32.dp)
-            )
+            .clip(shape = RoundedCornerShape(32.dp))
+            .background(color = MaterialTheme.colorScheme.onBackground, shape = RoundedCornerShape(32.dp))
             .clickable { onBookingClick() }
-            .background(
-                color = MaterialTheme.colorScheme.onBackground,
-                shape = RoundedCornerShape(32.dp)
-            )
-
     ) {
         val (nameEl, lightEl, labelEl, infoEl, qrButtonEl, editButtonEl) = createRefs()
 
@@ -167,23 +160,22 @@ fun HomeBookingCard(
             val modifierRow = Modifier.padding(10.dp)
             Column {
                 RowInfoComponent(iconId = R.drawable.location_on_24, text = data.address, modifier = modifierRow)
+                RowInfoComponent(iconId = R.drawable.door_open_24, text = data.space, modifier = modifierRow)
                 RowInfoComponent(iconId = R.drawable.calendar_month_24, text = data.date, modifier = modifierRow)
-                RowInfoComponent(iconId = R.drawable.check_circle_24, text = data.status, modifier = modifierRow)
             }
         }
 
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .clickable { onBookingEditClick() }
-                .size(42.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(color = Color.Green, shape = RoundedCornerShape(12.dp))
+                .clickable { onBookingEditClick() }
+                .size(42.dp)
                 .constrainAs(editButtonEl) {
                     end.linkTo(parent.end, margin = 22.dp)
                     top.linkTo(infoEl.bottom, margin = 22.dp)
                 }
-
         ) {
             Icon(
                 modifier = Modifier
@@ -197,11 +189,11 @@ fun HomeBookingCard(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .clickable { onQRClick() }
                 .padding(bottom = 16.dp)
                 .clip(
                     RoundedCornerShape(12.dp)
                 )
+                .clickable { onQRClick() }
                 .fillMaxWidth()
                 .height(42.dp)
                 .background(color = MaterialTheme.colorScheme.primary)
@@ -265,7 +257,7 @@ data class BookingDataUi(
     val label: String = "",
     val address: String,
     val date: String,
-    val status: String
+    val space: String
 )
 
 @Preview(showBackground = true, backgroundColor = 0xFF2A2E37)
@@ -278,7 +270,7 @@ fun HomeBookingCardPreview() {
                 label = "- тянки\n- монитор\n- очень тихо",
                 address = "Москва, ул. Ленина, д. 1\nИгровая комната 3",
                 date = "13:00-15:00 12.12.2021",
-                status = "Подтверждено"
+                space = "Подтверждено"
             ),
             onBookingClick = {  },
             onBookingEditClick = { },

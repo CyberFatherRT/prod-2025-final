@@ -70,7 +70,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.shimmer)
-
+    implementation(libs.qrcode)
     // Dagger Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation)

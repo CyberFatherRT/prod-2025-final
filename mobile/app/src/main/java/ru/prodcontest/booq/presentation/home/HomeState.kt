@@ -5,5 +5,17 @@ import ru.prodcontest.booq.domain.model.BookingModel
 data class HomeState(
     val bookings: List<BookingModel>,
     val isLoading: Boolean,
+    val qrCode: QrCodeInfo,
     val error: String?
 )
+
+data class QrCodeInfo(
+    val token: String = "",
+    val state: QrCodeState
+)
+
+sealed class QrCodeState {
+    data object Loading : QrCodeState()
+    data class Error(val message: String) : QrCodeState()
+    data object Ok : QrCodeState()
+}

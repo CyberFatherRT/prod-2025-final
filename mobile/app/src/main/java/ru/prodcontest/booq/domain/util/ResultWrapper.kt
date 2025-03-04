@@ -10,4 +10,3 @@ sealed class ResultWrapper<out T> {
 }
 
 typealias ResultFlow<T> = Flow<ResultWrapper<T>>
-typealias ResultStateFlow<T> = StateFlow<ResultWrapper<T>>

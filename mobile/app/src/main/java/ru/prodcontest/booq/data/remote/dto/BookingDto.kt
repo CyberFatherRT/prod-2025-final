@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import ru.prodcontest.booq.domain.model.BookingCompanyModel
 import ru.prodcontest.booq.domain.model.BookingIdData
 import ru.prodcontest.booq.domain.model.BookingModel
@@ -12,13 +13,12 @@ import ru.prodcontest.booq.domain.model.BookingTime
 import java.time.Instant
 import java.time.LocalDateTime
 
+@JsonIgnoreUnknownKeys
 @Serializable
 data class BookingDto(
 
     @SerialName("id")
     val id: String,
-    @SerialName("company_id")
-    val companyId: String,
     @SerialName("coworking_item_id")
     val itemId: String,
     @SerialName("coworking_space_id")
@@ -26,18 +26,15 @@ data class BookingDto(
     @SerialName("user_id")
     val userId: String,
 
-    @SerialName("booking_item_name")
+    @SerialName("coworking_item_name")
     val name: String,
-    @SerialName("booking_item_description")
+    @SerialName("coworking_item_description")
     val label: String? = "",
 
-    @SerialName("company_name")
-    val companyName: String,
     @SerialName("building_address")
     val companyAddress: String,
-    @SerialName("coworking_item_name")
-    val itemName: String? = "",
-    @SerialName("coworking_item_space")
+    val itemName: String = name,
+    @SerialName("coworking_space_name")
     val spaceName: String? = "",
 
     @SerialName("time_start")
@@ -51,20 +48,16 @@ data class BookingDto(
         return BookingModel(
             idData = BookingIdData(
                 id = id,
-                companyId = companyId,
                 itemId = itemId,
                 spaceId = spaceId,
                 userId = userId
             ),
             company = BookingCompanyModel(
-                id = companyId,
-                name = companyName,
                 address = companyAddress
             ),
             name = BookingTextModel(
-                id = itemId,
+                id = itemName,
                 label = label ?: "",
-                company = companyName,
                 item = itemName ?: "",
                 space = spaceName ?: ""
             ),
