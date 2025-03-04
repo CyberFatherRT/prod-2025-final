@@ -52,6 +52,8 @@ import ru.prodcontest.booq.presentation.home.components.HomeBookingCardShimmer
 import ru.prodcontest.booq.presentation.home.components.HomeBookingPager
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialog
 import ru.prodcontest.booq.presentation.home.components.QRCodeDialogUiModel
+import ru.prodcontest.booq.presentation.map.MapScreenDestination
+import ru.prodcontest.booq.presentation.map.MapScreenEditData
 import ru.prodcontest.booq.presentation.profile.ProfileScreenDestination
 import ru.prodcontest.booq.presentation.selectBuilding.SelectBuildingScreenDestination
 import ru.prodcontest.booq.presentation.theme.BooqTheme
@@ -78,10 +80,11 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         actionsScope.launch {
             viewModel.action.collect { action ->
-                when(action) {
+                when (action) {
                     is HomeScreenEvent.NavigateToLoginScreen -> {
                         navController.navigate(LoginScreenDestination)
                     }
+
                     is HomeScreenEvent.ShowError -> {
                         snackbarHostState.showSnackbar(action.message)
                     }
@@ -141,7 +144,11 @@ fun HomeScreen(
                         contentDescription = "Добавить бронирование"
                     )
                 },
-                onClick = { if (viewState.isLoading or (viewState.error != null)) null else navController.navigate(SelectBuildingScreenDestination) },
+                onClick = {
+                    if (viewState.isLoading or (viewState.error != null)) null else navController.navigate(
+                        SelectBuildingScreenDestination
+                    )
+                },
                 containerColor = if (viewState.isLoading or (viewState.error != null)) Color.Gray else MaterialTheme.colorScheme.primary
             )
         }
@@ -177,7 +184,20 @@ fun HomeScreen(
                 HomeBookingPager(
                     bookings = bookings.map { it.toHomeScreenUiModel() },
                     onBookingClick = { index -> "Клик на редактирование" },
-                    onBookingEditClick = { index -> "Клик на редактирование" },
+                    onBookingEditClick = { index ->
+                        bookings.getOrNull(selectedBookingIndex.value)?.let { booking ->
+                            navController.navigate(
+                                MapScreenDestination(
+                                    buildingId = null,
+                                    editData = MapScreenEditData(
+                                        bookingId = booking.idData.id,
+                                        coworkingItemId = booking.idData.itemId,
+                                        coworkingsSpaceId = booking.idData.spaceId
+                                    )
+                                )
+                            )
+                        }
+                    },
                     onQRClick = { index ->
                         selectedBookingIndex.value = index
 
@@ -205,7 +225,7 @@ fun HomeScreen(
                         onDismissRequest = {
                             showDialog = false
 
-                                           },
+                        },
                         modifier = Modifier
                             .padding(12.dp),
                     )

@@ -10,6 +10,7 @@ import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
 import ru.prodcontest.booq.data.remote.dto.CreateBookingResponseDto
 import ru.prodcontest.booq.data.remote.dto.ItemBookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
+import ru.prodcontest.booq.data.remote.dto.PatchBookingDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.QrTokenDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
@@ -99,5 +100,13 @@ class ApiRepositoryImpl(private val apiRemote: ApiRemote) : ApiRepository {
 
     override suspend fun createBooking(createBookingDto: CreateBookingDto): ResultFlow<CreateBookingResponseDto> = wrapToResult {
         apiRemote.createBooking(createBookingDto)
+    }
+
+    override suspend fun updateBooking(bookingId: String, patchBookingDto: PatchBookingDto): ResultFlow<CreateBookingResponseDto>  = wrapToResult {
+        apiRemote.updateBooking(bookingId, patchBookingDto)
+    }
+
+    override suspend fun listCoworkings(): ResultFlow<List<CoworkingDto>> = wrapToResult {
+        apiRemote.listCoworkings()
     }
 }

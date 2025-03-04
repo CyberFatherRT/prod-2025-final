@@ -19,8 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep class io.ktor.client.network.sockets.** { ; }
--keep class io.ktor.client.plugins.* { ; }
--keep class io.ktor.util.* { ; }
--keep class io.ktor.utils.io.* { ; }
--keep class java.lang.management.* { *; }
+-keep class io.ktor.client.network.sockets.**
+-keep class io.ktor.client.plugins.*
+-keep class io.ktor.util.*
+-keep class io.ktor.utils.io.*
+-keep class java.lang.management.*
+
+-dontwarn io.ktor.client.network.sockets.SocketTimeoutException
+-dontwarn io.ktor.client.plugins.HttpTimeout$HttpTimeoutCapabilityConfiguration
+-dontwarn io.ktor.client.plugins.HttpTimeout$Plugin
+-dontwarn io.ktor.client.plugins.HttpTimeout
+-dontwarn io.ktor.utils.io.CoroutinesKt
+

@@ -82,7 +82,15 @@ import kotlin.math.roundToLong
 
 @Serializable
 data class MapScreenDestination(
-    val buildingId: String
+    val buildingId: String?,
+    val editData: MapScreenEditData? = null
+)
+
+@Serializable
+data class MapScreenEditData(
+    val bookingId: String,
+    val coworkingItemId: String,
+    val coworkingsSpaceId: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

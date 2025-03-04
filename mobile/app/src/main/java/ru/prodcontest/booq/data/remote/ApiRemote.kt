@@ -7,6 +7,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -24,6 +25,7 @@ import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
 import ru.prodcontest.booq.data.remote.dto.CreateBookingResponseDto
 import ru.prodcontest.booq.data.remote.dto.ItemBookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
+import ru.prodcontest.booq.data.remote.dto.PatchBookingDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.ProfileDto
 import ru.prodcontest.booq.data.remote.dto.QrTokenDto
@@ -52,10 +54,13 @@ class ApiRemote(private val httpClient: HttpClient) {
         const val LIST_ITEMS_OF_COMPANY_ENDPOINT = "$BASE_DOMAIN/items"
         const val LIST_ITEMS_OF_COWORKING_ENDPOINT =
             "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/items"
-        const val LIST_BOOKINGS_OF_COWORKING_ENDPOINT = "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/bookings"
+        const val LIST_BOOKINGS_OF_COWORKING_ENDPOINT =
+            "$BASE_DOMAIN/place/{building_id}/coworking/{coworking_id}/bookings"
         const val CREATE_BOOKING_ENDPOINT = "$BASE_DOMAIN/booking/create"
+        const val UPDATE_BOOKING_ENDPOINT = "$BASE_DOMAIN/booking/{booking_id}"
         const val VERIFY_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}/verify"
         const val DECLINE_GUEST_ENDPOINT = "$BASE_DOMAIN/admin/user/{user_id}"
+        const val COWORKING_LIST_ENDPOINT = "$BASE_DOMAIN/place/coworking/list"
     }
 
     suspend fun login(creds: LoginDto) =
@@ -159,8 +164,18 @@ class ApiRemote(private val httpClient: HttpClient) {
             .replace("{coworking_id}", coworkingId)
     ).body<List<ItemBookingDto>>()
 
-    suspend fun createBooking(createBookingDto: CreateBookingDto) = httpClient.post(CREATE_BOOKING_ENDPOINT) {
-        contentType(ContentType.Application.Json)
-        setBody(createBookingDto)
-    }.body<CreateBookingResponseDto>()
+    suspend fun createBooking(createBookingDto: CreateBookingDto) =
+        httpClient.post(CREATE_BOOKING_ENDPOINT) {
+            contentType(ContentType.Application.Json)
+            setBody(createBookingDto)
+        }.body<CreateBookingResponseDto>()
+
+    suspend fun listCoworkings() =
+        httpClient.get(COWORKING_LIST_ENDPOINT).body<List<CoworkingDto>>()
+
+    suspend fun updateBooking(bookingId: String, dto: PatchBookingDto) =
+        httpClient.patch(UPDATE_BOOKING_ENDPOINT.replace("{booking_id}", bookingId)) {
+            contentType(ContentType.Application.Json)
+            setBody(dto)
+        }.body<CreateBookingResponseDto>()
 }

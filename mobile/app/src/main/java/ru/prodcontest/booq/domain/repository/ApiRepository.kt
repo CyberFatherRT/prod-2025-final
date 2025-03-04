@@ -8,6 +8,7 @@ import ru.prodcontest.booq.data.remote.dto.CreateBookingDto
 import ru.prodcontest.booq.data.remote.dto.CreateBookingResponseDto
 import ru.prodcontest.booq.data.remote.dto.ItemBookingDto
 import ru.prodcontest.booq.data.remote.dto.LoginDto
+import ru.prodcontest.booq.data.remote.dto.PatchBookingDto
 import ru.prodcontest.booq.data.remote.dto.PlacesDto
 import ru.prodcontest.booq.data.remote.dto.QrTokenDto
 import ru.prodcontest.booq.data.remote.dto.RegisterCompanyDto
@@ -38,4 +39,6 @@ interface ApiRepository {
     suspend fun declineGuest(userId: String): ResultFlow<Int>
     suspend fun getBookingsOfCoworking(buildingId: String, coworkingId: String): ResultFlow<List<ItemBookingDto>>
     suspend fun createBooking(createBookingDto: CreateBookingDto): ResultFlow<CreateBookingResponseDto>
+    suspend fun updateBooking(bookingId: String, patchBookingDto: PatchBookingDto): ResultFlow<CreateBookingResponseDto>
+    suspend fun listCoworkings(): ResultFlow<List<CoworkingDto>>
 }
