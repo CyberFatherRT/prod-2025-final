@@ -158,7 +158,7 @@ class ApiRemote(private val httpClient: HttpClient) {
 
     suspend fun declineUserVerification(userId: String) = httpClient.delete(
         DECLINE_GUEST_ENDPOINT
-            .replace("{user_id", userId)
+            .replace("{user_id}", userId)
     ).status.value
 
     suspend fun getBookingsOfCoworking(buildingId: String, coworkingId: String) = httpClient.get(

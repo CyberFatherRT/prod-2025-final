@@ -1,6 +1,10 @@
 package ru.prodcontest.booq.presentation.verifications
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
@@ -38,11 +42,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -95,6 +103,7 @@ fun VerificationsScreen(
     val coroutineScope = rememberCoroutineScope()
 
 
+
     Scaffold(topBar = {
         TopAppBar(title = { Text("Активные верификации") }, navigationIcon = {
             IconButton({
@@ -122,20 +131,13 @@ fun VerificationsScreen(
                     // Return a stable + unique key for the item
                     verification.user.id
                 }) { verification ->
-                    VerificationRow(verification,
-                        {
-//                            LaunchedEffect(Unit) {
-//                                val pdfFile = downloadPdf(verification.document)
-//                                pdfFile?.let { openPdf(it) }
-//                            }
-                        },
-                        {
-                            vm.approveUser(verification.user.id.toString())
-                            sigma.remove(verification)
-                        }, {
-                            vm.declineUser(verification.user.id.toString())
-                            sigma.remove(verification)
-                        })
+                    VerificationRow(vm, verification, {
+                        vm.approveUser(verification.user.id.toString())
+                        sigma.remove(verification)
+                    }, {
+                        vm.declineUser(verification.user.id.toString())
+                        sigma.remove(verification)
+                    })
                 }
             }
         }
@@ -149,19 +151,67 @@ fun debugPlaceholder(@DrawableRes debugPreview: Int) = if (LocalInspectionMode.c
     null
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 private fun VerificationRow(
+    vm: VerificationsViewModel,
     verification: VerificationModel,
-    onOpenFile: () -> Unit,
-    onApprove: () -> Unit,
-    onDecline: () -> Unit,
-    modifier: Modifier = Modifier
+    //onOpenFile: () -> Unit,
+    onApprove: () -> Unit, onDecline: () -> Unit, modifier: Modifier = Modifier
 ) {
     val bottomButtonModifier =
         Modifier
             .padding(top = 6.dp, bottom = 6.dp, start = 6.dp, end = 6.dp)
             .size(30.dp)
     //.clip(CircleShape)
+    val context = LocalContext.current
+
+    var pdfFile by remember { mutableStateOf<File?>(null) }
+
+    // Use `remember` to create an instance of HttpClient
+
+    // Clean up the HttpClient when the composable is
+
+    // Function to download the PDF using Ktor
+    suspend fun downloadPdf(url: String): File? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = vm.httpClient.get(url.replace("https://https://", "https://"))
+                if (response.status.value in 200..299) {
+                    val cacheDir = context.cacheDir
+                    Log.d("here", "here")
+                    val pdfFile = File(cacheDir, "document.pdf")
+                    val outputStream = FileOutputStream(pdfFile)
+                    outputStream.use { stream ->
+                        stream.write(response.readBytes())
+                    }
+                    pdfFile
+                } else {
+                    Log.d("here2", "${response.status}")
+                    null
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    // Function to open the PDF
+    fun openPdf(file: File) {
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            file
+        )
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/pdf")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(intent)
+    }
+    var isClicked by mutableStateOf(false)
+
 
     Card(modifier = modifier) {
         Row {
@@ -190,8 +240,20 @@ private fun VerificationRow(
             }
         }
         Row(Modifier.fillMaxWidth()) {
+
+            if (isClicked) {
+                LaunchedEffect(Unit) {
+                    Log.d("lol", verification.document)
+                    pdfFile = downloadPdf(verification.document)
+                    pdfFile?.let { openPdf(it) }
+                    isClicked = false
+                }
+            }
+
             Button(
-                onClick = onOpenFile,
+                onClick = {
+                    isClicked = true
+                },
                 shape = RoundedCornerShape(30),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
                 modifier = Modifier
@@ -201,7 +263,7 @@ private fun VerificationRow(
             ) {
                 Row(modifier = Modifier.align(Alignment.CenterVertically)) {
                     Text(
-                        text = "Просмотреть документ",
+                        text = if (isClicked) "Загрузка..." else "Просмотреть документ",
                         color = Color.White,
                         fontSize = 10.sp,
                         modifier = Modifier.align(Alignment.CenterVertically)
@@ -244,23 +306,20 @@ private fun VerificationRow(
         }
     }
 }
-
-@Preview
-@Composable
-private fun VerificationRowPreview1() {
-    VerificationRow(onOpenFile = {},
-        onApprove = {},
-        onDecline = {},
-        verification = VerificationModel(
-            document = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            user = VerificationUserModel(
-                avatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png",
-                email = "s25e_zaborov@179.ru",
-                id = UUID.fromString("122cc42d-f38c-427f-9ef3-168e667681ff"),
-                name = "George",
-                role = UserRole.Guest,
-                surname = "Zaborov"
-            )
-        )
-    )
-}
+//
+//@Preview
+//@Composable
+//private fun VerificationRowPreview1() {
+//    VerificationRow(onApprove = {}, onDecline = {}, verification = VerificationModel(
+//        document = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+//        user = VerificationUserModel(
+//            avatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png",
+//            email = "s25e_zaborov@179.ru",
+//            id = UUID.fromString("122cc42d-f38c-427f-9ef3-168e667681ff"),
+//            name = "George",
+//            role = UserRole.Guest,
+//            surname = "Zaborov"
+//        )
+//    )
+//    )
+//}

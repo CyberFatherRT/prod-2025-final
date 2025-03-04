@@ -31,7 +31,7 @@ import javax.inject.Inject
 class VerificationsViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     @ApplicationContext private val context: Context,
-    private val httpClient: HttpClient
+    val httpClient: HttpClient
 ) : BaseViewModel<VerificationsScreenState, ProfileScreenAction>() {
     override fun setInitialState() = VerificationsScreenState(
         verificationsInfo = null,
@@ -115,6 +115,7 @@ class VerificationsViewModel @Inject constructor(
             }
         }
     }
+
 }
 
 sealed class ProfileScreenAction {
